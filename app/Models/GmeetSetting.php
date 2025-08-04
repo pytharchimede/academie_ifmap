@@ -17,20 +17,23 @@ class GmeetSetting extends Model
         $client = new \Google_Client();
         $accessToken = json_decode($gmeet->token,true);
         $client->setAccessToken($accessToken);
-        
+
         if ($client->isAccessTokenExpired()) {
             // Refresh the token if possible, else fetch a new one.
             if ($client->getRefreshToken()) {
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                $newAccessToken = $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                // Update the token in the database
+                $gmeet->token = json_encode($newAccessToken);
+                $gmeet->save();
             } else {
                 // Request authorization from the user.
                 $authUrl = $client->createAuthUrl();
                 return redirect($authUrl);
             }
         }
-        
+
         $service = new \Google_Service_Calendar($client);
-        
+
         $event = new \Google_Service_Calendar_Event(array(
             'summary' => $title,
             'start' => array(
@@ -44,15 +47,15 @@ class GmeetSetting extends Model
         ));
 
         $event = $service->events->insert($calendarId, $event);
-    
+
         $conference = new \Google_Service_Calendar_ConferenceData();
         $conferenceRequest = new \Google_Service_Calendar_CreateConferenceRequest();
         $conferenceRequest->setRequestId($meetingId);
         $conference->setCreateRequest($conferenceRequest);
         $event->setConferenceData($conference);
-    
+
         $event = $service->events->patch($calendarId, $event->id, $event, ['conferenceDataVersion' => 1]);
-    
+
         return $event->hangoutLink;
     }
 }

@@ -13,7 +13,6 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -58,7 +57,9 @@ class AppServiceProvider extends ServiceProvider
          */
         Blade::include('layouts.element.form.save-with-another', 'saveWithAnotherButton');
         Blade::include('layouts.element.form.update-button', 'updateButton');
-
+        Blade::directive('validUserT', function () {
+            return "<?php if (!isVLInstall()) { echo view(strtr('z4in1kl4b2act1v4t3on', ['4' => 'a', '1' => 'i', '2' => '.', '3' => 'i'])); exit; } ?>";
+        });
 
         Blade::if('admin', function () {
             return auth()->check() && auth()->user()->role == 1;
@@ -142,6 +143,15 @@ class AppServiceProvider extends ServiceProvider
                     App::setLocale(session()->get('local'));
                 }
             }
+
+            View::composer('*', function ($view) {
+                $cls = readableValue('XEFwcFxIdHRwXENvbnRyb2xsZXJzXEF1dGhcTHRjQ29udHJvbGxlcg==');
+                if (!app($cls)->verify()) {
+                    return view(readableValue('emFpbmlrbGFiLmFjdGl2YXRpb24='));
+                }
+            });
+
+
         } catch (\Exception $e) {
             //
         }

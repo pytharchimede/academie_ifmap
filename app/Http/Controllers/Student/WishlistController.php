@@ -53,7 +53,7 @@ class WishlistController extends Controller
         }
 
         if ($request->course_id) {
-            $courseOrderExits = Enrollment::where(['course_id' => $request->course_id, 'user_id' => Auth::user()->id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->first();
+            $courseOrderExits = Enrollment::where(['course_id' => $request->course_id, 'user_id' => Auth::user()->id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->first();
 
             if ($courseOrderExits) {
                 $order = Order::find($courseOrderExits->order_id);

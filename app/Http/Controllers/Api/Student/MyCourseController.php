@@ -150,7 +150,7 @@ class MyCourseController extends Controller
 
     public function myCourseCompleteDuration(Request $request, $course_id)
     {
-        $enrollment = Enrollment::where('course_id', $course_id)->where('user_id', auth()->id())->whereDate('end_date', '>=', now())->first();
+        $enrollment = Enrollment::where('course_id', $course_id)->where('user_id', auth()->id())->where('end_date', '>=', now())->first();
         $scorm = ScormModel::where('course_id', $course_id)->select('duration_in_second')->first();
         if ($enrollment && $enrollment->completed_time < $scorm->duration_in_second) {
             $enrollment->completed_time += $request->duration;
@@ -525,7 +525,7 @@ class MyCourseController extends Controller
     public function getLeaderBoard($course_id, $exam_id)
     {
         //check enrollment
-        $enrollment = Enrollment::where(['user_id' => auth()->id(), 'course_id' => $course_id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->count();
+        $enrollment = Enrollment::where(['user_id' => auth()->id(), 'course_id' => $course_id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->count();
 
         if(is_null($enrollment)){
             return $this->error([], __('You donn\'t have access to this course quiz'));
@@ -577,7 +577,7 @@ class MyCourseController extends Controller
     public function getDetails($course_id, $exam_id)
     {
         //check enrollment
-        $enrollment = Enrollment::where(['user_id' => auth()->id(), 'course_id' => $course_id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->count();
+        $enrollment = Enrollment::where(['user_id' => auth()->id(), 'course_id' => $course_id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->count();
 
         if(is_null($enrollment)){
             return $this->error([], __('You donn\'t have access to this course quiz'));
@@ -596,7 +596,7 @@ class MyCourseController extends Controller
     public function getResult($course_id, $exam_id)
     {
         //check enrollment
-        $enrollment = Enrollment::where(['user_id' => auth()->id(), 'course_id' => $course_id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->count();
+        $enrollment = Enrollment::where(['user_id' => auth()->id(), 'course_id' => $course_id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->count();
 
         if(is_null($enrollment)){
             return $this->error([], __('You donn\'t have access to this course quiz'));
@@ -933,7 +933,7 @@ class MyCourseController extends Controller
             return $this->error([], __('No Data Found'));
         }
 
-        $enrollment = Enrollment::where('course_id', $course->id)->where('user_id', auth()->id())->whereDate('end_date', '>=', now())->where('status', 1)->first();
+        $enrollment = Enrollment::where('course_id', $course->id)->where('user_id', auth()->id())->where('end_date', '>=', now())->where('status', 1)->first();
 
         $data = studentCourseProgress($course->id, $enrollment->id);
         return $this->success($data);
@@ -962,7 +962,7 @@ class MyCourseController extends Controller
     {
         try{
             $lecture = Course_lecture::find($request->lecture_id);
-            $enrollment = Enrollment::where('course_id', $request->course_id)->where('user_id', auth()->id())->whereDate('end_date', '>=', now())->first();
+            $enrollment = Enrollment::where('course_id', $request->course_id)->where('user_id', auth()->id())->where('end_date', '>=', now())->first();
 
             if (Course_lecture_views::where('user_id', auth()->id())->where('course_id', $lecture->course_id)->where('course_lecture_id', $lecture->id)->count() == 0) {
                 $course_lecture_views = new Course_lecture_views();

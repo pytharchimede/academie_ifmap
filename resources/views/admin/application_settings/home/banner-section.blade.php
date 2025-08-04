@@ -75,6 +75,14 @@
                                     <input type="text" name="banner_third_line_title" id="banner_third_line_title" value="{{ @$home->banner_third_line_title }}" class="form-control" required>
                                 </div>
                             </div>
+                            @if(get_option('theme', THEME_DEFAULT) > THEME_THREE)
+                            <div class="input__group mb-25 row">
+                                <label for="banner_fourth_line_title" class="col-lg-3"> {{ __('Fourth Line Title') }} <span class="text-danger">*</span></label>
+                                <div class="col-lg-9">
+                                    <input type="text" name="banner_fourth_line_title" id="banner_fourth_line_title" value="{{ @$home->banner_fourth_line_title }}" class="form-control" required>
+                                </div>
+                            </div>
+                            @endif
                             <div class="input__group mb-25 row">
                                 <label for="banner_subtitle" class="col-lg-3"> {{ __('Subtitle') }} <span class="text-danger">*</span></label>
                                 <div class="col-lg-9">
@@ -131,6 +139,25 @@
                                     <p><span class="text-black">{{ __('Accepted Files') }}:</span> PNG,SVG <br> <span class="text-black">{{ __('Recommend Size') }}:</span> 800 x 540 (1MB)</p>
                                 </div>
                             </div>
+                            @if(get_option('theme', THEME_DEFAULT) == THEME_SIX)
+                                <div class="input__group mb-25 row">
+                                    <label class="col-lg-3">{{ __('Banner Video') }}</label>
+                                    <div class="col-lg-5">
+                                    <div class="upload-course-video-4-wrap upload-introduction-box-content-left d-flex align-items-center flex-column">
+                                        <div class="upload-introduction-box-content-img mb-3">
+                                            <img src="{{asset('frontend/assets/img/instructor-img/upload-lesson-icon.png')}}" alt="upload">
+                                        </div>
+                                        <input type="file" name="banner_video" accept="video/mp4" class="form-control" id="banner_video" title="Upload Video">
+                                    </div>
+
+                                    @if($home->banner_video)
+                                    <p class="font-14 color-gray text-center mt-3 pb-30"><a href="{{getVideoFile(@$home->banner_video)}}">{{__('View')}}</a></p>
+                                    @endif
+                                    @if ($errors->has('banner_video'))
+                                        <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ $errors->first('banner_video') }}</span>
+                                    @endif
+                                </div>
+                            @endif
 
                             @if(get_option('theme', THEME_DEFAULT) == THEME_THREE)
                             <div class="input__group mb-25 row">

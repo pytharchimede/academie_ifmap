@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Refund;
 use App\Models\Transaction;
 use App\Traits\General;
@@ -31,6 +32,7 @@ class RefundController extends Controller
                 return response()->json(['status' => false, 'message' => 'Request not found'], 404);
             }
 
+            $sendEmail = new EmailSendService();
             if($request->type == 2){
                 $refund->update([
                     'status' => STATUS_REJECTED,
@@ -38,6 +40,7 @@ class RefundController extends Controller
                 ]);
 
                 $this->send('Refund Request Rejected', 3, null, $refund->user_id);
+                $sendEmail->sendRefundRequestRejectedToUser($refund->user, $request->feedback);
                 DB::commit();
                 return response()->json(['status' => true, 'message' => 'Rejected successfully'], 200);
             }
@@ -63,6 +66,7 @@ class RefundController extends Controller
                 }
 
                 $this->send('Refund Request Accepted', 3, null, $refund->user_id);
+                $sendEmail->sendRefundRequestAcceptedToUser($refund->user);
                 DB::commit();
                 return response()->json(['status' => true, 'message' => 'Approved Successfully'], 200);
             }

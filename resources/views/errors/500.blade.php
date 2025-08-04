@@ -17,7 +17,7 @@
 
     <meta name="description" content="{{ $defaultMeta['meta_description'] }}">
     <meta name="keywords" content="{{ $defaultMeta['meta_keyword'] }}">
-    
+
     <!-- Open Graph meta tags for social sharing -->
     <meta property="og:type" content="Learning">
     <meta property="og:title" content="{{ $defaultMeta['meta_title'] }}">
@@ -26,7 +26,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
 
     <meta property="og:site_name" content="{{ get_option('app_name') }}">
-    
+
     <!-- Twitter Card meta tags for Twitter sharing -->
     <meta name="twitter:card" content="Learning">
     <meta name="twitter:title" content="{{ $defaultMeta['meta_title'] }}">
@@ -97,7 +97,7 @@
                 </div>
                  <h4>Server Error</h4>
 
-                <a href="{{ route('main.index') }}" class="theme-btn theme-button1 theme-button3 mt-3">{{ __('Back to home') }} <i data-feather="arrow-right"></i></a>
+                <a href="{{ route('/') }}" class="theme-btn theme-button1 theme-button3 mt-3">{{ __('Back to home') }} <i data-feather="arrow-right"></i></a>
             </div>
         </div>
     </div>

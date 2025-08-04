@@ -95,19 +95,13 @@ class PaymentApiController extends Controller
 
                         $text = __("Your have purchase product.");
                         $target_url = route('lms_product.student.purchase_list');
-        
+
                         /** ====== Send notification to instructor =========*/
                         $text2 = "New product sold";
                         $target_url2 = route('lms_product.instructor.product.my-product');
                         $this->send($text2, 2, $target_url2, @$item->product->user_id);
                         /** ====== Send notification to instructor =========*/
-        
-                    } else {
-                        $text = __("Your bank payment has been cancelled.");
-                        $target_url = route('lms_product.student.purchase_list');
-                        $this->send($text, 3, $target_url, $order->user_id);
                     }
-            
                 }
 
                 $text = __("Item has been sold");
@@ -161,7 +155,7 @@ class PaymentApiController extends Controller
                     $userPackageData['enroll_date'] = now();
                     $userPackageData['expired_date'] = Carbon::now()->addMonths($months);
                     $package = Package::where('id', $userPackageData['package_id'])->first();
-                    UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $package->package_type)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->update(['user_packages.status' => PACKAGE_STATUS_CANCELED]);
+                    UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $package->package_type)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->update(['user_packages.status' => PACKAGE_STATUS_CANCELED]);
                     UserPackage::create($userPackageData);
 
                     $this->logger->log('status', 'paid');
@@ -191,7 +185,7 @@ class PaymentApiController extends Controller
         $this->showToastrMessage('error', __('Payment has been declined'));
         return redirect()->route('main.index');
     }
-   
+
     public function paymentWalletRechargeNotifier(Request $request, $id)
     {
         $payment_id = $request->input('paymentId', '-1');
@@ -201,6 +195,7 @@ class PaymentApiController extends Controller
         $this->logger->log('Payment paymentId', $payment_id);
         $this->logger->log('Payment PayerID', $payer_id);
         $order = Payment::where(['uuid' => $id, 'payment_status' => ORDER_PAYMENT_STATUS_DUE])->first();
+
         if (is_null($order)) {
             $this->showToastrMessage('error', SWR);
             return redirect()->route('main.index');

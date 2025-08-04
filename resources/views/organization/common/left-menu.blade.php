@@ -51,7 +51,7 @@
 
             <li><a href="{{route('organization.discussion.index')}}" class="{{ @$navDiscussionActiveClass }}" ><span class="iconify mr-15" data-icon="octicon:comment-discussion-24"></span>{{__('Discussion')}}</a></li>
             <li><a href="{{route('organization.chat.index')}}" class="{{ @$navChatActiveClass }}" ><span class="iconify mr-15" data-icon="ion-ios-chatboxes"></span>{{__('Chat')}}</a></li>
-            <li><a href="{{route('organization.finance.analysis.index')}}" class="{{ @$navFinanceActiveClass }}" ><span class="iconify mr-15" data-icon="system-uicons:heart-rate"></span>{{__('Finance')}}</a></li>
+            <li><a href="{{route('organization.finance.analysis.index')}}" class="{{ @$subNavAnalysisActiveClass }}" ><span class="iconify mr-15" data-icon="system-uicons:heart-rate"></span>{{__('Finance')}}</a></li>
            {{-- <li class="menu-has-children current-menu-item {{@$navFinanceActiveClass}}">
                 <span class="toggle-account-menu">
                     <span class="iconify" data-icon="fontisto:angle-down"></span>

@@ -54,7 +54,7 @@
                             </a>
                         </li>
                     @endcan
-                   
+
                     @can('pending_course')
 
                         <li class="{{ active_if_match('admin/course/review-upcoming') }}">
@@ -160,7 +160,7 @@
             <li>
                 <a class="has-arrow" href="#">
                     <span class="iconify" data-icon="gridicons:product"></span>
-                    <span>{{__('Manage Product')}} 
+                    <span>{{__('Manage Product')}}
                         @if(env('LOGIN_HELP') == 'active')
                         <span class="badge bg-warning">(Addon)</span>
                         @endif
@@ -401,7 +401,7 @@
             </li>
         @endcan
         @endif
-       
+
         @if(get_option('wallet_recharge_system', 0))
         @can('manage_wallet_recharge')
             <li class="{{ @$navWalletParentActiveClass }}">
@@ -611,13 +611,13 @@
             </li>
         @endcan
 
-        
+
         @can('open_ai_setting')
         @if(isAddonInstalled('LMSZAIAI'))
             <li class="{{ @$navWriteAISettingParentActiveClass }}">
                 <a class="has-arrow" href="#">
                     <span class="iconify" data-icon="eos-icons:ai"></span>
-                    <span>{{__('Write AI Settings')}} 
+                    <span>{{__('Write AI Settings')}}
                         @if(env('LOGIN_HELP') == 'active')
                         <span class="badge bg-warning">(Addon)</span>
                         @endif
@@ -770,7 +770,16 @@
                 </ul>
             </li>
         @endcan
-        
+
+        @can('email_notification_template')
+            <li class="{{$navEmailNotificationActiveClass ?? ''}}">
+                <a href="{{route('email-notification.index')}}">
+                    <span class="iconify" data-icon="dashicons:email"></span>
+                    <span>{{__('Email Notification')}}</span>
+                </a>
+            </li>
+        @endcan
+
         @can('page_management')
         <li class="{{ @$navPageParentActiveClass }}">
             <a class="has-arrow" href="#">
@@ -944,7 +953,7 @@
                 </ul>
             </li>
         @endcanany
-    
+
         @can('policy_management')
         <li class="{{ @$navPolicyActiveClass }}">
             <a class="has-arrow" href="#">
@@ -1044,7 +1053,7 @@
                 </ul>
             </li>
         @endcan
-        
+
         @can('forum_management')
         <li class="{{ @$navForumParentActiveClass }}">
             <a class="has-arrow" href="#">

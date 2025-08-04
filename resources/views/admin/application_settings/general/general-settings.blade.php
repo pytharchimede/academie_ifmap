@@ -57,6 +57,7 @@
                                     <input type="text" name="app_location" value="{{get_option('app_location')}}" class="form-control" required>
                                 </div>
                             </div>
+                            @if(get_option('iel'))
                             <div class="row input__group mb-25">
                                 <label class="col-lg-3">{{ __('App Copyright') }} <span class="text-danger">*</span></label>
                                 <div class="col-lg-9">
@@ -70,6 +71,8 @@
                                     <input type="text" name="app_developed" value="{{get_option('app_developed')}}" class="form-control" required>
                                 </div>
                             </div>
+
+                            @endif
 
                             <div class="row input__group mb-25">
                                 <label for="app_date_format" class="col-lg-3">{{__('Date Format')}} <span class="text-danger">*</span></label>
@@ -150,7 +153,7 @@
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div class="row input__group mb-25">
                                 <label for="app_date_format" class="col-lg-3">{{__('Time Zone')}} <span class="text-danger">*</span></label>
                                 <div class="col-lg-9">
@@ -229,7 +232,7 @@
                                     <p><span class="text-black">{{ __('Accepted Files') }}:</span> PNG, SVG <br> <span class="text-black">{{ __('Recommend Size') }}:</span> 140 x 40</p>
                                 </div>
                             </div>
-                            
+
                             <div class="row input__group mb-25">
                                 <label class="col-lg-3">{{ __('App Black Logo') }}</label>
                                 <div class="col-lg-4">
@@ -296,7 +299,7 @@
                                     <p><span class="text-black">{{ __('Accepted Files') }}:</span> PNG, SVG <br> <span class="text-black">{{ __('Recommend Size') }}:</span>206 × 22 px</p>
                                 </div>
                             </div>
-                            
+
                             <div class="row input__group mb-25">
                                 <label class="col-lg-3">{{ __('App PWA Icon') }} </label>
                                 <div class="col-lg-4">
@@ -318,7 +321,7 @@
                                     <p><span class="text-black">{{ __('Accepted Files') }}:</span> PNG <br> <span class="text-black">{{ __('Recommend Size') }}:</span> 512 x 512</p>
                                 </div>
                             </div>
-                           
+
                             <div class="row input__group mb-25">
                                 <label for="allow_preloader" class="col-lg-3">{{__('PWA enable')}} <span class="text-danger">*</span></label>
                                 <div class="col-lg-9">
@@ -337,7 +340,18 @@
                                 </div>
                             </div>
 
-                            
+
+                            <div class="row input__group mb-25">
+                                <label for="enable_email_notification" class="col-lg-3">{{__('Enable Email Notification')}} <span class="text-danger">*</span></label>
+                                <div class="col-lg-9">
+                                    <select name="enable_email_notification" class="form-control">
+                                        <option value="">{{ __('Select Option') }}</option>
+                                        <option value="1" @if(get_option('enable_email_notification') == 1) selected @endif>{{ __('Active') }}</option>
+                                        <option value="0" @if(get_option('enable_email_notification') != 1) selected @endif>{{ __('Disable') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="row input__group mb-25">
                                 <label for="allow_preloader" class="col-lg-3">{{__('Registration Email Verification')}} <span class="text-danger">*</span></label>
                                 <div class="col-lg-9">
@@ -428,7 +442,7 @@
                                     <input type="text" name="instagram_url" value="{{get_option('instagram_url')}}" class="form-control">
                                 </div>
                             </div>
-                           
+
                             <div class="row input__group mb-25">
                                 <label class="col-lg-3">{{ __('Tiktok URL') }} <span class="text-danger">*</span></label>
                                 <div class="col-lg-9">

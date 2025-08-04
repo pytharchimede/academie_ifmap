@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\UserEnailVerificaion;
+use App\Http\Services\EmailSendService;
 use App\Models\Student;
 use App\Models\User;
 use App\Traits\ApiStatusTrait;
@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -36,7 +35,7 @@ class AuthController extends Controller
                 'confirmed'
             ],
         ]);
-        
+
         try {
             DB::beginTransaction();
             $this->_registerOrLoginUser($validate);
@@ -81,9 +80,10 @@ class AuthController extends Controller
                 $user->increment('balance', decimal_to_int($balance));
                 createTransaction($user->id, $balance, TRANSACTION_REGISTRATION_BONUS, 'Registration Bonus');
             }
-    
+
             if (get_option('registration_email_verification') == 1){
-                Mail::to($user->email)->send(new UserEnailVerificaion($user));
+                $sendEmail = new EmailSendService();
+                $sendEmail->sendVerifyEmail($user, route('user.email.verification',$user->remember_token));
             }
         }
     }
@@ -148,7 +148,7 @@ class AuthController extends Controller
 
         return $this->failed([], __('Ops! You have entered invalid credentials'));
     }
-   
+
     /**
      * Social Login
      */
@@ -157,11 +157,10 @@ class AuthController extends Controller
         try{
             $provider = $request->input('provider_name');
             $token = $request->input('access_token');
-    
+
             $user = Socialite::driver($provider)->userFromToken($token);
             return $this->_registerOrLoginUserSocial($user);
         }catch(Exception $e){
-            dd($e->getMessage());
             return $this->failed([], __('Ops! You have entered invalid credentials'));
         }
     }

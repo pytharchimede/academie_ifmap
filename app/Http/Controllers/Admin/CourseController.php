@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Course_lecture;
 use App\Models\Course_lecture_views;
@@ -54,7 +55,17 @@ class CourseController extends Controller
     {
         $data['title'] = "Course Details";
         $data['course'] = $this->model->getRecordByUuid($uuid);
-        $data['students'] = Enrollment::join('students', 'students.user_id', 'enrollments.user_id')->where('course_id', $data['course']->id)->select('enrollments.*', 'students.uuid', DB::raw('CONCAT(students.first_name," ", students.last_name) as name'))->with('user')->latest()->paginate(15);
+        $data['students'] = Enrollment::join('students', 'students.user_id', 'enrollments.user_id')
+        ->join('users', function ($join) {
+            $join->on('users.id', '=', 'enrollments.user_id')
+                 ->whereNull('users.deleted_at');
+        })
+        ->where('enrollments.course_id', $data['course']->id)
+        ->select('enrollments.*', 'students.uuid', DB::raw('CONCAT(students.first_name, " ", students.last_name) as name'))
+        ->with('user')
+        ->latest()
+        ->paginate(15);
+
         return view('admin.course.view', $data);
     }
 
@@ -79,7 +90,7 @@ class CourseController extends Controller
         $data['courses'] = Course::where('status', 2)->paginate(25);
         return view('admin.course.review-pending', $data);
     }
-   
+
     public function reviewUpcoming()
     {
         if (!Auth::user()->can('pending_course')) {
@@ -108,12 +119,13 @@ class CourseController extends Controller
         $course->status = $status;
         $course->save();
 
+        $emailSend = new EmailSendService();
         if ($status == 1) {
             setBadge($course->user_id);
             $text = __("Course has been approved");
             $target_url = route('course-details', $course->slug);
             $this->send($text, 2, $target_url, $course->user_id);
-
+            $emailSend->sendCommonUserAndLink($course->user, $target_url, 'new-course-approved-instructor');
             /** ====== send notification to student ===== */
             $students = Student::where('user_id', '!=', $course->user_id)->select('user_id')->get();
             foreach ($students as $student) {
@@ -121,6 +133,8 @@ class CourseController extends Controller
                 $target_url = route('course-details', $course->slug);
                 $this->send($text, 3, $target_url, $student->user_id);
             }
+            $emails = $students->pluck('user_id');
+            $emailSend->sendCommonLink($emails, $target_url, 'new-course-approved-student');
             /** ====== send notification to student ===== */
         }
 
@@ -128,6 +142,7 @@ class CourseController extends Controller
             $text = __("Course has been hold");
             $target_url = route('instructor.course');
             $this->send($text, 2, $target_url, $course->user_id);
+            $emailSend->sendCommonUserAndLink($course->user, $target_url, 'course-hold-student');
         }
 
 
@@ -135,7 +150,7 @@ class CourseController extends Controller
         return redirect()->back();
 
     }
-   
+
     public function featureChange(Request $request)
     {
         $course = $this->model->getRecordById($request->id);
@@ -270,7 +285,7 @@ class CourseController extends Controller
         ]);
 
         if ($request->course_id) {
-            $courseOrderExits = Enrollment::where(['user_id' => $request->user_id, 'course_id' => $request->course_id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->first();
+            $courseOrderExits = Enrollment::where(['user_id' => $request->user_id, 'course_id' => $request->course_id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->first();
 
             if ($courseOrderExits) {
                 $order = Order::find($courseOrderExits->order_id);
@@ -312,10 +327,10 @@ class CourseController extends Controller
         $order_item->owner_balance = 0;
         $order_item->sell_commission = 0;
         $order_item->save();
-       
-        
+
+
         set_instructor_ranking_level($course->user_id);
-        
+
         /** ====== Send notification =========*/
         $text = __("New student enrolled");
         $target_url = route('instructor.all-student');
@@ -325,7 +340,7 @@ class CourseController extends Controller
             {
                 $this->send($text, 2, $target_url, $item->course->user_id);
             }
-            
+
             $expiredDays = !is_null($request->expired_after_days) && $request->expired_after_days > 0 ? $request->expired_after_days : NULL;
             setEnrollment($item, $expiredDays);
         }

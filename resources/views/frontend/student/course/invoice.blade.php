@@ -25,7 +25,7 @@
                     </div>
 
                     <div style="margin: 0 0 1.5rem 0; display: inline-block; float: right">
-                        <h2 style="margin: 8px 0; color: #666666; font-size: 24px;">#{{$item->order->order_number}}</h2>
+                        <h2 style="margin: 8px 0; color: #666666; font-size: 24px;">#{{$item->order?->order_number}}</h2>
                         <p style="margin: 4px 0; color: #666666; font-size: 14px;">{{ __('Purchase Date') }} //</p>
                         <p style="margin: 4px 0; color: #666666; font-size: 16px;">{{$item->created_at->format(get_option('app_date_format'))}}</p>
                     </div>
@@ -52,7 +52,7 @@
 
                         </td>
                         <td style="text-align: left; padding: 12px 16px">{{$item->created_at->format(get_option('app_date_format'))}}</td>
-                        <td style="text-align: left; padding: 12px 16px">{{ucwords($item->order->payment_method)}}</td>
+                        <td style="text-align: left; padding: 12px 16px">{{ucwords($item->order?->payment_method)}}</td>
                         <td style="text-align: center; padding: 12px 16px">
                             @if(get_currency_placement() == 'after')
                                 {{$item->unit_price}} {{ get_currency_code() }}

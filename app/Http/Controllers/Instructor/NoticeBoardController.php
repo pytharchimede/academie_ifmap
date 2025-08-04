@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\NoticeBoard;
 use App\Models\Order_item;
 use App\Tools\Repositories\Crud;
+use App\Traits\ApiStatusTrait;
 use App\Traits\General;
 use App\Traits\SendNotification;
 use Illuminate\Http\Request;
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 
 class NoticeBoardController extends Controller
 {
-    use General, SendNotification;
+    use General, SendNotification, ApiStatusTrait;
     protected $model, $courseModel;
 
     public function __construct(NoticeBoard $noticeBoard, Course $course)
@@ -66,12 +68,16 @@ class NoticeBoardController extends Controller
 
         /** ====== send notification to student ===== */
         $students = Enrollment::where('course_id', $course->id)->select('user_id')->get();
+        $sendEmail = new EmailSendService();
         foreach ($students as $student)
         {
             $text = __("New notice has been added");
             $target_url = route('student.my-course.show', $course->slug);
             $this->send($text, 3, $target_url, $student->user_id);
+
         }
+        $userIds = $students->pluck('user_id')->toArray();
+        $sendEmail->sendNewNoticeToStudent($userIds, $target_url);
         /** ====== send notification to student ===== */
 
         $this->showToastrMessage('success', __('Created Successfully'));
@@ -116,8 +122,7 @@ class NoticeBoardController extends Controller
     public function delete($uuid)
     {
         $this->model->deleteByUuid($uuid);
-        $this->showToastrMessage('error', __('Deleted Successfully'));
-        return redirect()->back();
+        return $this->success([], __('Deleted Successfully'));
     }
 
 }

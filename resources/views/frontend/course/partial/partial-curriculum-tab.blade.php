@@ -52,7 +52,7 @@
                                                 </div>
                                             </div>
                                         @elseif($lecture->type == 'youtube')
-                                            <a class="edit-lecture-preview-show d-flex align-items-center justify-content-between color-heading font-medium font-16 mb-3" data-bs-toggle="modal" href="#newVideoPlayerModal{{ $lecture->id }}">
+                                            <a data-video-id="{{$lecture->url_path}}" class="youtube-player-btn edit-lecture-preview-show d-flex align-items-center justify-content-between color-heading font-medium font-16 mb-3" >
                                                 <div class="d-flex flex-grow-1">
                                                     <div><img src="{{ asset('frontend/assets/img/courses-img/play.svg') }}" alt="play"></div>
                                                     <div class="font-medium font-16 lecture-edit-title">{{$lecture->title}}</div>
@@ -65,29 +65,29 @@
                                             </a>
 
                                             <!-- Youtube Video Player Modal Start-->
-                                            <div class="modal fade VideoTypeModal" id="newVideoPlayerModal{{ $lecture->id }}" tabindex="-1" aria-hidden="true">
+{{--                                            <div class="modal fade VideoTypeModal" id="newVideoPlayerModal{{ $lecture->id }}" tabindex="-1" aria-hidden="true">--}}
 
-                                                <div class="modal-header border-bottom-0">
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="akar-icons:cross"></span></button>
-                                                </div>
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-body">
-                                                            <div class="video-player-area">
-                                                                <!-- Youtube Video -->
-                                                                <div class="plyr__video-embed js-player" id="playerVideoYoutube">
-                                                                    <iframe
-                                                                        src="https://www.youtube.com/embed/{{ $lecture->url_path }}"
-                                                                        allowfullscreen
-                                                                        allowtransparency
-                                                                        allow="autoplay"
-                                                                    ></iframe>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+{{--                                                <div class="modal-header border-bottom-0">--}}
+{{--                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span class="iconify" data-icon="akar-icons:cross"></span></button>--}}
+{{--                                                </div>--}}
+{{--                                                <div class="modal-dialog modal-dialog-centered">--}}
+{{--                                                    <div class="modal-content">--}}
+{{--                                                        <div class="modal-body">--}}
+{{--                                                            <div class="video-player-area">--}}
+{{--                                                                <!-- Youtube Video -->--}}
+{{--                                                                <div class="plyr__video-embed js-player" id="playerVideoYoutube">--}}
+{{--                                                                    <iframe--}}
+{{--                                                                        src="https://www.youtube.com/embed/{{ $lecture->url_path }}"--}}
+{{--                                                                        allowfullscreen--}}
+{{--                                                                        allowtransparency--}}
+{{--                                                                        allow="autoplay"--}}
+{{--                                                                    ></iframe>--}}
+{{--                                                                </div>--}}
+{{--                                                            </div>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
                                         @elseif($lecture->type == 'vimeo')
                                             <a class="edit-lecture-preview-show d-flex align-items-center justify-content-between color-heading font-medium font-16 mb-3" data-bs-toggle="modal" href="#vimeoVideoPlayerModal{{ $lecture->id }}">
                                                 <div class="d-flex flex-grow-1">

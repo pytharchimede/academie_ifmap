@@ -292,7 +292,7 @@ class SettingController extends Controller
                 $option->option_value = $file_details['path'];
                 $option->save();
             } elseif ($key == 'TIMEZONE' || $key == 'FORCE_HTTPS') {
-              
+
                 setEnvironmentValue($key, $value);
 
                 $option->option_value = $value;
@@ -347,7 +347,7 @@ class SettingController extends Controller
         $data['siteMapApiKeyActiveClass'] = 'active';
         return view('admin.application_settings.general.map-api-key', $data);
     }
-   
+
     public function reCaptchaKey()
     {
         $data['title'] = 're-Captcha Setting';
@@ -356,7 +356,7 @@ class SettingController extends Controller
         $data['siteRecaptchaKeyActiveClass'] = 'active';
         return view('admin.application_settings.general.re-captcha', $data);
     }
-    
+
     public function googleAnalytics()
     {
         $data['title'] = 'Google Analytics Setting';
@@ -469,7 +469,7 @@ class SettingController extends Controller
         $this->showToastrMessage('success', 'Successfully Updated');
         return redirect()->back();
     }
-   
+
     public function agoraSettings()
     {
         $data['title'] = 'Agora Setting';
@@ -1078,7 +1078,7 @@ class SettingController extends Controller
 
         return view('admin.application_settings.maintenance-mode', $data);
     }
-   
+
     public function comingSoonMode()
     {
         $data['title'] = 'Coming Soon Mode Settings';
@@ -1130,14 +1130,14 @@ class SettingController extends Controller
 
         return view('admin.application_settings.saas', $data);
     }
-    
+
     public function rewardPoints()
     {
         $data['title'] = 'Reward Points Settings';
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['rewardPointActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.reward_points', $data);
     }
     public function registrationBonus()
@@ -1146,7 +1146,7 @@ class SettingController extends Controller
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['registrationSystemActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.registration_system', $data);
     }
     public function refundSystem()
@@ -1155,7 +1155,7 @@ class SettingController extends Controller
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['refundSystemActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.refund_system', $data);
     }
     public function cashbackSettings()
@@ -1164,47 +1164,47 @@ class SettingController extends Controller
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['cashbackSettingActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.cashbook_setting', $data);
     }
-    
+
     public function chatSystem()
     {
         $data['title'] = 'Chat Settings';
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['chatSettingActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.chat_setting', $data);
     }
-   
+
     public function courseGiftSystem()
     {
         $data['title'] = 'Course Gift System';
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['courseGiftSettingActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.course_gift_setting', $data);
     }
-   
+
     public function walletCheckoutSystem()
     {
         $data['title'] = 'Wallet Checkout System';
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['walletCheckoutEnableSettingActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.wallet_checkout_enable', $data);
     }
-   
+
     public function walletRechargeSystem()
     {
         $data['title'] = 'Wallet Recharge System';
         $data['navApplicationSettingParentActiveClass'] = 'mm-active';
         $data['subNavGlobalSettingsActiveClass'] = 'mm-active';
         $data['walletRechargeSettingActiveClass'] = 'active';
-        
+
         return view('admin.application_settings.wallet_recharge_system', $data);
     }
 
@@ -1310,7 +1310,7 @@ class SettingController extends Controller
                 $option->save();
                 Artisan::call('up');
             }
-    
+
             $this->showToastrMessage('success', __('Coming Soon Mode has been changed'));
             return redirect()->back();
         }
@@ -1359,7 +1359,7 @@ class SettingController extends Controller
             $option->option_value = $value;
             $option->save();
         }
-        
+
         $this->showToastrMessage('success', 'Subscription mode has been changed');
         return redirect()->back();
     }
@@ -1458,12 +1458,12 @@ class SettingController extends Controller
         $this->showToastrMessage('success', __('Migrated successfully.'));
         return redirect()->back();
     }
-   
+
     public function generateSiteMap()
     {
         set_time_limit(1200);
         SitemapGenerator::create(url(''))->writeToFile(public_path('uploads/sitemap.xml'));
         $filepath = public_path('uploads/sitemap.xml');
-        return Response::download($filepath); 
+        return Response::download($filepath);
     }
 }

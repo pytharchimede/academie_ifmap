@@ -4,25 +4,19 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\SignUpRequest;
-use App\Mail\UserEnailVerificaion;
+use App\Http\Services\EmailSendService;
 use App\Models\Country;
-use App\Models\Instructor;
 use App\Models\Student;
 use App\Models\User;
 use App\Tools\Repositories\Crud;
-use App\Traits\EmailSendTrait;
 use App\Traits\General;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class RegistrationController extends Controller
 {
-    use EmailSendTrait, General;
+    use General;
 
     protected $model;
     protected $studentModel;
@@ -72,13 +66,13 @@ class RegistrationController extends Controller
         }
 
         if (get_option('registration_email_verification') == 1){
-            try {
-                Mail::to($user->email)->send(new UserEnailVerificaion($user));
-            } catch (\Exception $exception) {
+            $sendEmail = new EmailSendService();
+            if($sendEmail->sendVerifyEmail($user, route('user.email.verification',$user->remember_token))){
+                $this->showToastrMessage('success', __('Sent verification mail your account. Please check your email.'));
+            }else{
                 toastrMessage('error', 'Something is wrong. Try after few minutes!');
                 return redirect()->back();
             }
-            $this->showToastrMessage('error', __('Sent verification mail your account. Please check your email.'));
         }
         $this->showToastrMessage('success', __('Your registration is successful.'));
         return redirect(route('login'));

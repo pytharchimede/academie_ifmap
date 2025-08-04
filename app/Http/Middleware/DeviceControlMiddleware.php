@@ -21,11 +21,11 @@ class DeviceControlMiddleware
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
-    {   
+    {
         $authUser = auth()->user();
         if(get_option('device_control') && $authUser->role == USER_ROLE_STUDENT){
             $device_count = $authUser->device->count();
-            $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->with('enrollments')->select('user_packages.device')->first();
+            $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->with('enrollments')->select('user_packages.device')->first();
             if(!is_null($userPackage)){
                 $limit =  $userPackage->device;
             }
@@ -34,7 +34,7 @@ class DeviceControlMiddleware
             }
 
             $device_uuid = $request->cookie('_uuid_d');
-            
+
             if(Device::join('device_user', 'devices.id', '=', 'device_user.device_id')->where('devices.device_uuid', $device_uuid)->first()){
                 return $next($request);
             }

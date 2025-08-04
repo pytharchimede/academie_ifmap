@@ -20,7 +20,7 @@ class SaasController extends Controller
             if (!auth()->user()->can('manage_saas')) {
                 abort('403');
             } // end permission checking
-            
+
             return $next($request);
         });
 
@@ -36,7 +36,7 @@ class SaasController extends Controller
         $data['saases'] = Package::whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->orderBy('order', 'ASC')->paginate(10);
         return view('admin.saas.index', $data);
     }
-    
+
     public function purchaseList()
     {
         $data['title'] = __('Manage SaaS Packages');
@@ -46,7 +46,7 @@ class SaasController extends Controller
         $data['userSaases'] = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->select('user_packages.*', 'packages.icon',  'packages.title', 'packages.uuid as package_uuid')->paginate(10);
         return view('admin.saas.purchase_list', $data);
     }
-  
+
     public function pendingPurchaseList()
     {
         $data['title'] = __('Manage SaaS Packages');
@@ -89,12 +89,12 @@ class SaasController extends Controller
         ]);
 
         $slug = Str::slug($request->title);
-        
+
         if (Package::where('slug', $slug)->withTrashed()->count() > 0)
         {
             $slug = Str::slug($request->title) . '-'. rand(100000, 999999);
         }
-        
+
         $data['icon'] = $request->icon ? $this->saveImage('packages', $request->icon, null, null) :   null;
         $data['slug'] = $slug;
 
@@ -139,12 +139,12 @@ class SaasController extends Controller
         ]);
 
         $slug = Str::slug($request->title);
-        
+
         if (Package::where('slug', $slug)->withTrashed()->count() > 0)
         {
             $slug = Str::slug($request->title) . '-'. rand(100000, 999999);
         }
-        
+
         $data['icon'] = $request->icon ? $this->saveImage('packages', $request->icon, null, null) :   $saa->icon;
         $data['slug'] = $slug;
 
@@ -199,12 +199,12 @@ class SaasController extends Controller
             ]);
         }
     }
-    
+
     public function changePurchaseStatus(Request $request)
     {
         $saa = UserPackage::whereId($request->id)->firstOrFail();
         if($request->status == PACKAGE_STATUS_ACTIVE){
-            UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $saa->package->package_type)->where('user_packages.user_id', $saa->user_id)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->update(['user_packages.status' => PACKAGE_STATUS_CANCELED]);
+            UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $saa->package->package_type)->where('user_packages.user_id', $saa->user_id)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->update(['user_packages.status' => PACKAGE_STATUS_CANCELED]);
             $saa->payment->update(['payment_status' => 'paid']);
         }
 

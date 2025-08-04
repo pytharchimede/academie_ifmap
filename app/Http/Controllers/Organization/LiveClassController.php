@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\GmeetSetting;
@@ -100,7 +101,7 @@ class LiveClassController extends Controller
                 $q->whereTime(DB::raw('SEC_TO_TIME((duration*60) + TIME_TO_SEC(time))'), '>=', now());
             })
             ->latest()->paginate(15, '*', 'past');
-    
+
         $data['past_live_classes'] = LiveClass::whereCourseId($data['course']->id)->whereUserId(Auth::user()->id)
             ->where(function($q){
                 $q->whereDate('date', now());
@@ -187,11 +188,14 @@ class LiveClassController extends Controller
 
             /** ====== send notification to student ===== */
             $students = Enrollment::where('course_id', $course->id)->select('user_id')->get();
+            $sendEmail = new EmailSendService();
             foreach ($students as $student) {
                 $text = __("New Live Class Added");
                 $target_url = route('student.my-course.show', $course->slug);
                 $this->send($text, 3, $target_url, $student->user_id);
             }
+            $userIds = $students->pluck('user_id')->toArray();
+            $sendEmail->sendNewLiveClassToStudent($userIds, $target_url);
             /** ====== send notification to student ===== */
 
             DB::commit();

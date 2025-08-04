@@ -50,7 +50,7 @@
                         <span>★★★★★</span>
                     </div>
                 </div>
-                <span class="rating-count font-14 ms-2">(2)</span>
+                <span class="rating-count font-14 ms-2">({{ @$course->reviews->count() }}))</span>
             </div>
             <div class="instructor-bottom-item font-14 font-semi-bold">
 
@@ -64,7 +64,7 @@
 
                     @if(now()->gt($startDate) && now()->lt($endDate))
                         <div class="instructor-bottom-item font-14 font-semi-bold">
-                            {{ __('Price') }}: 
+                            {{ __('Price') }}:
                             <span class="color-hover">
                                 @if($currencyPlacement ?? get_currency_placement() == 'after')
                                     {{ $discount_price }} {{ $currencySymbol ?? get_currency_symbol() }}
@@ -82,7 +82,7 @@
                         </div>
                     @elseif ($course->price <= $course->old_price)
                         <div class="instructor-bottom-item font-14 font-semi-bold">
-                            {{ __('Price') }}: 
+                            {{ __('Price') }}:
                             <span class="color-hover">
                                 @if($currencyPlacement ?? get_currency_placement() == 'after')
                                     {{ $course->price }} {{ $currencySymbol ?? get_currency_symbol() }}
@@ -99,7 +99,7 @@
                             </span>
                         </div>
                     @else
-                        <div class="instructor-bottom-item font-14 font-semi-bold">{{ __('Price') }}: 
+                        <div class="instructor-bottom-item font-14 font-semi-bold">{{ __('Price') }}:
                             <span class="color-hover">
                                 @if($currencyPlacement ?? get_currency_placement() == 'after')
                                     {{ $course->price }} {{ $currencySymbol ?? get_currency_symbol() }}
@@ -117,7 +117,7 @@
                     @if($course->learner_accessibility != 'free' && get_option('cashback_system_mode', 0))
                     <div class="bg-light-purple d-flex font-12 justify-content-between mt-2 p-1 rounded">
                         <span class="color-para">
-                        {{ __('Cashback') }}: 
+                        {{ __('Cashback') }}:
                         </span>
                         <span class="color-orange">
                             @if($currencyPlacement ?? get_currency_placement() == 'after')

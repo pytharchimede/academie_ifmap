@@ -32,50 +32,58 @@
                             <div class="table-responsive">
                                 <table class="table bg-white my-courses-page-table">
                                     <thead>
-                                        <tr>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('SL') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Package Title') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Enroll Date') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Expired Date') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Course') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Bundle Course') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Subscription Course') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Consultancy') }}</th>
-                                            <th scope="col" class="color-gray font-15 font-medium">{{ __('Device') }}</th>
-                                        </tr>
+                                    <tr>
+                                        <th scope="col" class="color-gray font-15 font-medium">{{ __('SL') }}</th>
+                                        <th scope="col"
+                                            class="color-gray font-15 font-medium">{{ __('Package Title') }}</th>
+                                        <th scope="col"
+                                            class="color-gray font-15 font-medium">{{ __('Enroll Date') }}</th>
+                                        <th scope="col"
+                                            class="color-gray font-15 font-medium">{{ __('Expired Date') }}</th>
+                                        <th scope="col" class="color-gray font-15 font-medium">{{ __('Course') }}</th>
+                                        <th scope="col"
+                                            class="color-gray font-15 font-medium">{{ __('Bundle Course') }}</th>
+                                        <th scope="col"
+                                            class="color-gray font-15 font-medium">{{ __('Subscription Course') }}</th>
+                                        <th scope="col"
+                                            class="color-gray font-15 font-medium">{{ __('Consultancy') }}</th>
+                                        <th scope="col" class="color-gray font-15 font-medium">{{ __('Device') }}</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($userPackages as $userPackage)
-                                        @php 
-                                            $current = 0;
-                                        @endphp
-                                            <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>
-                                                    @if ($userPackage->where('status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now()) && !$current)
-                                                    @php 
+                                    @php
+                                        $current = 0;
+                                    @endphp
+                                    @foreach ($userPackages as $userPackage)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                @if ($userPackage->status == PACKAGE_STATUS_ACTIVE && $userPackage->enroll_date <= now() && $userPackage->expired_date >= now() && !$current)
+                                                    @php
                                                         $current = 1;
-                                                    @endphp   
-                                                        <a href="{{ route('student.subscription_plan_details', $userPackage->id) }}">{{ $userPackage->package->title }} <span class="badge bg-success">{{ __('Current') }}</span></a>
-                                                    @else
-                                                        {{ $userPackage->package->title }}
-                                                    @endif
-                                                </td>
-                                                <td>{{ date('Y-m-d H:i',strtotime($userPackage->enroll_date)) }}</td>
-                                                <td>{{ date('Y-m-d H:i',strtotime($userPackage->expired_date)) }}</td>
-                                                <td>{{ $userPackage->course }}</td>
-                                                <td>{{ $userPackage->bundle_course }}</td>
-                                                <td>{{ $userPackage->subscription_course }}</td>
-                                                <td>{{ $userPackage->consultancy }}</td>
-                                                <td>{{ $userPackage->device }}</td>
-                                            </tr>
-                                        @endforeach
+                                                    @endphp
+                                                    <a href="{{ route('student.subscription_plan_details', $userPackage->id) }}">{{ $userPackage->package->title }}
+                                                        <span class="badge bg-success">{{ __('Current') }}</span></a>
+                                                @else
+                                                    {{ $userPackage->package->title }}
+                                                @endif
+                                            </td>
+                                            <td>{{ date('Y-m-d H:i',strtotime($userPackage->enroll_date)) }}</td>
+                                            <td>{{ date('Y-m-d H:i',strtotime($userPackage->expired_date)) }}</td>
+                                            <td>{{ $userPackage->course }}</td>
+                                            <td>{{ $userPackage->bundle_course }}</td>
+                                            <td>{{ $userPackage->subscription_course }}</td>
+                                            <td>{{ $userPackage->consultancy }}</td>
+                                            <td>{{ $userPackage->device }}</td>
+                                        </tr>
+                                    @endforeach
                                     </tbody>
                                 </table>
                             </div>
                         @else
                             <div class="empty-data">
-                                <img src="{{ asset('frontend/assets/img/empty-data-img.png') }}" alt="img" class="img-fluid">
+                                <img src="{{ asset('frontend/assets/img/empty-data-img.png') }}" alt="img"
+                                     class="img-fluid">
                                 <h4 class="my-3">{{ __('Empty Subscription Plan') }}</h4>
                             </div>
                         @endif

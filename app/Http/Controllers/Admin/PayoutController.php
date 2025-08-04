@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\MonthlyDistributionHistory;
@@ -98,7 +99,7 @@ class PayoutController extends Controller
         }
 
     }
-       
+
     public function distributeSubscription()
     {
         $data['title'] = __('Distribute Subscription Payment');
@@ -134,6 +135,8 @@ class PayoutController extends Controller
             return back();
         }
 
+        $emailSend = new EmailSendService();
+
         DB::beginTransaction();
         try {
             $monthlyDistributionHistory = new MonthlyDistributionHistory();
@@ -151,8 +154,8 @@ class PayoutController extends Controller
                     $userPackage = UserPackage::where('user_packages.user_id', $enroll->user_id)
                         ->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)
                         ->join('packages', 'packages.id', '=', 'user_packages.package_id')
-                        ->whereDate('enroll_date', '<=', now())
-                        ->whereDate('expired_date', '>=', now())
+                        ->where('enroll_date', '<=', now())
+                        ->where('expired_date', '>=', now())
                         ->select('user_packages.admin_commission')->first();
                     foreach($enroll->course->course_instructors as $course_instructor){
                         $commission_percentage = get_option('sell_commission');
@@ -177,14 +180,14 @@ class PayoutController extends Controller
                             'amount' => $finalAmount,
                             'paid_at' => now()
                         ];
-                        
+
                         SubscriptionCommissionHistory::create($data);
                         $course_instructor->instructor->user->increment('balance', decimal_to_int($finalAmount));
                         createTransaction($course_instructor->instructor->user_id, $finalAmount, TRANSACTION_SUBSCRIPTION_BUY, 'Earning via subscription sell', 'Year month-'.$month_year);
                         $text = __("Monthly Subscription Payment Deposited");
                         $target_url = route('wallet.transaction-history');
-                        $this->send($text, 3, $target_url, $course_instructor->instructor->user_id);
-
+                        $this->send($text, 2, $target_url, $course_instructor->instructor->user_id);
+                        $emailSend->sendCommonUserAndLink($course_instructor->instructor->user, $target_url, 'subscription-payout-deposited');
                     }
                 }
             }
@@ -196,10 +199,10 @@ class PayoutController extends Controller
                     $userPackage = UserPackage::where('user_packages.user_id', $course->user_id)
                         ->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)
                         ->join('packages', 'packages.id', '=', 'user_packages.package_id')
-                        ->whereDate('enroll_date', '<=', now())
-                        ->whereDate('expired_date', '>=', now())
+                        ->where('enroll_date', '<=', now())
+                        ->where('expired_date', '>=', now())
                         ->select('admin_commission')->first();
-                        
+
                     foreach($course->course_instructors->where('status', STATUS_APPROVED) as $course_instructor){
 
                         $commission_percentage = get_option('sell_commission');
@@ -224,14 +227,14 @@ class PayoutController extends Controller
                             'total_amount' => $finalAmount,
                             'paid_at' => now()
                         ];
-                        
+
                         SubscriptionCommissionHistory::create($data);
                         $course_instructor->instructor->user->increment('balance', decimal_to_int($finalAmount));
                         createTransaction($course_instructor->instructor->user_id, $finalAmount, TRANSACTION_SUBSCRIPTION_BUY, 'Earning via subscription sell', 'Year month-'.$month_year);
                         $text = __("Monthly Subscription Payment Deposited");
                         $target_url = route('wallet.transaction-history');
-                        $this->send($text, 3, $target_url, $course_instructor->instructor->user_id);
-
+                        $this->send($text, 2, $target_url, $course_instructor->instructor->user_id);
+                        $emailSend->sendCommonUserAndLink($course_instructor->instructor->user, $target_url, 'subscription-payout-deposited');
                     }
                 }
             }
@@ -258,7 +261,7 @@ class PayoutController extends Controller
         $monthDay = cal_days_in_month(CAL_GREGORIAN,$month,$year);
 
         $response['total_enroll_course'] = Enrollment::whereYear('created_at', date('Y', strtotime($month_year)))->whereMonth('created_at', date('m', strtotime($month_year)))->whereNotNull('user_package_id')->count();
-       
+
         $userPackages = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')
             ->where('packages.package_type', PACKAGE_TYPE_SUBSCRIPTION)
             ->select("user_packages.*")
@@ -274,19 +277,19 @@ class PayoutController extends Controller
             $dailyAmount = $totalAmount/$totalDay;
             $startDayDiff = (strtotime($month_year.'-'.$monthDay) - strtotime($userPackage->enroll_date)) / (60 * 60 * 24);
             $endDayDiff = (strtotime($month_year.'-'.$monthDay) - strtotime($userPackage->expired_date)) / (60 * 60 * 24);
-    
+
             $dayCount = $startDayDiff;
-    
+
             if(($monthDay - $startDayDiff) < 0){
                 $dayCount = $monthDay;
             }
-    
+
             if(($monthDay-$endDayDiff) < $monthDay){
                 $dayCount = $monthDay-$endDayDiff;
             }
-    
+
             $dayCount = $dayCount < 0 ? 0 : $dayCount;
-    
+
             $totalAmount = $dailyAmount * $dayCount;
             $response['total_income_from_subscription'] += $totalAmount;
         }
@@ -296,7 +299,7 @@ class PayoutController extends Controller
             $response['total_enroll_course'] = 0;
             $response['current_subscription'] = 0;
         }
-                        
+
         return $response;
     }
 }

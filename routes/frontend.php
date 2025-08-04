@@ -128,6 +128,8 @@ Route::group(['middleware' => 'private.mode'], function () {
     });
 
     Route::get('get-user-info', [MainIndexController::class, 'getUserProfile'])->name('get-user-info');
+
+    Route::get('theme/{theme}', [MainIndexController::class, 'theme']);
 });
 
 Route::get('page/{slug?}', [PageController::class, 'pageShow'])->name('page');

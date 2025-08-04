@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logger;
+use App\Http\Services\EmailSendService;
 use App\Http\Services\Payment\BasePaymentService;
 use App\Models\Bank;
 use App\Models\City;
@@ -21,6 +22,7 @@ use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 use App\Models\Payment as ModelPayment;
 use App\Models\UserPackage;
+use PharIo\Manifest\Email;
 use Razorpay\Api\Api;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -64,11 +66,10 @@ class SubscriptionController extends Controller
 
     public function checkout(Request $request, Package $subscription)
     {
-        if($subscription->package_type == PACKAGE_TYPE_SAAS_INSTRUCTOR && auth()->user()->role != USER_ROLE_INSTRUCTOR){
+        if ($subscription->package_type == PACKAGE_TYPE_SAAS_INSTRUCTOR && auth()->user()->role != USER_ROLE_INSTRUCTOR) {
             $this->showToastrMessage('warning', 'You are not an instructor');
             return back();
-        }
-        elseif($subscription->package_type == PACKAGE_TYPE_SAAS_ORGANIZATION && auth()->user()->role != USER_ROLE_ORGANIZATION){
+        } elseif ($subscription->package_type == PACKAGE_TYPE_SAAS_ORGANIZATION && auth()->user()->role != USER_ROLE_ORGANIZATION) {
             $this->showToastrMessage('warning', 'You are not an organization');
             return back();
         }
@@ -78,9 +79,9 @@ class SubscriptionController extends Controller
         $data['subscription_type'] = ($request->monthly == 1) ? __('Monthly') : __('Yearly');
         $data['monthly'] = $request->monthly;
         $data['package'] = $subscription;
-        if($data['price'] < 1){
+        if ($data['price'] < 1) {
             DB::beginTransaction();
-            try{
+            try {
                 $payment_details = [
                     'user_id' => auth()->id(),
                     'package_id' => $subscription->id,
@@ -107,20 +108,17 @@ class SubscriptionController extends Controller
                 $this->showToastrMessage('success', __('Payment has been completed'));
                 DB::commit();
                 return redirect()->route('subscription.thank-you');
-            }
-            catch(\Exception $e){
+            } catch (\Exception $e) {
                 DB::rollBack();
                 return redirect()->back();
             }
         }
 
-        if(auth()->user()->role == USER_ROLE_STUDENT){
+        if (auth()->user()->role == USER_ROLE_STUDENT) {
             $data['user'] = auth()->user()->student;
-        }
-        else if(auth()->user()->role == USER_ROLE_INSTRUCTOR){
+        } else if (auth()->user()->role == USER_ROLE_INSTRUCTOR) {
             $data['user'] = auth()->user()->instructor;
-        }
-        else if(auth()->user()->role == USER_ROLE_ORGANIZATION){
+        } else if (auth()->user()->role == USER_ROLE_ORGANIZATION) {
             $data['user'] = auth()->user()->organization;
         }
 
@@ -174,7 +172,7 @@ class SubscriptionController extends Controller
             $package = Package::where('uuid', $request->package_uuid)->first();
             $payment = $this->placeOrder($package, $request->payment_method, $request);
 
-            if(!$payment){
+            if (!$payment) {
                 DB::rollBack();
                 $this->showToastrMessage('error', __('Something went wrong!'));
                 return redirect()->back();
@@ -198,16 +196,20 @@ class SubscriptionController extends Controller
             $userPackageData['enroll_date'] = now();
             $userPackageData['expired_date'] = Carbon::now()->addMonths($months);
 
-            UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $package->package_type)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->update(['user_packages.status' => PACKAGE_STATUS_CANCELED]);
+            UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $package->package_type)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->update(['user_packages.status' => PACKAGE_STATUS_CANCELED]);
             UserPackage::create($userPackageData);
 
             /** ====== Send notification =========*/
             $text = __("Subscription purchase completed");
-            $this->send($text, 3, null , auth()->id());
+            $this->send($text, 3, null, auth()->id());
+
+            $sendEmail = new EmailSendService();
+            $sendEmail->sendSubscriptionPurchaseEmailToStudent(auth()->user());
 
             $text = __("Subscription has been sold");
             $target_url = ($package->package_type == PACKAGE_TYPE_SUBSCRIPTION) ? route('admin.subscriptions.purchase_list') : route('admin.saas.purchase_list');
             $this->send($text, 1, $target_url, null);
+            $sendEmail->sendSubscriptionPurchaseEmailToAdmin($target_url);
             /** ====== Send notification =========*/
             $this->showToastrMessage('success', 'Payment has been completed');
 
@@ -235,9 +237,7 @@ class SubscriptionController extends Controller
                 $this->showToastrMessage('error', 'Bank Information Not Valid!');
                 return redirect()->back();
             }
-        }
-
-        if ($request->payment_method == PAYPAL) {
+        } else if ($request->payment_method == PAYPAL) {
             if (empty(env('PAYPAL_CLIENT_ID')) || empty(env('PAYPAL_SECRET')) || empty(env('PAYPAL_MODE'))) {
                 $this->showToastrMessage('error', 'Paypal payment gateway is off!');
                 return redirect()->back();
@@ -245,9 +245,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('paypal_conversion_rate') ? get_option('paypal_conversion_rate') : 0);
             $currency = get_option('paypal_currency');
-        }
-
-        if ($request->payment_method == STRIPE) {
+        } else if ($request->payment_method == STRIPE) {
             if (!get_option('stripe_status', 0)) {
                 $this->showToastrMessage('error', 'Stripe payment gateway is off!');
                 return redirect()->back();
@@ -255,9 +253,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('stripe_conversion_rate') ? get_option('stripe_conversion_rate') : 0);
             $currency = get_option('stripe_currency');
-        }
-
-        if ($request->payment_method == MOLLIE) {
+        } else if ($request->payment_method == MOLLIE) {
             if (empty(env('MOLLIE_KEY'))) {
                 $this->showToastrMessage('error', 'Mollie payment gateway is off!');
                 return redirect()->back();
@@ -265,9 +261,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('mollie_conversion_rate') ? get_option('mollie_conversion_rate') : 0);
             $currency = get_option('mollie_currency');
-        }
-
-        if ($request->payment_method == INSTAMOJO) {
+        } else if ($request->payment_method == INSTAMOJO) {
             if (empty(env('IM_API_KEY')) || empty(env('IM_AUTH_TOKEN')) || empty(env('IM_URL'))) {
                 $this->showToastrMessage('error', 'Instamojo payment gateway is off!');
                 return redirect()->back();
@@ -275,9 +269,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('im_conversion_rate') ? get_option('im_conversion_rate') : 0);
             $currency = get_option('im_currency');
-        }
-
-        if ($request->payment_method == PAYSTAC) {
+        } else if ($request->payment_method == PAYSTAC) {
             if (empty(env('PAYSTACK_PUBLIC_KEY')) || empty(env('PAYSTACK_SECRET_KEY'))) {
                 $this->showToastrMessage('error', 'Paystack payment gateway is off!');
                 return redirect()->back();
@@ -285,17 +277,15 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('paystack_conversion_rate') ? get_option('paystack_conversion_rate') : 0);
             $currency = get_option('paystack_currency');
-        }
-        if ($request->payment_method == MERCADOPAGO) {
+        } else if ($request->payment_method == MERCADOPAGO) {
             if (empty(env('MERCADO_PAGO_CLIENT_ID')) || empty(env('MERCADO_PAGO_CLIENT_SECRET'))) {
                 $this->showToastrMessage('error', 'MERCADO_PAGO payment gateway is off!');
                 return redirect()->back();
             }
 
-            $conversion_rate = (get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0);
-            $currency = get_option('mercado_currency');
-        }
-        if ($request->payment_method == FLUTTERWAVE) {
+            $conversion_rate = (get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0);
+            $currency = get_option('mercadopago_currency');
+        } else if ($request->payment_method == FLUTTERWAVE) {
             if (empty(env('FLW_PUBLIC_KEY')) || empty(env('FLW_SECRET_KEY'))) {
                 $this->showToastrMessage('error', 'Flutterwave payment gateway is off!');
                 return redirect()->back();
@@ -303,8 +293,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('flutterwave_conversion_rate') ? get_option('flutterwave_conversion_rate') : 0);
             $currency = get_option('flutterwave_currency');
-        }
-        if ($request->payment_method == COINBASE) {
+        } else if ($request->payment_method == COINBASE) {
             if (empty(get_option('coinbase_key'))) {
                 $this->showToastrMessage('error', 'Coinbase payment gateway is off!');
                 return redirect()->back();
@@ -312,8 +301,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('coinbase_conversion_rate') ? get_option('coinbase_conversion_rate') : 0);
             $currency = get_option('coinbase_currency');
-        }
-        if ($request->payment_method == ZITOPAY) {
+        } else if ($request->payment_method == ZITOPAY) {
             if (empty(get_option('zitopay_username'))) {
                 $this->showToastrMessage('error', 'Zitopay payment gateway is off!');
                 return redirect()->back();
@@ -321,9 +309,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('zitopay_conversion_rate') ? get_option('zitopay_conversion_rate') : 0);
             $currency = get_option('zitopay_currency');
-        }
-
-        if ($request->payment_method == IYZIPAY) {
+        } else if ($request->payment_method == IYZIPAY) {
             if (empty(get_option('iyzipay_key'))) {
                 $this->showToastrMessage('error', 'Iyzipay payment gateway is off!');
                 return redirect()->back();
@@ -331,9 +317,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('iyzipay_conversion_rate') ? get_option('iyzipay_conversion_rate') : 0);
             $currency = get_option('iyzipay_currency');
-        }
-
-        if ($request->payment_method == BITPAY) {
+        } else if ($request->payment_method == BITPAY) {
             if (empty(get_option('bitpay_key'))) {
                 $this->showToastrMessage('error', 'Bitpay payment gateway is off!');
                 return redirect()->back();
@@ -341,9 +325,7 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('bitpay_conversion_rate') ? get_option('bitpay_conversion_rate') : 0);
             $currency = get_option('bitpay_currency');
-        }
-
-        if ($request->payment_method == BRAINTREE) {
+        } else if ($request->payment_method == BRAINTREE) {
             if (empty(get_option('braintree_public_key'))) {
                 $this->showToastrMessage('error', 'Braintree payment gateway is off!');
                 return redirect()->back();
@@ -351,6 +333,14 @@ class SubscriptionController extends Controller
 
             $conversion_rate = (get_option('braintree_conversion_rate') ? get_option('braintree_conversion_rate') : 0);
             $currency = get_option('braintree_currency');
+        } else {
+            if (empty(get_option($request->payment_method . '_public_key'))) {
+                $this->showToastrMessage('error', 'Selected payment gateway is off!');
+                return redirect()->back();
+            }
+
+            $conversion_rate = (get_option($request->payment_method . '_conversion_rate') ? get_option($request->payment_method . '_conversion_rate') : 0);
+            $currency = get_option($request->payment_method . '_currency');
         }
 
         $package = Package::where('uuid', $request->package_uuid)->first();
@@ -358,17 +348,15 @@ class SubscriptionController extends Controller
 
         /** order billing address */
 
-        if(auth()->user()->role == USER_ROLE_STUDENT && auth()->user()->student){
+        if (auth()->user()->role == USER_ROLE_STUDENT && auth()->user()->student) {
             $student = auth()->user()->student;
             $student->fill($request->all());
             $student->save();
-        }
-        else if(auth()->user()->role == USER_ROLE_INSTRUCTOR && auth()->user()->instructor){
+        } else if (auth()->user()->role == USER_ROLE_INSTRUCTOR && auth()->user()->instructor) {
             $student = auth()->user()->instructor;
             $student->fill($request->all());
             $student->save();
-        }
-        else if(auth()->user()->role == USER_ROLE_ORGANIZATION && auth()->user()->organization){
+        } else if (auth()->user()->role == USER_ROLE_ORGANIZATION && auth()->user()->organization) {
             $student = auth()->user()->organization;
             $student->fill($request->all());
             $student->save();
@@ -402,37 +390,40 @@ class SubscriptionController extends Controller
             $text = __("New subscription purchase request");
             $target_url = ($package->package_type == PACKAGE_TYPE_SUBSCRIPTION) ? route('admin.subscriptions.purchase_pending_list') : route('admin.saas.purchase_pending_list');
             $this->send($text, 1, $target_url, null);
+
+            $sendEmail = new EmailSendService();
+            $sendEmail->sendSubscriptionPurchasePendingEmailToAdmin($target_url);
             /** ====== Send notification =========*/
             $this->showToastrMessage('success', 'Request has been Placed! Please Wait for Approve');
             return redirect()->route('subscription.thank-you');
-        } else if ($request->payment_method == SSLCOMMERZ)  {
+        } else if ($request->payment_method == SSLCOMMERZ) {
 
             $total = $payment->grand_total * (get_option('sslcommerz_conversion_rate') ? get_option('sslcommerz_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             # CUSTOMER INFORMATION
             $post_data = array();
             $post_data['tran_id'] = $payment->uuid; // tran_id must be unique
             $post_data['product_category'] = "Payment for purchase";
 
             $post_data['cus_name'] = auth()->user()->name;
-            $post_data['cus_phone'] = $request->input('phone_number',$student->address);
-            $post_data['cus_email'] = $request->input('email',$student->user->email);
-            $post_data['cus_add1'] = $request->input('address',$student->address);
+            $post_data['cus_phone'] = $request->input('phone_number', $student->address);
+            $post_data['cus_email'] = $request->input('email', $student->user->email);
+            $post_data['cus_add1'] = $request->input('address', $student->address);
             $post_data['cus_add2'] = "";
             $post_data['cus_city'] = "";
             $post_data['cus_state'] = "";
-            $post_data['cus_postcode'] = $request->input('postal_code','017');
+            $post_data['cus_postcode'] = $request->input('postal_code', '017');
             $post_data['cus_country'] = @$student->country->country_name ?? 'BD';
             $post_data['cus_fax'] = "";
 
             # SHIPMENT INFORMATION
             $post_data['ship_name'] = get_option('app_name') ?? 'LMS Store';
-            $post_data['ship_add1'] = $request->input('phone_number',$student->address);
-            $post_data['ship_add2'] =  '';
-            $post_data['ship_city'] =  '';
-            $post_data['ship_state'] =  '';
+            $post_data['ship_add1'] = $request->input('phone_number', $student->address);
+            $post_data['ship_add2'] = '';
+            $post_data['ship_city'] = '';
+            $post_data['ship_state'] = '';
             $post_data['ship_postcode'] = '';
-            $post_data['ship_phone'] = $request->input('phone_number',$student->address);
+            $post_data['ship_phone'] = $request->input('phone_number', $student->address);
             $post_data['ship_country'] = @$student->country->country_name ?? 'BD';
 
             $post_data['shipping_method'] = "NO";
@@ -454,18 +445,18 @@ class SubscriptionController extends Controller
             ];
 
             $getWay = new BasePaymentService($object);
-            $responseData = $getWay->makePayment($total,$post_data);
-            if($responseData['success']){
+            $responseData = $getWay->makePayment($total, $post_data);
+            if ($responseData['success']) {
                 $payment->payment_id = $responseData['payment_id'];
                 $payment->save();
                 return Redirect::away($responseData['redirect_url']);
-            }else{
+            } else {
                 $this->showToastrMessage('error', 'Something went wrong!');
                 return redirect()->back();
             }
-        }else{
+        } else {
             $total = $payment->grand_total * $conversion_rate;
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'id' => $payment->uuid,
                 'payment_method' => $request->payment_method,
@@ -475,11 +466,11 @@ class SubscriptionController extends Controller
 
             $getWay = new BasePaymentService($object);
             $responseData = $getWay->makePayment($total);
-            if($responseData['success']){
+            if ($responseData['success']) {
                 $payment->payment_id = $responseData['payment_id'];
                 $payment->save();
                 return Redirect::away($responseData['redirect_url']);
-            }else{
+            } else {
                 $this->showToastrMessage('error', $responseData['message']);
                 return redirect()->back();
             }
@@ -517,8 +508,8 @@ class SubscriptionController extends Controller
             $payment_currency = get_option('flutterwave_currency');
             $conversion_rate = get_option('flutterwave_conversion_rate') ? get_option('flutterwave_conversion_rate') : 0;
         } elseif ($payment_method == MERCADOPAGO) {
-            $payment_currency = get_option('mercado_currency');
-            $conversion_rate = get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0;
+            $payment_currency = get_option('mercadopago_currency');
+            $conversion_rate = get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0;
         } elseif ($payment_method == INSTAMOJO) {
             $payment_currency = get_option('im_currency');
             $conversion_rate = get_option('im_conversion_rate') ? get_option('im_conversion_rate') : 0;
@@ -540,6 +531,9 @@ class SubscriptionController extends Controller
         } elseif ($payment_method == BRAINTREE) {
             $payment_currency = get_option('braintree_currency');
             $conversion_rate = get_option('braintree_conversion_rate') ? get_option('braintree_conversion_rate') : 0;
+        } else {
+            $payment_currency = get_option($payment_method . '_currency');
+            $conversion_rate = get_option($payment_method . '_conversion_rate') ? get_option($payment_method . '_conversion_rate') : 0;
         }
 
         $data['payment_currency'] = $payment_currency;
@@ -578,7 +572,15 @@ class SubscriptionController extends Controller
     public function subscriptionList()
     {
         $data['pageTitle'] = __('Subscription panel');
-        $data['mySubscriptionPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->first();
+        $data['mySubscriptionPackage'] = UserPackage::where('user_packages.user_id', auth()->id())
+            ->where('user_packages.status', PACKAGE_STATUS_ACTIVE)
+            ->where('enroll_date', '<=', now())
+            ->where('expired_date', '>=', now())
+            ->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)
+            ->join('packages', 'packages.id', '=', 'user_packages.package_id')
+            ->select('package_id', 'package_type', 'subscription_type')
+            ->orderBy('user_packages.id', 'desc')
+            ->first();
         $data['subscriptions'] = Package::where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->where('status', PACKAGE_STATUS_ACTIVE)->orderBy('order', 'ASC')->get();
         return view('frontend.subscription.list', $data);
     }
@@ -589,11 +591,13 @@ class SubscriptionController extends Controller
         $data['userPackages'] = UserPackage::query()
             ->with('package')
             ->where('user_packages.user_id', auth()->id())
+            ->where('user_packages.user_id', auth()->id())
             ->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)
             ->join('packages', 'packages.id', '=', 'user_packages.package_id')
-            ->orderBy('user_packages.id','desc')
+            ->orderBy('user_packages.id', 'desc')
             ->select('user_packages.*')
             ->get();
+
 
         return view('frontend.student.subscription.plan', $data);
     }

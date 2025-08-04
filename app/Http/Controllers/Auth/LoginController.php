@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ForgotPasswordMail;
+use App\Http\Services\EmailSendService;
 use App\Models\Student;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -12,7 +12,6 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use IvanoMatteo\LaravelDeviceTracking\Models\Device;
@@ -113,8 +112,19 @@ class LoginController extends Controller
             if (get_option('registration_email_verification') == 1){
                 $user = Auth::user()->hasVerifiedEmail();
                 if (!$user){
+
+                    $authUser = auth()->user();
                     Auth::logout();
+
+                    if(is_null($authUser->remember_token)){
+                        $authUser->remember_token = request()->input('_token');
+                        $authUser->save();
+                    }
+
+                    $sendEmail = new EmailSendService();
+                    $sendEmail->sendVerifyEmail( $authUser, route('user.email.verification', $authUser->remember_token));
                     $this->showToastrMessage('error', __('Your email is not verified!'));
+
                     return redirect("login");
                 }
             }
@@ -235,9 +245,8 @@ class LoginController extends Controller
                 $user->save();
             }
 
-            try {
-                Mail::to($user->email)->send(new ForgotPasswordMail($user, $verification_code));
-            } catch (\Exception $exception) {
+            $sendEmail = new EmailSendService();
+            if(!($sendEmail->sendForgetPasswordEmail($user, $verification_code))){
                 toastrMessage('error', 'Something is wrong. Try after few minutes!');
                 return redirect()->back();
             }

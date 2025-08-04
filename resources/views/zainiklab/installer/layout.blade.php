@@ -47,5 +47,32 @@
     </div>
     <script src="{{ asset('frontend/assets/vendor/jquery/jquery-3.6.0.min.js') }}"></script>
     @stack('script')
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable specific key combinations (F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S)
+        document.addEventListener('keydown', function(e) {
+            // Prevent F12 (Inspect)
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+            // Prevent Ctrl+Shift+I (Inspect)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+            }
+            // Prevent Ctrl+U (View Source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+            }
+            // Prevent Ctrl+S (Save Page)
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+            }
+        });
+    </script>
+
 </body>
 </html>

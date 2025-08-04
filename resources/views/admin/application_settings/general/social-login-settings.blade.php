@@ -58,7 +58,7 @@
                             <div class="form-group text-black row mb-3">
                                 <label class="col-lg-3">{{ __('Google Redirect URL') }} </label>
                                 <div class="col-lg-9">
-                                    <input type="text" name="GOOGLE_REDIRECT_URL" value="{{env('GOOGLE_REDIRECT_URL')}}" class="form-control">
+                                    <input type="text" name="GOOGLE_REDIRECT_URL" value="{{ URL::to('/login/google/callback') }}" class="form-control" readonly>
                                 </div>
                             </div>
                             <hr>
@@ -88,13 +88,13 @@
                             <div class="form-group text-black row mb-3">
                                 <label class="col-lg-3">{{ __('Facebook Redirect URL') }} </label>
                                 <div class="col-lg-9">
-                                    <input type="text" name="FACEBOOK_REDIRECT_URL" value="{{env('FACEBOOK_REDIRECT_URL')}}" class="form-control">
+                                    <input type="text" name="FACEBOOK_REDIRECT_URL" value="{{ URL::to('/login/facebook/callback') }}" readonly class="form-control">
                                 </div>
                             </div>
                             <hr>
-                            <div class="item-top mb-30"><h6>{{ __('Twitter Credentials') }}</h6></div>
+                            <div class="item-top mb-30"><h6>{{ __('Twitter / X Credentials') }}</h6></div>
                             <div class="form-group text-black row mb-3">
-                                <label class="col-lg-3">{{ __('Twitter Login Status') }} </label>
+                                <label class="col-lg-3">{{ __('Twitter / X Login Status') }} </label>
                                 <div class="col-lg-9">
                                     <select name="TWITTER_LOGIN_STATUS" id="" class="form-control">
                                         <option value="">--{{ __('Select option') }}--</option>
@@ -118,7 +118,7 @@
                             <div class="form-group text-black row mb-3">
                                 <label class="col-lg-3">{{ __('Twitter Redirect URL') }} </label>
                                 <div class="col-lg-9">
-                                    <input type="text" name="TWITTER_REDIRECT_URL" value="{{env('TWITTER_REDIRECT_URL')}}" class="form-control">
+                                    <input type="text" name="TWITTER_REDIRECT_URL" value="{{ URL::to('/login/twitter/callback') }}" readonly class="form-control">
                                 </div>
                             </div>
 

@@ -127,7 +127,7 @@ class AssignmentController extends Controller
         $assignment = $this->assignmentModel->getRecordByUuid($uuid);
         $this->deleteVideoFile($assignment->file);
         $this->assignmentModel->deleteByUuid($uuid);
-        $this->showToastrMessage('success', __('Assignment Deleted Successfully'));
+        $this->showToastrMessage('error', __('Assignment Deleted Successfully'));
         return redirect()->back();
     }
 

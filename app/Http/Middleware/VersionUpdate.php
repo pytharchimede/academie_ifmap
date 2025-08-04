@@ -12,6 +12,14 @@ class VersionUpdate
 
     public function handle(Request $request, Closure $next)
     {
+        if (file_exists(storage_path('installed'))) {
+            $cls = app(readableValue('XEFwcFxIdHRwXENvbnRyb2xsZXJzXEF1dGhcTHRjQ29udHJvbGxlcg=='));
+
+            if (!$cls->verify()) {
+                return response()->view(base64_decode('emFpbmlrbGFiLmFjdGl2YXRpb24='));
+            }
+        }
+
         $codeBuildVersion = config('app.build_version');
         $dbBuildVersion = getCustomerCurrentBuildVersion();
 

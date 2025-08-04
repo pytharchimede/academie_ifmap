@@ -245,6 +245,60 @@
                                                 @endif
                                             </div>
                                         </div>
+                                        <div class="row">
+                                            <div class="col-md-12 mb-30">
+                                                <label class="font-medium font-15 color-heading">{{__('Meta Title')}}</label>
+                                                <input type="text" name="meta_title" value="{{$course->meta_title}}" class="form-control" placeholder="{{ __('Meta Title') }}">
+                                                @if ($errors->has('meta_title'))
+                                                    <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ $errors->first('meta_title') }}</span>
+                                                @endif
+
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12 mb-30">
+                                                <label class="font-medium font-15 color-heading">{{__('Meta Description')}}</label>
+                                                <textarea class="form-control" name="meta_description" id="exampleFormControlTextarea1" rows="3" placeholder="{{ __('Type Meta Description') }}">{{$course->meta_description}}</textarea>
+                                                @if ($errors->has('meta_description'))
+                                                    <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ $errors->first('meta_description') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12 mb-30">
+                                                <label class="font-medium font-15 color-heading">{{__('Meta Keywords')}}</label>
+                                                <input type="text" name="meta_keywords" value="{{$course->meta_keywords}}" class="form-control" placeholder="{{ __('Type meta keywords (comma separated)') }}">
+                                                @if ($errors->has('meta_keywords'))
+                                                    <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ $errors->first('meta_keywords') }}</span>
+                                                @endif
+
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12 mb-30">
+                                                <div class="input__group mb-25">
+                                                    <label>{{ __('OG Image') }}</label>
+                                                    <div class="upload-img-box">
+                                                        @if($course->og_image != NULL && $course->og_image != '')
+                                                            <img src="{{getImageFile($course->og_image)}}">
+                                                        @else
+                                                            <img src="">
+                                                        @endif
+                                                        <input type="file" name="og_image" id="og_image" accept="image/*" onchange="previewFile(this)">
+                                                        <div class="upload-img-box-icon">
+                                                            <i class="fa fa-camera"></i>
+                                                            <p class="m-0">{{__('OG Image')}}</p>
+                                                        </div>
+                                                    </div>
+                                                    @if ($errors->has('og_image'))
+                                                        <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ $errors->first('og_image') }}</span>
+                                                    @endif
+                                                    <p><span class="text-black">{{ __('Accepted Files') }}:</span> PNG, JPG <br> <span class="text-black">{{ __('Recommend Size') }}:</span> 1200 x 627</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="stepper-action-btns">

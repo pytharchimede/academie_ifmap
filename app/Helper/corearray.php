@@ -191,6 +191,19 @@ function getPaymentMethodNameForApi($input = null)
         IYZIPAY => 'Iyzipay',
         BITPAY => 'Bitpay',
         BRAINTREE => 'Braintree',
+        RAZORPAY => 'razorpay',
+        BINANCE => 'binance',
+        ALIPAY => 'alipay',
+        XENDIT => 'xendit',
+        PADDLE => 'paddle',
+        PAYTM => 'paytm',
+        MAXICASH => 'maxicash',
+        PAYHERE => 'payhere',
+        CINETPAY => 'cinetpay',
+        VOGUEPAY => 'voguepay',
+        TOYYIBPAY => 'toyyibpay',
+        PAYMOB => 'paymob',
+        AUTHORIZE => 'authorize',
     ];
     if (is_null($input)) {
         return $output;
@@ -198,6 +211,97 @@ function getPaymentMethodNameForApi($input = null)
         return $output[$input] ?? '';
     }
 }
+
+function newGateway($input = null)
+{
+    $output = [
+        BINANCE => 'binance',
+        ALIPAY => 'alipay',
+        PAYTM => 'paytm',
+        MAXICASH => 'maxicash',
+        PAYHERE => 'payhere',
+        CINETPAY => 'cinetpay',
+        VOGUEPAY => 'voguepay',
+        TOYYIBPAY => 'toyyibpay',
+        PAYMOB => 'paymob',
+        AUTHORIZE => 'authorize',
+        XENDIT => 'xendit',
+        PADDLE => 'paddle'
+    ];
+    if (is_null($input)) {
+        return $output;
+    } else {
+        return $output[$input] ?? '';
+    }
+}
+
+function gatewaySettings()
+{
+    return [
+        'binance' => [
+            ['label' => 'Url', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'Client ID', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Client Secret', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'payhere' => [
+            ['label' => 'Url', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'Merchant ID', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Merchant Secret', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'maxicash' => [
+            ['label' => 'Url', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'Merchant ID', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Password', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'paytm' => [
+            ['label' => 'Industry Type', 'name' => 'url', 'is_show' => 1],
+            ['label' => 'Merchant Key', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Merchant ID', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'cinetpay' => [
+            ['label' => 'Industry Type', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'API Key', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Site ID', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'voguepay' => [
+            ['label' => 'Industry Type', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'Merchant ID', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Merchant ID', 'name' => 'secret', 'is_show' => 0],
+        ],
+        'toyyibpay' => [
+            ['label' => 'Industry Type', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'Secret Key', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Category Code', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'paymob' => [
+            ['label' => 'Industry Type', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'API Key', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Integration ID', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'alipay' => [
+            ['label' => 'APP ID', 'name' => 'url', 'is_show' => 1],
+            ['label' => 'Public Key', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Private Key', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'authorize' => [
+            ['label' => 'Industry Type', 'name' => 'url', 'is_show' => 0],
+            ['label' => 'Login ID', 'name' => 'key', 'is_show' => 1],
+            ['label' => 'Transaction Key', 'name' => 'secret', 'is_show' => 1],
+        ],
+        'xendit' => [
+          ['label' => 'APP ID','name' => 'url', 'is_show' => 0],
+          ['label' => 'Public Key','name' => 'key', 'is_show' => 1],
+          ['label' => 'Secret','name' => 'secret', 'is_show' => 0],
+        ],
+        'paddle' => [
+          ['label' => 'Vendor ID','name' => 'url', 'is_show' => 1],
+          ['label' => 'Vendor Auth Key','name' => 'key', 'is_show' => 1],
+          ['label' => 'Secret','name' => 'secret', 'is_show' => 0],
+        ],
+    ];
+}
+
+
 
 function getPaymentMethodId($input = null)
 {
@@ -211,11 +315,24 @@ function getPaymentMethodId($input = null)
         'sslcommerz' => SSLCOMMERZ,
         'mercadopago' => MERCADOPAGO,
         'flutterwave' => FLUTTERWAVE,
-        'coinbase' => COINBASE, 
+        'coinbase' => COINBASE,
         'zitopay' => ZITOPAY,
         'iyzipay' => IYZIPAY,
         'bitpay' => BITPAY,
         'braintree' => BRAINTREE,
+        'razorpay' => RAZORPAY,
+        'binance' => BINANCE,
+        'alipay' => ALIPAY,
+        'paytm' => PAYTM,
+        'maxicash' => MAXICASH,
+        'payhere' => PAYHERE,
+        'cinetpay' => CINETPAY,
+        'voguepay' => VOGUEPAY,
+        'toyyibpay' => TOYYIBPAY,
+        'paymob' => PAYMOB,
+        'authorize' => AUTHORIZE,
+        'xendit' => XENDIT,
+        'paddle' => PADDLE,
     ];
     if (is_null($input)) {
         return $output;
@@ -482,6 +599,19 @@ function getPaymentMethodConversionRate($input = null)
         IYZIPAY => 'iyzipay',
         BITPAY => 'bitpay',
         BRAINTREE => 'braintree',
+        RAZORPAY => 'razorpay',
+        BINANCE => 'binance',
+        ALIPAY => 'alipay',
+        XENDIT => 'xendit',
+        PADDLE => 'paddle',
+        PAYTM => 'paytm',
+        MAXICASH => 'maxicash',
+        PAYHERE => 'payhere',
+        CINETPAY => 'cinetpay',
+        VOGUEPAY => 'voguepay',
+        TOYYIBPAY => 'toyyibpay',
+        PAYMOB => 'paymob',
+        AUTHORIZE => 'authorize',
     ];
     if (is_null($input)) {
         return $output;
@@ -576,11 +706,130 @@ function getThemes($input = null)
         THEME_DEFAULT => __('Default'),
         THEME_TWO => __('Classic'),
         THEME_THREE => __('Modern'),
+        THEME_FOUR => __('Language'),
+        THEME_FIVE => __('Cooking'),
+        THEME_SIX => __('Meditation'),
+        THEME_SEVEN => __('Kindergarten'),
     ];
 
     if (is_null($input)) {
         return $output;
     } else {
         return $output[$input] ?? '';
+    }
+}
+
+function getPaymentServiceClass($input = null)
+{
+    $output = array(
+        PAYPAL => 'App\Http\Services\Payment\PaypalService',
+        STRIPE => 'App\Http\Services\Payment\StripeService',
+        RAZORPAY => 'App\Http\Services\Payment\RazorpayService',
+        INSTAMOJO => 'App\Http\Services\Payment\InstamojoService',
+        MOLLIE => 'App\Http\Services\Payment\MollieService',
+        COINBASE => 'App\Http\Services\Payment\CoinbaseService',
+        PAYSTAC => 'App\Http\Services\Payment\PaystackService',
+        SSLCOMMERZ => 'App\Http\Services\Payment\SslCommerzService',
+        MERCADOPAGO => 'App\Http\Services\Payment\MarcadoPagoService',
+        FLUTTERWAVE => 'App\Http\Services\Payment\FlutterwaveService',
+        IYZIPAY => 'App\Http\Services\Payment\IyzipayService',
+        BITPAY => 'App\Http\Services\Payment\BitPayService',
+        ZITOPAY => 'App\Http\Services\Payment\ZitoPayService',
+        BRAINTREE => 'App\Http\Services\Payment\BrainTreeService',
+        BINANCE => 'App\Http\Services\Payment\BinancePaymentService',
+        PAYTM => 'App\Http\Services\Payment\PaytmService',
+        PAYHERE => 'App\Http\Services\Payment\PayHerePaymentService',
+        MAXICASH => 'App\Http\Services\Payment\MaxiCashService',
+        CINETPAY => 'App\Http\Services\Payment\CinetPayService',
+        VOGUEPAY => 'App\Http\Services\Payment\VoguePayService',
+        TOYYIBPAY => 'App\Http\Services\Payment\ToyyibPayService',
+        PAYMOB => 'App\Http\Services\Payment\PaymobService',
+        AUTHORIZE  => 'App\Http\Services\Payment\AuthorizeNetService',
+        ALIPAY => 'App\Http\Services\Payment\AlipayService',
+        XENDIT => 'App\Http\Services\Payment\XenditService',
+        BANK => 'App\Http\Services\Payment\BankService',
+        PADDLE => 'App\Http\Services\Payment\PaddleService',
+    );
+    if (is_null($input)) {
+        return $output;
+    } else {
+        return $output[$input] ?? '';
+    }
+}
+
+if (!function_exists("getGatewaySupportedCurrencies")) {
+    function getGatewaySupportedCurrencies($gateway = null)
+    {
+        $supported_currencies = array(
+            PAYPAL => [
+                'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK', 'EUR', 'HKD', 'HUF', 'INR',
+                'ILS', 'JPY', 'MYR', 'MXN', 'TWD', 'NZD', 'NOK', 'PHP', 'PLN', 'GBP',
+                'RUB', 'SGD', 'SEK', 'CHF', 'THB', 'USD', 'VND', 'ZAR'
+            ],
+            STRIPE => [
+                // Comprehensive global currency support
+                'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
+                'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL',
+                'BSD', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHF', 'CLP', 'CNY',
+                'COP', 'CRC', 'CUC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD',
+                'EGP', 'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GGP', 'GHS',
+                'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF',
+                'IDR', 'ILS', 'IMP', 'INR', 'IQD', 'IRR', 'ISK', 'JEP', 'JMD', 'JOD',
+                'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KPW', 'KRW', 'KWD', 'KYD', 'KZT',
+                'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD', 'MDL', 'MGA', 'MKD',
+                'MMK', 'MNT', 'MOP', 'MRU', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN',
+                'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK',
+                'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR',
+                'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLL', 'SOS', 'SRD', 'STN',
+                'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD',
+                'TVD', 'TWD', 'TZS', 'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VES', 'VND',
+                'VUV', 'WST', 'XAF', 'XCD', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMW', 'ZWL'
+            ],
+            RAZORPAY => ['INR', 'USD', 'EUR', 'GBP', 'AED', 'AUD', 'CAD', 'SGD'],
+            INSTAMOJO => ['INR'],
+            MOLLIE => ['EUR', 'GBP', 'USD', 'CHF', 'PLN', 'SEK', 'NOK', 'DKK', 'AUD', 'CAD'],
+            COINBASE => ['BTC', 'ETH', 'LTC', 'BCH', 'XRP', 'USDC', 'USDT', 'ADA', 'DOGE', 'MATIC', 'SHIB', 'APE', 'SOL', 'DOT', 'UNI', 'ATOM'],
+            PAYSTAC => ['NGN', 'USD', 'ZAR', 'GHS', 'EUR', 'GBP'],
+            SSLCOMMERZ => ['BDT', 'USD', 'INR', 'EUR', 'GBP'],
+            MERCADOPAGO => ['ARS', 'BRL', 'CLP', 'COP', 'MXN', 'PEN', 'UYU', 'USD'],
+            FLUTTERWAVE => ['NGN', 'USD', 'KES', 'GHS', 'ZAR', 'GBP', 'EUR'],
+            IYZIPAY => ['TRY', 'USD', 'EUR', 'GBP'],
+            BITPAY => ['BTC', 'BCH', 'ETH', 'USDT', 'DOGE', 'SHIB', 'LTC', 'WBTC', 'GUSD', 'USDC', 'DAI', 'EUROC'],
+            ZITOPAY => ['USD', 'EUR', 'GBP', 'NGN'],  // Assuming major currencies based on typical global coverage
+            BINANCE => ['BTC', 'ETH', 'BNB', 'USDT', 'BUSD', 'ADA', 'DOT', 'SOL'],  // Cryptocurrencies
+            PAYTM => ['INR'],
+            PAYHERE => ['LKR', 'USD', 'EUR', 'GBP'],
+            MAXICASH => ['USD', 'XAF', 'XOF'],
+            CINETPAY => ['XOF', 'XAF', 'EUR', 'USD'],
+            VOGUEPAY => ['NGN', 'USD', 'GBP'],
+            TOYYIBPAY => ['MYR'],
+            PAYMOB => ['EGP'],
+            AUTHORIZE => ['USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD'],
+            ALIPAY => [
+                'CNY', 'USD', 'EUR', 'GBP', 'HKD', 'JPY', 'AUD', 'SGD', 'CAD', 'NZD',
+                'KRW', 'THB'
+            ],
+            XENDIT => ['IDR', 'PHP', 'USD', 'VND', 'THB', 'MYR','SGD'],
+            PADDLE => ['USD','EUR','GBP','AUD','CAD'],
+            BRAINTREE => [
+                'AED', 'AMD', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD', 'BDT', 'BGN', 'BIF', 'BMD', 'BND', 'BOB', 'BRL',
+                'BSD', 'BWP', 'BYN', 'BZD', 'CAD', 'CHF', 'CLP', 'CNY', 'COP', 'CRC', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD',
+                'EGP', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GHS', 'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK',
+                'HTG', 'HUF', 'IDR', 'ILS', 'INR', 'ISK', 'JMD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KRW', 'KYD', 'KZT', 'LAK',
+                'LBP', 'LKR', 'LRD', 'LSL', 'LTL', 'MAD', 'MDL', 'MKD', 'MNT', 'MOP', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN',
+                'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD',
+                'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SEK', 'SGD', 'SHP', 'SLL', 'SOS', 'SRD', 'STD', 'SVC', 'SYP', 'SZL', 'THB',
+                'TJS', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VES', 'VND', 'VUV', 'WST', '1XAF',
+                'XCD', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMK', 'ZWD'
+            ]
+
+
+        );
+
+        if (is_null($gateway)) {
+            return $supported_currencies;
+        } else {
+            return $supported_currencies[$gateway] ?? [];
+        }
     }
 }

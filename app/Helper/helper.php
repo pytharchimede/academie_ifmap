@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\EmailNotify;
 use App\Models\Addon\AI\OpenAIPrompt;
 use App\Models\AffiliateHistory;
 use App\Models\BookingHistory;
@@ -15,6 +16,7 @@ use App\Models\Instructor;
 use App\Models\InstructorConsultationDayStatus;
 use App\Models\Language;
 use App\Models\Meta;
+use App\Models\NotificationEmailTemplate;
 use App\Models\Order_item;
 use App\Models\RankingLevel;
 use App\Models\Review;
@@ -26,6 +28,7 @@ use App\Models\Withdraw;
 use App\Models\ZoomSetting;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Models\UserPackage;
 use Illuminate\Support\Str;
@@ -44,6 +47,13 @@ function staticMeta($id)
     }
 
     return $metaData;
+}
+
+if (!function_exists('readableValue')) {
+    function readableValue($value)
+    {
+        return base64_decode($value);
+    }
 }
 
 function active_if_match($path)
@@ -208,6 +218,7 @@ function decimal_to_int($amount)
 {
     return number_format(number_format($amount, 2, '.', '') * 100, 0, '.', '');
 }
+
 function int_to_decimal($amount)
 {
     return number_format($amount / 100, 2, '.', '');
@@ -346,10 +357,9 @@ function get_instructor_ranking_level($badges)
 
 function getImageFile($file)
 {
-    if($file != ''){
+    if ($file != '') {
         return asset($file);
-    }
-    else{
+    } else {
         return asset('frontend/assets/img/no-image.png');
     }
 }
@@ -366,8 +376,7 @@ function getVideoFile($file)
                 $storage = Storage::disk(env('STORAGE_DRIVER'));
                 return $storage->url($file);
             }
-        }
-        else{
+        } else {
             return asset($file);
         }
     } catch (Exception $e) {
@@ -451,7 +460,7 @@ function lessonVideoDuration($course_id, $lesson_id)
     if ($lectures->count() > 0) {
         foreach ($lectures as $lecture) {
             if ($lecture->file_duration_second) {
-                $total_video_duration_in_seconds +=  $lecture->file_duration_second;
+                $total_video_duration_in_seconds += $lecture->file_duration_second;
             }
         }
 
@@ -650,7 +659,7 @@ function cart_total_with_conversion_rate($payment_method, $carts = null)
     } elseif ($payment_method == 'sslcommerz') {
         $conversion_rate = get_option('sslcommerz_conversion_rate') ? get_option('sslcommerz_conversion_rate') : 0;
     } elseif ($payment_method == 'mercadopago') {
-        $conversion_rate = get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0;
+        $conversion_rate = get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0;
     } elseif ($payment_method == 'flutterwave') {
         $conversion_rate = get_option('flutterwave_conversion_rate') ? get_option('flutterwave_conversion_rate') : 0;
     } elseif ($payment_method == 'coinbase') {
@@ -663,6 +672,8 @@ function cart_total_with_conversion_rate($payment_method, $carts = null)
         $conversion_rate = get_option('bitpay_conversion_rate') ? get_option('bitpay_conversion_rate') : 0;
     } elseif ($payment_method == 'braintree') {
         $conversion_rate = get_option('braintree_conversion_rate') ? get_option('braintree_conversion_rate') : 0;
+    } else {
+        $conversion_rate = get_option($payment_method.'_conversion_rate') ? get_option($payment_method.'_conversion_rate') : 0;
     }
 
     return $grand_total * $conversion_rate;
@@ -694,19 +705,19 @@ function distributeCommission($order)
                 }
             }
 
-            if(get_option('cashback_system_mode')){
+            if (get_option('cashback_system_mode')) {
                 $unitPrice = $order_item->unit_price;
                 $unit = $order_item->unit;
-                $amount = $unit*$unitPrice;
-                if($cashbackType == 1){
-                    $totalCashback += ($amount/100)*$cashbackAmount;
-                }else{
+                $amount = $unit * $unitPrice;
+                if ($cashbackType == 1) {
+                    $totalCashback += ($amount / 100) * $cashbackAmount;
+                } else {
                     $totalCashback += $cashbackAmount;
                 }
             }
 
             //setCashback
-            if($totalCashback > 0){
+            if ($totalCashback > 0) {
                 $order->user->increment('balance', decimal_to_int($totalCashback));
                 createTransaction($order->user_id, $totalCashback, TRANSACTION_CASHBACK, 'Cashback', 'Order_item (' . $order_item->id . ')', $order_item->id);
             }
@@ -737,12 +748,11 @@ function distributeCommission($order)
 }
 
 
-
 if (!function_exists('hasLimit')) {
     function hasLimit($type, $count)
     {
         if (get_option('subscription_mode')) {
-            $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->with('enrollments')->select('user_packages.*')->first();
+            $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->with('enrollments')->select('user_packages.*')->first();
             if ($type == PACKAGE_RULE_COURSE) {
                 $limit = @$userPackage->course;
             } else if ($type == PACKAGE_RULE_BUNDLE_COURSE) {
@@ -768,7 +778,7 @@ if (!function_exists('hasLimitSaaS')) {
     function hasLimitSaaS($type, $package_type, $count)
     {
         if (get_option('saas_mode')) {
-            $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $package_type)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->select('user_packages.*')->first();
+            $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->where('package_type', $package_type)->where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->select('user_packages.*')->first();
             if ($type == PACKAGE_RULE_STUDENT) {
                 $limit = @$userPackage->student;
             } else if ($type == PACKAGE_RULE_COURSE) {
@@ -809,11 +819,10 @@ if (!function_exists('setEnrollment')) {
     {
         $enrollment = new Enrollment();
         $enrollment->order_id = $item->order_id;
-        if(is_array($item->receiver_info) && count($item->receiver_info)){
+        if (is_array($item->receiver_info) && count($item->receiver_info)) {
             $user = User::where('email', $item->receiver_info['receiver_email'])->first();
             $enrollment->user_id = $user->id;
-        }
-        else{
+        } else {
             $enrollment->user_id = $item->user_id;
         }
 
@@ -822,7 +831,7 @@ if (!function_exists('setEnrollment')) {
         $enrollment->course_id = $item->course_id;
         $enrollment->consultation_slot_id = $item->consultation_slot_id;
         if ($item->consultation_slot_id != NULL) {
-            $consultationSlot =  $item->consultationSlot;
+            $consultationSlot = $item->consultationSlot;
             if (!is_null($consultationSlot)) {
                 $fullTime = explode(' - ', $consultationSlot->time);
                 $startDate = $consultationSlot->date . ' ' . date("H:i", strtotime($fullTime[0]));
@@ -832,15 +841,14 @@ if (!function_exists('setEnrollment')) {
             }
         } elseif ($item->bundle_id != NULL) {
             //update status to deactivated if already valid in enrollment table
-            Enrollment::where(['course_id' => $item->course_id, 'user_id' => auth()->id(), 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->update(['status' => ACCESS_PERIOD_DEACTIVATE]);
+            Enrollment::where(['course_id' => $item->course_id, 'user_id' => auth()->id(), 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->update(['status' => ACCESS_PERIOD_DEACTIVATE]);
             $enrollment->start_date = now();
             $enrollment->end_date = ($item->bundle->access_period) ? Carbon::now()->addDays($item->bundle->access_period) : MAX_EXPIRED_DATE;
         } else {
             $enrollment->start_date = now();
-            if(!is_null($expiredDays)){
+            if (!is_null($expiredDays)) {
                 $enrollment->end_date = Carbon::now()->addDays($expiredDays);
-            }
-            else{
+            } else {
                 $enrollment->end_date = ($item->course->access_period) ? Carbon::now()->addDays($item->course->access_period) : MAX_EXPIRED_DATE;
             }
         }
@@ -926,9 +934,9 @@ if (!function_exists('setBadge')) {
             foreach ($typeArray as $type => $value) {
                 $rule = $badges->where('type', $type)->where('from', '<=', $value)->where('to', '>=', $value)->first();
                 $maxRule = $badges->where('type', $type)->where('to', '<=', $value)->sortByDesc('to')->first();
-                Log::info('value'.$value);
-                Log::info('rule'.$rule);
-                Log::info('maxRule'.$maxRule);
+                Log::info('value' . $value);
+                Log::info('rule' . $rule);
+                Log::info('maxRule' . $maxRule);
                 $ranking_level_id = NULL;
                 if (!is_null($rule)) {
                     $ranking_level_id = $rule->id;
@@ -936,7 +944,7 @@ if (!function_exists('setBadge')) {
                     $ranking_level_id = $maxRule->id;
                 }
 
-                if(!is_null($ranking_level_id)){
+                if (!is_null($ranking_level_id)) {
                     UserBadge::create(['user_id' => $user->id, 'ranking_level_id' => $ranking_level_id]);
                 }
             }
@@ -986,7 +994,7 @@ if (!function_exists('get_domain_name')) {
             $path = explode('/', $parseUrl['path']);
             $host = $path[0];
         }
-        return  trim($host);
+        return trim($host);
     }
 }
 
@@ -1042,11 +1050,11 @@ if (!function_exists('getBeneficiaryAccountDetails')) {
         $returnData = '';
         if (!is_null($item)) {
             if ($item->type == BENEFICIARY_BANK) {
-                $returnData .= $item->bank_account_name.' - '.$item->bank_name.'['.$item->bank_account_number.']';
+                $returnData .= $item->bank_account_name . ' - ' . $item->bank_name . '[' . $item->bank_account_number . ']';
             } elseif ($item->type == BENEFICIARY_CARD) {
-                $returnData .= $item->card_holder_name.' - '.$item->card_number;
+                $returnData .= $item->card_holder_name . ' - ' . $item->card_number;
             } elseif ($item->type == BENEFICIARY_PAYPAL) {
-                $returnData .= 'Paypal - '.$item->paypal_email;
+                $returnData .= 'Paypal - ' . $item->paypal_email;
             }
         }
 
@@ -1058,7 +1066,7 @@ if (!function_exists('updateEnv')) {
     {
         if (count($values) > 0) {
             foreach ($values as $envKey => $envValue) {
-                setEnvironmentValue($envKey,$envValue);
+                setEnvironmentValue($envKey, $envValue);
             }
             return true;
         }
@@ -1095,7 +1103,7 @@ function setEnvironmentValue($envKey, $envValue)
         $str = file_get_contents($envFile);
         $str .= "\n"; // In case the searched variable is in the last line without \n
         $keyPosition = strpos($str, "{$envKey}=");
-        if($keyPosition) {
+        if ($keyPosition) {
             if (PHP_OS_FAMILY === 'Windows') {
                 $endOfLinePosition = strpos($str, "\n", $keyPosition);
             } else {
@@ -1112,7 +1120,7 @@ function setEnvironmentValue($envKey, $envValue)
                 fwrite($fp, $str);
                 fclose($fp);
             }
-        }else if(strtoupper($envKey) == $envKey){
+        } else if (strtoupper($envKey) == $envKey) {
             $envValue = str_replace(chr(92), "\\\\", $envValue);
             $envValue = str_replace('"', '\"', $envValue);
             $newLine = "{$envKey}=\"{$envValue}\"\n";
@@ -1123,7 +1131,7 @@ function setEnvironmentValue($envKey, $envValue)
             fclose($fp);
         }
         return true;
-    }catch (\Exception $e){
+    } catch (\Exception $e) {
         return false;
     }
 
@@ -1144,9 +1152,9 @@ if (!function_exists('calculateCashback')) {
     {
         $cashbackType = get_option('cashback_type');
         $cashbackAmount = get_option('cashback_amount');
-        if($cashbackType == 1){
-            return ($amount/100)*$cashbackAmount;
-        }else{
+        if ($cashbackType == 1) {
+            return ($amount / 100) * $cashbackAmount;
+        } else {
             return $cashbackAmount;
         }
     }
@@ -1239,7 +1247,7 @@ if (!function_exists('isEnableOpenAI')) {
     function isEnableOpenAI()
     {
         $role = auth()->user()?->role;
-        return isAddonInstalled('LMSZAIAI') && in_array($role, [USER_ROLE_INSTRUCTOR,USER_ROLE_ORGANIZATION, USER_ROLE_ADMIN]) && get_option('open_ai_system');
+        return isAddonInstalled('LMSZAIAI') && in_array($role, [USER_ROLE_INSTRUCTOR, USER_ROLE_ORGANIZATION, USER_ROLE_ADMIN]) && get_option('open_ai_system');
     }
 }
 
@@ -1260,9 +1268,9 @@ if (!function_exists('getMeta')) {
             'og_image',
         ])->first();
 
-        if(!is_null($meta)){
-                $metaData = $meta->toArray();
-        }else{
+        if (!is_null($meta)) {
+            $metaData = $meta->toArray();
+        } else {
             $meta = Meta::where('slug', 'default')->select([
                 'meta_title',
                 'meta_description',
@@ -1270,7 +1278,7 @@ if (!function_exists('getMeta')) {
                 'og_image',
             ])->first();
 
-            if(!is_null($meta)){
+            if (!is_null($meta)) {
                 $metaData = $meta->toArray();
             }
         }
@@ -1288,10 +1296,107 @@ if (!function_exists('getThemePath')) {
     function getThemePath()
     {
         $theme = get_option('theme', THEME_DEFAULT);
-        if($theme == THEME_DEFAULT){
+        if ($theme == THEME_DEFAULT) {
             return 'frontend';
         }
 
-        return 'frontend-theme-'.$theme;
+        return 'frontend-theme-' . $theme;
+    }
+}
+
+
+if (!function_exists('getEmailTemplate')) {
+    function getEmailTemplate($slug, $data)
+    {
+        $template = NotificationEmailTemplate::where(['slug' => $slug])->where('status', 1)->first();
+        $emailData['content'] = replaceTemplateFields($template->body ?? '', $data);
+        $emailData['subject'] = replaceTemplateFields($template->subject ?? '', $data);
+        $emailData['status'] = !is_null($template);
+
+        return $emailData;
+    }
+
+}
+
+if (!function_exists('replaceTemplateFields')) {
+    function replaceTemplateFields($template, $data)
+    {
+        $replacements = [
+            '{{app_contact_number}}' => get_option('app_contact_number'),
+            '{{app_email}}' => get_option('app_email'),
+            '{{app_name}}' => get_option('app_name'),
+        ];
+
+        // Exclude 'user' key from $data
+        unset($data['user']);
+
+        $replacements = array_merge($replacements, $data);
+
+        return str_replace(array_keys($replacements), array_values($replacements), $template);
+    }
+}
+
+if (!function_exists('commonEmailSend')) {
+    function commonEmailSend($email, $emailData, $force = 0)
+    {
+        try {
+            if(get_option('enable_email_notification', false) || $force){
+                if(is_array($email)){
+                    $to = $email[0];
+                    unset($email[0]);
+                    Mail::to($to)->bcc($email)->send(new EmailNotify($emailData));
+                }else{
+                    Mail::to($email)->send(new EmailNotify($emailData));
+                }
+            }
+            return true;
+        } catch (\Exception $exception) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('isVLInstall')) {
+    function isVLInstall()
+    {
+        return Cache::remember(implode('', ['li','c','e','ns','e','_','ve','r','if','i','c','a','ti','on']), 86400, function () {
+            try {
+                $lastCheck = get_option('leck');
+
+                if ($lastCheck && now()->diffInSeconds($lastCheck) < 86400) {
+                    return get_option('vldl');
+                }
+
+                $site = get_domain_name(Request::fullUrl());
+                $key = decrypt(get_option('cpk'));
+            } catch (\Exception $e) {
+                $key = '';
+            }
+
+            $cs = '\App\Http\Controllers\Auth\\' . implode('', ['Lt','c','C','on','t','r','ol','l','er']);
+
+            $controller = new $cs;
+            $result = $controller->validateKey($key, $site, 'vl', Request::ip());
+
+            // Return the validation status
+            return $result['status'];
+        });
+    }
+}
+
+if (!function_exists('getHostFromURL')) {
+    function getHostFromURL($url)
+    {
+        // Remove scheme (http://, https://) from the URL
+        $url = preg_replace('#^https?://#', '', $url);
+
+        // Remove www. if present
+        $url = preg_replace('#^www\.#', '', $url);
+
+        // Extract the domain name
+        $parts = explode('/', $url);
+        $domain = array_shift($parts);
+
+        return $domain;
     }
 }

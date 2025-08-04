@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api\Student;
 
 use App\Http\Controllers\Controller;
@@ -158,9 +159,9 @@ class CartManagementController extends Controller
         }
         $data['subscriptionPurchaseEnable'] = $subscriptionPurchaseEnable;
         $data['carts'] = [];
-        $cartData = CartManagement::whereUserId(@Auth::id())->with('coupon','course.promotionCourse.promotion', 'bundle.user', 'product.reviews', 'consultationSlot.user.instructor', 'course.user.courses.reviews')->get();
+        $cartData = CartManagement::whereUserId(@Auth::id())->with('coupon', 'course.promotionCourse.promotion', 'bundle.user', 'product.reviews', 'consultationSlot.user.instructor', 'course.user.courses.reviews')->get();
         $filterData = [];
-        foreach($cartData as $cart){
+        foreach ($cartData as $cart) {
             $filterData["id"] = $cart->id;
             $filterData["user_id"] = $cart->user_id;
             $filterData["receiver_info"] = $cart->receiver_info;
@@ -190,37 +191,37 @@ class CartManagementController extends Controller
             $filterData["product"] = $cart->product;
             $filterData["bundle"] = $cart->bundle;
             $filterData["consultationSlot"] = $cart->consultationSlot;
-            if($cart->course_id){
+            if ($cart->course_id) {
                 $filterData['author'] = $cart->course->user->name;
                 $filterData['author_level'] = get_instructor_ranking_level($cart->course->user->badges);
-                $filterData['average_rating'] = (string) $cart->course->average_rating;
-                $filterData['total_review'] = (int) $cart->course->reviews->count();
-            }elseif($cart->bundle_id){
+                $filterData['average_rating'] = (string)$cart->course->average_rating;
+                $filterData['total_review'] = (int)$cart->course->reviews->count();
+            } elseif ($cart->bundle_id) {
                 $filterData['author'] = $cart->bundle->user->name;
                 $filterData['author_level'] = get_instructor_ranking_level($cart->bundle->user->badges);
-                $filterData['average_rating'] = (string) 0;
-                $filterData['total_review'] = (int) 0;
-            }elseif($cart->consultation_slot_id){
+                $filterData['average_rating'] = (string)0;
+                $filterData['total_review'] = (int)0;
+            } elseif ($cart->consultation_slot_id) {
                 $filterData['author'] = $cart->consultationSlot->user->name;
                 $filterData['author_level'] = get_instructor_ranking_level($cart->consultationSlot->user->badges);
-                $filterData['average_rating'] = (string) getUserAverageRating($cart->consultationSlot->user->id);
-                $filterData['total_review'] = (int) getInstructorTotalReview($cart->consultationSlot->user->id);
-            }elseif($cart->product_id){
+                $filterData['average_rating'] = (string)getUserAverageRating($cart->consultationSlot->user->id);
+                $filterData['total_review'] = (int)getInstructorTotalReview($cart->consultationSlot->user->id);
+            } elseif ($cart->product_id) {
                 $filterData['author'] = $cart->product->user->name;
                 $filterData['author_level'] = get_instructor_ranking_level($cart->product->user->badges);
-                $filterData['average_rating'] = (string) @$cart->product->average_review;
-                $filterData['total_review'] = (int) @$cart->product->reviews()->count();
+                $filterData['average_rating'] = (string)@$cart->product->average_review;
+                $filterData['total_review'] = (int)@$cart->product->reviews()->count();
             }
 
             array_push($data['carts'], $filterData);
         }
 
-        $data['amount']= $carts->sum('price');
-        $data['discount']= $cartData->sum('discount');
-        $data['shipping_charge']= $carts->sum('shipping_charge');
-        $data['platform_charge']= get_platform_charge($carts->sum('price')+$carts->sum('shipping_charge'));
-        $data['platform_charge_percentage']= get_option('platform_charge');
-        $data['grand_total'] = get_number_format($carts->sum('price') + $carts->sum('shipping_charge') + get_platform_charge($carts->sum('shipping_charge')+$carts->sum('price')));
+        $data['amount'] = $carts->sum('price');
+        $data['discount'] = $cartData->sum('discount');
+        $data['shipping_charge'] = $carts->sum('shipping_charge');
+        $data['platform_charge'] = get_platform_charge($carts->sum('price') + $carts->sum('shipping_charge'));
+        $data['platform_charge_percentage'] = get_option('platform_charge');
+        $data['grand_total'] = get_number_format($carts->sum('price') + $carts->sum('shipping_charge') + get_platform_charge($carts->sum('shipping_charge') + $carts->sum('price')));
 
         return $this->success($data);
     }
@@ -283,9 +284,9 @@ class CartManagementController extends Controller
             } elseif ($coupon->coupon_type == 2) {
                 if ($cart->course) {
                     $user_id = $cart->course->user_id;
-                } else if($cart->product_id){
+                } else if ($cart->product_id) {
                     $user_id = $cart->product->user_id;
-                }else{
+                } else {
                     $user_id = NULL;
                 }
 
@@ -332,7 +333,7 @@ class CartManagementController extends Controller
                 }
             } else {
                 $msg = __("Invalid coupon code!");
-                    return $this->error([], $msg);
+                return $this->error([], $msg);
             }
         } else {
             $msg = __("Cart item not found!");
@@ -345,7 +346,7 @@ class CartManagementController extends Controller
         DB::beginTransaction();
         try {
             if ($request->course_id) {
-                $enrollment = Enrollment::where(['course_id' => $request->course_id, 'user_id' => Auth::user()->id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->first();
+                $enrollment = Enrollment::where(['course_id' => $request->course_id, 'user_id' => Auth::user()->id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->first();
 
                 if ($enrollment) {
                     $order = Order::find($enrollment->order_id);
@@ -411,7 +412,7 @@ class CartManagementController extends Controller
                     return $this->success([], $msg);
                 }
 
-                $enrollment = Enrollment::where(['user_id' => Auth::user()->id, 'bundle_id' => $request->bundle_id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->first();
+                $enrollment = Enrollment::where(['user_id' => Auth::user()->id, 'bundle_id' => $request->bundle_id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->first();
                 if ($enrollment) {
                     $order = Order::find($enrollment->order_id);
                     if ($order) {
@@ -699,7 +700,7 @@ class CartManagementController extends Controller
     public function cartDelete($id)
     {
         $cart = CartManagement::find($id);
-        if(is_null($cart)){
+        if (is_null($cart)) {
             return $this->error([], __('Data Not found'));
         }
         $cart->delete();
@@ -732,7 +733,7 @@ class CartManagementController extends Controller
         $paypal_grand_total_with_conversion_rate = ($data['carts']->sum('price') + get_platform_charge($data['carts']->sum('price'))) * (get_option('paypal_conversion_rate') ? get_option('paypal_conversion_rate') : 0);
         $data['paypal_grand_total_with_conversion_rate'] = (float)preg_replace("/[^0-9.]+/", "", number_format($paypal_grand_total_with_conversion_rate, 2));
 
-        $mercadopago_grand_total_with_conversion_rate = ($data['carts']->sum('price') + get_platform_charge($data['carts']->sum('price'))) * (get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0);
+        $mercadopago_grand_total_with_conversion_rate = ($data['carts']->sum('price') + get_platform_charge($data['carts']->sum('price'))) * (get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0);
         $data['mercadopago_grand_total_with_conversion_rate'] = (float)preg_replace("/[^0-9.]+/", "", number_format($mercadopago_grand_total_with_conversion_rate, 2));
         $data['get_platform_charge'] = get_platform_charge($data['carts']->sum('price'));
 
@@ -741,71 +742,66 @@ class CartManagementController extends Controller
 
     public function pay(Request $request)
     {
-        if(CartManagement::whereUserId(@Auth::id())->count() == 0){
+        if (CartManagement::whereUserId(@Auth::id())->count() == 0) {
             return $this->error([], __('Your cart is empty'));
         }
 
         if (is_null($request->payment_method)) {
             return $this->error([], __('Please Select Payment Method'));
-        }
-        if ($request->payment_method == 'bank') {
+        } else if ($request->payment_method == 'bank') {
             if (empty($request->deposit_by) || is_null($request->deposit_slip)) {
                 return $this->error([], __('Please Select Payment Method'));
             }
-        }
-
-        if ($request->payment_method == 'paypal') {
+        } else if ($request->payment_method == 'paypal') {
             if (empty(env('PAYPAL_CLIENT_ID')) || empty(env('PAYPAL_SECRET')) || empty(env('PAYPAL_MODE'))) {
                 return $this->error([], __('Paypal payment gateway is off!'));
             }
-        }
-
-        if ($request->payment_method == 'mollie') {
+        } else if ($request->payment_method == 'mollie') {
             if (empty(env('MOLLIE_KEY'))) {
                 return $this->error([], __('Mollie payment gateway is off!'));
             }
-        }
-
-        if ($request->payment_method == 'instamojo') {
+        } else if ($request->payment_method == 'instamojo') {
             if (empty(env('IM_API_KEY')) || empty(env('IM_AUTH_TOKEN')) || empty(env('IM_URL'))) {
                 return $this->error([], __('Instamojo payment gateway is off!'));
             }
-        }
-        if ($request->payment_method == 'paystack') {
+        } else if ($request->payment_method == 'paystack') {
             if (empty(env('PAYSTACK_PUBLIC_KEY')) || empty(env('PAYSTACK_SECRET_KEY'))) {
                 return $this->error([], __('Paystack payment gateway is off!'));
             }
-        }
-        if ($request->payment_method == 'coinbase') {
+        } else if ($request->payment_method == 'coinbase') {
             if (empty(get_option('coinbase_key'))) {
                 return $this->error([], __('Coinbase payment gateway is off!'));
             }
-        }
-        if ($request->payment_method == 'zitopay') {
+        } else if ($request->payment_method == 'zitopay') {
             if (empty(get_option('zitopay_username'))) {
                 return $this->error([], __('Zitopay payment gateway is off!'));
             }
-        }
-        if ($request->payment_method == 'iyzipay') {
+        } else if ($request->payment_method == 'iyzipay') {
             if (empty(get_option('iyzipay_key'))) {
                 return $this->error([], __('Iyzipay payment gateway is off!'));
             }
-        }
-        if ($request->payment_method == 'bitpay') {
+        } else if ($request->payment_method == 'bitpay') {
             if (empty(get_option('bitpay_key'))) {
                 return $this->error([], __('Bitpay payment gateway is off!'));
             }
-        }
-        if ($request->payment_method == 'braintree') {
+        } else if ($request->payment_method == 'braintree') {
             if (empty(get_option('braintree_key'))) {
                 return $this->error([], __('Braintree payment gateway is off!'));
+            }
+        } else if ($request->payment_method == 'mercadopago') {
+            if (empty(get_option('MERCADO_PAGO_CLIENT_ID'))) {
+                return $this->error([], __('Selected payment gateway is off!'));
+            }
+        } else {
+            if (empty(get_option($request->payment_method . '_key'))) {
+                return $this->error([], __('Selected payment gateway is off!'));
             }
         }
 
         $order_data = $this->placeOrder($request->payment_method);
-        if($order_data['status']){
+        if ($order_data['status']) {
             $order = $order_data['data'];
-        }else{
+        } else {
             return $this->error([], __('Something went wrong!'));
         }
 
@@ -819,7 +815,7 @@ class CartManagementController extends Controller
 
         if ($request->payment_method == PAYPAL) {
             $total = $order->grand_total * (get_option('paypal_conversion_rate') ? get_option('paypal_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('paypal_currency')
             ];
@@ -829,29 +825,29 @@ class CartManagementController extends Controller
                 'currency' => get_option('mollie_currency')
             ];
             $total = $order->grand_total * (get_option('mollie_conversion_rate') ? get_option('mollie_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
         } else if ($request->payment_method == MERCADOPAGO) {
             $object = [
-                'currency' => get_option('mercado_currency')
+                'currency' => get_option('mercadopago_currency')
             ];
-            $total = $order->grand_total * (get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
-        }  else if ($request->payment_method == FLUTTERWAVE) {
+            $total = $order->grand_total * (get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0);
+            $total = number_format($total, 2, '.', '');
+        } else if ($request->payment_method == FLUTTERWAVE) {
             $object = [
                 'currency' => get_option('flutterwave_currency')
             ];
             $total = $order->grand_total * (get_option('flutterwave_conversion_rate') ? get_option('flutterwave_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
         } else if ($request->payment_method == INSTAMOJO) {
             $total = $order->grand_total * (get_option('im_conversion_rate') ? get_option('im_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('im_currency')
             ];
 
         } else if ($request->payment_method == PAYSTAC) {
             $total = $order->grand_total * (get_option('paystack_conversion_rate') ? get_option('paystack_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('paystack_currency'),
                 'reference' => $request->reference
@@ -859,35 +855,35 @@ class CartManagementController extends Controller
 
         } else if ($request->payment_method == COINBASE) {
             $total = $order->grand_total * (get_option('coinbase_conversion_rate') ? get_option('coinbase_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('coinbase_currency'),
                 'reference' => $request->reference
             ];
         } else if ($request->payment_method == ZITOPAY) {
             $total = $order->grand_total * (get_option('zitopay_conversion_rate') ? get_option('zitopay_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('zitopay_currency'),
                 'reference' => $request->reference
             ];
         } else if ($request->payment_method == IYZIPAY) {
             $total = $order->grand_total * (get_option('iyzipay_conversion_rate') ? get_option('iyzipay_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('iyzipay_currency'),
                 'reference' => $request->reference
             ];
         } else if ($request->payment_method == BITPAY) {
             $total = $order->grand_total * (get_option('bitpay_conversion_rate') ? get_option('bitpay_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('bitpay_currency'),
                 'reference' => $request->reference
             ];
         } else if ($request->payment_method == BRAINTREE) {
             $total = $order->grand_total * (get_option('braintree_conversion_rate') ? get_option('braintree_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'currency' => get_option('braintree_currency'),
                 'reference' => $request->reference
@@ -916,10 +912,10 @@ class CartManagementController extends Controller
             $this->send($text, 1, $target_url, null);
             /** ====== Send notification =========*/
             return $this->success([], __('Request has been Placed! Please Wait for Approve'));
-        } else if ($request->payment_method == SSLCOMMERZ)  {
+        } else if ($request->payment_method == SSLCOMMERZ) {
 
             $total = $order->grand_total * (get_option('sslcommerz_conversion_rate') ? get_option('sslcommerz_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             # CUSTOMER INFORMATION
             $post_data = array();
             $post_data['tran_id'] = $order->uuid; // tran_id must be unique
@@ -928,25 +924,25 @@ class CartManagementController extends Controller
             $student = $order->user->student;
 
             $post_data['cus_name'] = Auth::user()->name;
-            $post_data['cus_phone'] = $request->input('phone_number',$student->address);
-            $post_data['cus_email'] = $request->input('email',$order->user->email);
-            $post_data['cus_add1'] = $request->input('address',$student->address);
+            $post_data['cus_phone'] = $request->input('phone_number', $student->address);
+            $post_data['cus_email'] = $request->input('email', $order->user->email);
+            $post_data['cus_add1'] = $request->input('address', $student->address);
             $post_data['cus_add2'] = "";
             $post_data['cus_city'] = "";
             $post_data['cus_state'] = "";
-            $post_data['cus_postcode'] = $request->input('postal_code','017');
+            $post_data['cus_postcode'] = $request->input('postal_code', '017');
             $post_data['cus_country'] = @$student->country->country_name ?? 'BD';
             $post_data['cus_phone'] = $phone;
             $post_data['cus_fax'] = "";
 
             # SHIPMENT INFORMATION
             $post_data['ship_name'] = get_option('app_name') ?? 'LMS Store';
-            $post_data['ship_add1'] = $request->input('phone_number',$student->address);
-            $post_data['ship_add2'] =  '';
-            $post_data['ship_city'] =  '';
-            $post_data['ship_state'] =  '';
+            $post_data['ship_add1'] = $request->input('phone_number', $student->address);
+            $post_data['ship_add2'] = '';
+            $post_data['ship_city'] = '';
+            $post_data['ship_state'] = '';
             $post_data['ship_postcode'] = '';
-            $post_data['ship_phone'] = $request->input('phone_number',$student->address);
+            $post_data['ship_phone'] = $request->input('phone_number', $student->address);
             $post_data['ship_country'] = @$student->country->country_name ?? 'BD';
 
             $post_data['shipping_method'] = "NO";
@@ -970,14 +966,22 @@ class CartManagementController extends Controller
             $object['cancelUrl'] = route('api.payment-order-notify', $order->uuid);
 
             $getWay = new BasePaymentService($object);
-            $responseData = $getWay->makePayment($total,$post_data);
-            if($responseData['success']){
+            $responseData = $getWay->makePayment($total, $post_data);
+            if ($responseData['success']) {
                 $order->payment_id = $responseData['payment_id'];
                 $order->save();
                 return $this->success(['url' => $responseData['redirect_url'], 'order_id' => $order->uuid]);
-            }else{
+            } else {
                 return $this->error([], __('Something went wrong!'));
             }
+        } else {
+            //for other gateways
+            $total = $order->grand_total * (get_option($request->payment_method . '_conversion_rate') ? get_option($request->payment_method . '_conversion_rate') : 0);
+            $total = number_format($total, 2, '.', '');
+            $object = [
+                'currency' => get_option($request->payment_method . '_currency'),
+                'reference' => $request->reference
+            ];
         }
 
         $order_data = $this->placeOrder($request->payment_method);
@@ -999,7 +1003,7 @@ class CartManagementController extends Controller
         $object['successUrl'] = route('api.payment-order-notify', $order->uuid);
         $object['cancelUrl'] = route('api.payment-order-notify', $order->uuid);
 
-        try{
+        try {
             $getWay = new BasePaymentService($object);
             $responseData = $getWay->makePayment($total);
             if ($responseData['success']) {
@@ -1009,7 +1013,7 @@ class CartManagementController extends Controller
             } else {
                 return $this->error([], __('Something went wrong!'));
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return $this->error([], __('Something went wrong!'));
         }
     }
@@ -1036,8 +1040,8 @@ class CartManagementController extends Controller
                 $payment_currency = get_option('paypal_currency');
                 $conversion_rate = get_option('paypal_conversion_rate') ? get_option('paypal_conversion_rate') : 0;
             } elseif ($payment_method == 'mercadopago') {
-                $payment_currency = get_option('mercado_currency');
-                $conversion_rate = get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0;
+                $payment_currency = get_option('mercadopago_currency');
+                $conversion_rate = get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0;
             }
 
             $order->payment_currency = $payment_currency;
@@ -1056,7 +1060,7 @@ class CartManagementController extends Controller
                     $order_item->course_id = $cart->course_id;
                     $order_item->owner_user_id = $cart->course ? $cart->course->user_id : null;
                     $order_item->unit_price = $cart->price;
-                    $userPackage =  UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.user_id', $order_item->owner_user_id)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->first();
+                    $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.user_id', $order_item->owner_user_id)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->first();
                     $adminCommission = ($userPackage && $userPackage->admin_commission) ? $userPackage->admin_commission : get_option('sell_commission');
                     if ($adminCommission) {
                         $order_item->admin_commission = admin_commission_by_percentage($cart->price, $adminCommission);
@@ -1069,10 +1073,10 @@ class CartManagementController extends Controller
                     $order_item->save();
                     $this->addAffiliateHistory($cart, $order, $order_item);
                 } elseif ($cart->bundle_id) {
-                    // $bundleIds = Enrollment::where('user_id', auth()->id())->whereNotIn('course_id', $cart->bundle_course_ids)->whereDate('end_date', '<', now())->select('course_id')->get()->toArray();
+                    // $bundleIds = Enrollment::where('user_id', auth()->id())->whereNotIn('course_id', $cart->bundle_course_ids)->where('end_date', '<', now())->select('course_id')->get()->toArray();
                     $courses = Course::whereIn('id', $cart->bundle_course_ids)->get();
                     $bundleUserId = $cart->bundle->user_id;
-                    $userPackage =  UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.user_id', $bundleUserId)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->first();
+                    $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.user_id', $bundleUserId)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->first();
                     $adminCommission = ($userPackage && $userPackage->admin_commission) ? $userPackage->admin_commission : get_option('sell_commission');
                     if ($adminCommission) {
                         $adminCommissionAmount = admin_commission_by_percentage($cart->price, $adminCommission);
@@ -1119,7 +1123,7 @@ class CartManagementController extends Controller
                     $order_item->consultation_date = $cart->consultation_date;
                     $order_item->unit_price = $cart->price;
 
-                    $userPackage =  UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.user_id', $order_item->owner_user_id)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->first();
+                    $userPackage = UserPackage::join('packages', 'packages.id', '=', 'user_packages.package_id')->whereIn('packages.package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.user_id', $order_item->owner_user_id)->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->first();
                     $adminCommission = ($userPackage && $userPackage->admin_commission) ? $userPackage->admin_commission : get_option('sell_commission');
                     if ($adminCommission) {
                         $order_item->admin_commission = admin_commission_by_percentage($cart->price, $adminCommission);

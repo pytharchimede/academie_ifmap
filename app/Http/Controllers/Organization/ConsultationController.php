@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\BookingHistory;
 use App\Models\ConsultationSlot;
 use App\Models\GmeetSetting;
@@ -171,6 +172,9 @@ class ConsultationController extends Controller
         $text = __("Your consultation booking request cancelled");
         $target_url = route('student.my-consultation');
         $this->send($text, 3, $target_url, $booking->student_user_id);
+
+        $sendEmail = new EmailSendService();
+        $sendEmail->sendConsultationBookingRequestCancelToUser($booking->user, $target_url, $request->cancel_reason);
 
         $this->showToastrMessage('success', __('Status Change Successfully'));
         return redirect()->back();

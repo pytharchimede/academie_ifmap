@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Instructor\LessionRequest;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Course_lecture;
 use App\Models\Course_lecture_views;
@@ -223,15 +224,22 @@ class LessonController extends Controller
 
         $lecture->save();
 
+        $emailSend = new EmailSendService();
 
         if ($course->status == 1) {
             /** ====== send notification to student ===== */
             $students = Enrollment::where('course_id', $course->id)->select('user_id')->get();
+            $target_url = null;
             foreach ($students as $student)
             {
                 $text = __("New lesson has been added");
                 $target_url = route('student.my-course.show', $course->slug);
                 $this->send($text, 3, $target_url, $student->user_id);
+            }
+
+            if($target_url){
+                $emails = $students->pluck('user_id');
+                $emailSend->sendCommonLink($emails, $target_url, 'new-lesson-added-student');
             }
             /** ====== send notification to student ===== */
         }
@@ -385,11 +393,18 @@ class LessonController extends Controller
 
         /** ====== send notification to student ===== */
         $students = Order_item::where('course_id', $lecture->course->id)->select('user_id')->get();
+        $emailSend = new EmailSendService();
+        $target_url = null;
         foreach ($students as $student)
         {
             $text = __("Lesson has been updated");
             $target_url = route('student.my-course.show', $lecture->course->slug);
             $this->send($text, 3, $target_url, $student->user_id);
+        }
+
+        if($target_url){
+            $emails = $students->pluck('user_id');
+            $emailSend->sendCommonLink($emails, $target_url, 'new-lesson-updated-student');
         }
         /** ====== send notification to student ===== */
 

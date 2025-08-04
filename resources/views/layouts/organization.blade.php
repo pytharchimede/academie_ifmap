@@ -16,7 +16,7 @@
 
     <meta name="description" content="{{ $defaultMeta['meta_description'] }}">
     <meta name="keywords" content="{{ $defaultMeta['meta_keyword'] }}">
-    
+
     <!-- Open Graph meta tags for social sharing -->
     <meta property="og:type" content="Learning">
     <meta property="og:title" content="{{ $defaultMeta['meta_title'] }}">
@@ -25,7 +25,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
 
     <meta property="og:site_name" content="{{ get_option('app_name') }}">
-    
+
     <!-- Twitter Card meta tags for Twitter sharing -->
     <meta name="twitter:card" content="Learning">
     <meta name="twitter:title" content="{{ $defaultMeta['meta_title'] }}">
@@ -97,7 +97,7 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-    
+
     @if(!empty(get_option('certificate_regular')) && get_option('certificate_regular') != '' )
     <style>
         .certificateFont {
@@ -117,7 +117,7 @@
         var deleteText = '{{ __("You wont be able to revert this!") }}';
         var deleteConfirmButton = '{{ __("Yes, Delete It!") }}';
         var deleteSuccessText = '{{ __("Item has been deleted") }}';
-        
+
         function getLanguage(){
             return {
                 "sEmptyTable": "{{ __('No data available in table') }}",
@@ -152,7 +152,7 @@
 @endphp
 
 <body class="bg-page {{$selectedLanguage->rtl == 1 ? 'direction-rtl' : 'direction-ltr' }} ">
-
+@validUserT
 @if(get_option('allow_preloader') == 1)
     <!-- Pre Loader Area start -->
      <div id="preloader">
@@ -259,6 +259,7 @@
 @if(isEnableOpenAI())
 <script src="{{asset('addon/AI/js/main.js')}}"></script>
 @endif
+<script src="{{asset('common/js/common.js')}}"></script>
 
 @stack('script')
 

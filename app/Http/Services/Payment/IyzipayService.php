@@ -15,7 +15,7 @@ use Iyzipay\Options;
 use Iyzipay\Request\CreatePayWithIyzicoInitializeRequest;
 use Illuminate\Support\Str;
 
-class IyziPayService extends BasePaymentService
+class IyzipayService extends BasePaymentService
 {
     public $apiKey;
     public $apiSecret;

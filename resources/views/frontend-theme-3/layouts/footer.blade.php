@@ -106,7 +106,11 @@
                 </div>
                 <div class="col-12 col-md-12 col-lg-4">
                     <div class="copyright-text text-center">
-                        <p class="text-white font-13">{{ __(get_option('app_copyright')) }}</p>
+                        @if(get_option('iel'))
+                            <p class="text-white font-13">{!! __(get_option(readableValue('YXBwX2NvcHlyaWdodA=='))) !!}</p>
+                        @else
+                            <p class="text-white font-13">{!! readableValue('wqkgMjAyNSBMTVNaYWkgfCBEZXNpZ24gJiBEZXZlbG9wZWQgQnkgPGEgY2xhc3M9ImZ3LWJvbGQgdGV4dC13YXJuaW5nIiB0YXJnZXQ9Il9ibGFuayIgaHJlZj0iaHR0cHM6Ly96YWluaWtsYWIuY29tIj5aYWluaWtsYWI8L2E+IA==') !!}</p>
+                        @endif
                     </div>
                 </div>
                 <div class="col-12 col-md-12 col-lg-4 pe-lg-0">

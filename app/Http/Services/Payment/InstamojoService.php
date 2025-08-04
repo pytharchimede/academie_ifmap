@@ -27,7 +27,7 @@ class InstamojoService
            $this->cancelUrl = isset($object['cancelUrl ']) ? $object['cancelUrl '] : route('paymentCancel', $object['id']);
             $this->successUrl = isset($object['successUrl']) ? $object['successUrl'] : route('paymentNotify', $object['id']);
         }
-        
+
         $this->provider = $object['payment_method'];
         $this->currency = $object['currency'];
 
@@ -43,7 +43,7 @@ class InstamojoService
         $payload = array(
             'purpose' => 'Course Purchase',
             'amount' => $price,
-            'phone' => Auth::user()->student->phone_number,
+            'phone' => Auth::user()->student->phone_number ?? '01652165242',
             'buyer_name' => Auth::user()->name,
             'redirect_url' => $this->successUrl,
             'send_email' => true,

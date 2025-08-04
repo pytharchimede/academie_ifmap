@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Discussion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DiscussionController extends Controller
 {
@@ -14,9 +15,22 @@ class DiscussionController extends Controller
     {
         $data['navDiscussionActiveClass'] = "active";
 
-        $courseIds = Discussion::whereHas('course', function ($q) {
-            $q->where('user_id', auth()->id());
-        })->whereNull('parent_id')->active()->NotView()->pluck('course_id')->toArray();
+        $courseIds = Discussion::leftJoin('course_instructor', function($join) {
+            $join->on('discussions.course_id', '=', 'course_instructor.course_id')
+                ->where('course_instructor.status', '=', 1);
+        })
+            ->join('courses', 'courses.id', '=', 'discussions.course_id')
+            ->where(function ($q){
+                $q->where('courses.user_id', auth()->id())
+                    ->orWhere('course_instructor.instructor_id', auth()->id());
+            })
+            ->whereNull('parent_id')
+            ->where('discussions.status', 1)
+            ->NotView()
+            ->select('discussions.course_id')
+            ->groupBy('discussions.course_id') // Get distinct course_id values
+            ->pluck('course_id')
+            ->toArray();
 
 
         if($request->ajax()){

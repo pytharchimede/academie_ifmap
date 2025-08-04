@@ -12,7 +12,7 @@ use App\Traits\ApiStatusTrait;
 class CourseAccessMiddleware
 {
     use ApiStatusTrait;
-    
+
     /**
      * Handle an incoming request.
      *
@@ -26,13 +26,13 @@ class CourseAccessMiddleware
         $user_id = $user->id;
 
         $course = Course::whereSlug($request->slug)->select('id', 'user_id')->firstOrfail();
-        
+
         if($course->user_id == $user_id){
             return $next($request);
         }
-        
-        $enrollment = Enrollment::where(['user_id' => $user_id, 'course_id' => $course->id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->count();
-        
+
+        $enrollment = Enrollment::where(['user_id' => $user_id, 'course_id' => $course->id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->count();
+
         if(!$enrollment){
             if ($request->wantsJson()) {
                 $msg = __("Unauthorize route");
@@ -41,7 +41,7 @@ class CourseAccessMiddleware
                 abort('403');
             }
         }
-        
+
         return $next($request);
     }
 }

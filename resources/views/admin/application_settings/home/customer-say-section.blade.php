@@ -61,6 +61,12 @@
                                     <input type="text" name="customer_say_title" id="customer_say_title" value="{{get_option('customer_say_title')}}" class="form-control" required>
                                 </div>
                             </div>
+                            <div class="form-group text-black row mb-3">
+                                <label for="customer_say_sub_title" class="col-lg-4">{{ __('Customer Say Sub Title') }} <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <input type="text" name="customer_say_sub_title" id="customer_say_sub_title" value="{{get_option('customer_say_sub_title')}}" class="form-control" required>
+                                </div>
+                            </div>
 
                             <hr>
                             <div class="item-top mb-30"><h2>{{ __('Customer Comment Section') }}</h2></div>

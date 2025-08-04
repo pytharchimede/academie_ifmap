@@ -50,7 +50,8 @@
                             $bannerImage = get_option('banner_image_' . get_option('theme', THEME_DEFAULT));
                         }
                     @endphp
-                    <div class="landing-hero-area sf-landing-hero-area" data-background="{{ getImageFile($bannerImage) }}">
+                    <div class="landing-hero-area sf-landing-hero-area"
+                         data-background="{{ getImageFile($bannerImage) }}">
                         <div class="row">
                             <div class="col-lg-6 offset-lg-3">
                                 <div class="landing-banner-text sf-landing-banner-text text-center pb-114">
@@ -68,11 +69,11 @@
                                     </p>
                                     <div class="d-flex justify-content-center align-items-center flex-wrap sf-g-10">
                                         <a href="{{ $home->banner_first_button_link }}"
-                                            class="tour-btu theme-btn heading-2-bg white-color">
+                                           class="tour-btu theme-btn heading-2-bg white-color">
                                             {{ __($home->banner_first_button_name) }}
                                             <i class="fas fa-arrow-right mx-2"></i></a>
                                         <a href="{{ $home->banner_second_button_link }}"
-                                            class="theme-btn theme-button1 mx-2">{{ __($home->banner_second_button_name) }}
+                                           class="theme-btn theme-button1 mx-2">{{ __($home->banner_second_button_name) }}
                                             <i class="fas fa-arrow-right mx-2 "></i></a>
                                     </div>
                                 </div>
@@ -138,12 +139,12 @@
                                 <div class="instructor-support-item bg-white radius-3 text-center">
                                     <div class="instructor-support-img-wrap">
                                         <img src="{{ getImageFile($instructorSupport->image_path) }}"
-                                            alt="{{ __('support') }}">
+                                             alt="{{ __('support') }}">
                                     </div>
                                     <h6>{{ __($instructorSupport->title) }}</h6>
                                     <p>{{ __($instructorSupport->subtitle) }} </p>
                                     <a href="{{ $instructorSupport->button_link ?? '#' }}"
-                                        class="theme-btn theme-button1 theme-button3">{{ __($instructorSupport->button_name) }}
+                                       class="theme-btn theme-button1 theme-button3">{{ __($instructorSupport->button_name) }}
                                         <i class="fas fa-arrow-right mx-2"></i>
                                     </a>
                                 </div>
@@ -169,7 +170,8 @@
                                 class="section-left-title-with-btn d-flex justify-content-between align-items-end align-items-center">
                                 <div class="section-title section-title-left d-flex align-items-start">
                                     <div class="section-heading-img me-3">
-                                        <img src="{{ asset('frontend-theme-2/assets/img/education.png') }}" alt="course">
+                                        <img src="{{ asset('frontend-theme-2/assets/img/education.png') }}"
+                                             alt="course">
                                     </div>
                                     <div>
                                         <h3 class="section-heading heading-2">{{ __(get_option('course_title')) }}</h3>
@@ -177,7 +179,7 @@
                                     </div>
                                 </div>
                                 <a href="{{ route('courses') }}"
-                                    class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }} <i
+                                   class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }} <i
                                         class="fas fa-arrow-right mx-2"></i>
                                 </a>
                             </div>
@@ -224,10 +226,10 @@
                                         @foreach ($featureCategories as $key => $category)
                                             <li class="nav-item mb-2" role="presentation">
                                                 <button class="nav-link {{ $key == 0 ? 'active' : '' }}"
-                                                    id="{{ $category->slug }}-tab" data-bs-toggle="pill"
-                                                    data-bs-target="#{{ $category->slug }}" type="button"
-                                                    role="tab" aria-controls="{{ $category->slug }}"
-                                                    aria-selected="{{ $key == 0 ? 'true' : 'false' }}">{{ __($category->name) }}</button>
+                                                        id="{{ $category->slug }}-tab" data-bs-toggle="pill"
+                                                        data-bs-target="#{{ $category->slug }}" type="button"
+                                                        role="tab" aria-controls="{{ $category->slug }}"
+                                                        aria-selected="{{ $key == 0 ? 'true' : 'false' }}">{{ __($category->name) }}</button>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -241,8 +243,8 @@
                             <div class="tab-content">
                                 @foreach ($featureCategories as $key => $category)
                                     <div class="tab-pane fade {{ $key == 0 ? 'show active' : '' }}"
-                                        id="{{ $category->slug }}" role="tabpanel"
-                                        aria-labelledby="{{ $category->slug }}-tab">
+                                         id="{{ $category->slug }}" role="tabpanel"
+                                         aria-labelledby="{{ $category->slug }}-tab">
                                         @foreach ($category->courses->take(1) as $course)
                                             @php
                                                 $userRelation = getUserRoleRelation($course->user);
@@ -262,9 +264,9 @@
                                                                 <span
                                                                     class="course-tag badge radius-3 font-12 font-medium position-absolute bg-green">{{ __('New course') }}</span>
                                                             @endif
-                                                            <?php
-                                                            $special = @$course->specialPromotionTagCourse->specialPromotionTag->name;
-                                                            ?>
+                                                                <?php
+                                                                $special = @$course->specialPromotionTagCourse->specialPromotionTag->name;
+                                                                ?>
                                                             @if ($special)
                                                                 <span
                                                                     class="course-tag badge radius-3 font-12 font-medium position-absolute bg-orange">
@@ -277,7 +279,7 @@
                                                         @endif
                                                         <a href="{{ route('course-details', $course->slug) }}">
                                                             <img src="{{ getImageFile($course->image_path) }}"
-                                                                alt="{{ __('course') }}">
+                                                                 alt="{{ __('course') }}">
                                                         </a>
 
                                                     </div>
@@ -302,7 +304,7 @@
                                                                         class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                                         <div class="star-ratings">
                                                                             <div class="fill-ratings"
-                                                                                style="width: {{ @$course->average_rating * 20 }}%">
+                                                                                 style="width: {{ @$course->average_rating * 20 }}%">
                                                                                 <span>★★★★★</span>
                                                                             </div>
                                                                             <div class="empty-ratings">
@@ -317,12 +319,12 @@
                                                             </div>
                                                             <div class="instructor-bottom-item font-14 font-semi-bold">
                                                                 @if ($course->learner_accessibility == 'paid')
-                                                                    <?php
-                                                                    $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
-                                                                    $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
-                                                                    $percentage = @$course->promotionCourse->promotion->percentage;
-                                                                    $discount_price = number_format($course->price - ($course->price * $percentage) / 100, 2);
-                                                                    ?>
+                                                                        <?php
+                                                                        $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
+                                                                        $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
+                                                                        $percentage = @$course->promotionCourse->promotion->percentage;
+                                                                        $discount_price = number_format($course->price - ($course->price * $percentage) / 100, 2);
+                                                                        ?>
 
                                                                     @if (now()->gt($startDate) && now()->lt($endDate))
                                                                         <div
@@ -436,9 +438,9 @@
                                                                     <span
                                                                         class="course-tag badge radius-3 font-12 font-medium position-absolute bg-green">{{ __('New course') }}</span>
                                                                 @endif
-                                                                <?php
-                                                                $special = @$course->specialPromotionTagCourse->specialPromotionTag->name;
-                                                                ?>
+                                                                    <?php
+                                                                    $special = @$course->specialPromotionTagCourse->specialPromotionTag->name;
+                                                                    ?>
                                                                 @if ($special)
                                                                     <span
                                                                         class="course-tag badge radius-3 font-12 font-medium position-absolute bg-orange">
@@ -451,7 +453,7 @@
                                                             @endif
                                                             <a href="{{ route('course-details', $course->slug) }}">
                                                                 <img src="{{ getImageFile($course->image_path) }}"
-                                                                    alt="{{ __('course') }}">
+                                                                     alt="{{ __('course') }}">
                                                             </a>
                                                         </div>
                                                         <div class="card-body">
@@ -476,7 +478,7 @@
                                                                             class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                                             <div class="star-ratings">
                                                                                 <div class="fill-ratings"
-                                                                                    style="width: {{ @$course->average_rating * 20 }}%">
+                                                                                     style="width: {{ @$course->average_rating * 20 }}%">
                                                                                     <span>★★★★★</span>
                                                                                 </div>
                                                                                 <div class="empty-ratings">
@@ -488,14 +490,15 @@
                                                                     <span
                                                                         class="rating-count font-14">({{ @$course->reviews->count() }})</span>
                                                                 </div>
-                                                                <div class="instructor-bottom-item font-14 font-semi-bold">
+                                                                <div
+                                                                    class="instructor-bottom-item font-14 font-semi-bold">
                                                                     @if ($course->learner_accessibility == 'paid')
-                                                                        <?php
-                                                                        $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
-                                                                        $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
-                                                                        $percentage = @$course->promotionCourse->promotion->percentage;
-                                                                        $discount_price = number_format($course->price - ($course->price * $percentage) / 100, 2);
-                                                                        ?>
+                                                                            <?php
+                                                                            $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
+                                                                            $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
+                                                                            $percentage = @$course->promotionCourse->promotion->percentage;
+                                                                            $discount_price = number_format($course->price - ($course->price * $percentage) / 100, 2);
+                                                                            ?>
 
                                                                         @if (now()->gt($startDate) && now()->lt($endDate))
                                                                             <div
@@ -611,7 +614,7 @@
 
                                     <div class="extensive-banner-area">
                                         <img src="{{ getImageFile(get_option('product_section_logo')) }}"
-                                            alt="{{ __('Product') }}">
+                                             alt="{{ __('Product') }}">
                                         <h3 class="section-heading mx-auto w-100 text-center">
                                             {{ __(get_option('product_section_title')) }} @if (env('LOGIN_HELP') == 'active')
                                                 <span class="color-deep-orange font-18">(Addon)</span>
@@ -620,7 +623,7 @@
                                         <p>{{ __(get_option('product_section_subtitle')) }}</p>
 
                                         <a href="{{ route('lms_product.frontend.list') }}"
-                                            class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }}
+                                           class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }}
                                             <i class="fas fa-arrow-right mx-2"></i>
                                         </a>
                                     </div>
@@ -632,11 +635,12 @@
                                 <div class="extensive-product-all owl-carousel mt-50">
                                     @foreach ($products as $product)
                                         <div class="extensive-single-product ">
-                                            <div class="course-img-wrap overflow-hidden min-h-auto w-auto flex-shrink-0">
+                                            <div
+                                                class="course-img-wrap overflow-hidden min-h-auto w-auto flex-shrink-0">
 
                                                 <a href="{{ route('lms_product.frontend.view', $product->slug) }}">
                                                     <img src="{{ getImageFile($product->thumbnail_path) }}"
-                                                        alt="{{ $product->title }}">
+                                                         alt="{{ $product->title }}">
                                                 </a>
 
                                             </div>
@@ -657,7 +661,7 @@
                                                                 class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                                 <div class="star-ratings">
                                                                     <div class="fill-ratings"
-                                                                        style="width: {{ $averate_percent }}%">
+                                                                         style="width: {{ $averate_percent }}%">
                                                                         <span>★★★★★</span>
                                                                     </div>
                                                                     <div class="empty-ratings">
@@ -704,13 +708,14 @@
                                                         </div>
                                                         @if ($product->quantity > 0)
                                                             <button type="button"
-                                                                class="theme-btn theme-button1 theme-button3 mt-25 addToCart"
-                                                                data-product_id="{{ $product->id }}" data-quantity=1
-                                                                data-route="{{ route('student.addToCart') }}">{{ __('Add To Cart') }}<i
+                                                                    class="theme-btn theme-button1 theme-button3 mt-25 addToCart"
+                                                                    data-product_id="{{ $product->id }}" data-quantity=1
+                                                                    data-route="{{ route('student.addToCart') }}">{{ __('Add To Cart') }}
+                                                                <i
                                                                     class="fas fa-arrow-right mx-2"></i></button>
                                                         @else
                                                             <button type="button"
-                                                                class="bg-warning p-2 rounded text-white w-75 mt-25">{{ __('Out of stock') }}</button>
+                                                                    class="bg-warning p-2 rounded text-white w-75 mt-25">{{ __('Out of stock') }}</button>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -737,7 +742,7 @@
                                 <div class="section-title bundle-pt">
                                     <div class="section-heading-img flex-shrink-0">
                                         <img src="{{ getImageFile(get_option('bundle_course_logo')) }}"
-                                            alt="{{ 'Bundle' }}">
+                                             alt="{{ 'Bundle' }}">
                                     </div>
                                     <div>
                                         <h3 class="section-heading w-100">{{ __(get_option('bundle_course_title')) }}
@@ -745,7 +750,7 @@
                                         <p class="section-sub-heading mb-la-24 font-la-14">
                                             {{ __(get_option('bundle_course_subtitle')) }}</p>
                                         <a href="{{ route('bundles') }}"
-                                            class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }}
+                                           class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }}
                                             <i class="fas fa-arrow-right mx-2"></i>
                                         </a>
                                     </div>
@@ -767,7 +772,7 @@
                                                                 class="course-img-wrap single-bundle-img overflow-hidden ">
                                                                 <a href="{{ route('bundle-details', [$bundle->slug]) }}">
                                                                     <img src="{{ getImageFile($bundle->image) }}"
-                                                                        alt="course" class="img-fluid">
+                                                                         alt="course" class="img-fluid">
                                                                 </a>
                                                             </div>
                                                             <div class="card-body">
@@ -852,7 +857,7 @@
                                 </div>
                             </div>
                             <a href="{{ route('courses') }}"
-                                class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }} <i
+                               class=" theme-button2 theme-button3 sf-bg-transparent">{{ __('View All') }} <i
                                     class="fas fa-arrow-right mx-2"></i>
                             </a>
                         </div>
@@ -872,7 +877,7 @@
                                         class="course-tag badge radius-3 font-12 font-medium position-absolute color-yellow-bg heading-2">{{ __('Upcoming') }}</span>
                                     <a href="{{ route('course-details', $course->slug) }}">
                                         <img src="{{ getImageFile($course->image_path) }}" alt="course"
-                                            class="img-fluid">
+                                             class="img-fluid">
                                     </a>
                                 </div>
                                 <div class="card-body">
@@ -894,7 +899,7 @@
                                                     class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                     <div class="star-ratings">
                                                         <div class="fill-ratings"
-                                                            style="width: {{ @$course->average_rating * 20 }}%">
+                                                             style="width: {{ @$course->average_rating * 20 }}%">
                                                             <span>★★★★★</span>
                                                         </div>
                                                         <div class="empty-ratings">
@@ -908,12 +913,12 @@
                                         </div>
                                         <div class="instructor-bottom-item font-14 font-semi-bold">
                                             @if ($course->learner_accessibility == 'paid')
-                                                <?php
-                                                $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
-                                                $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
-                                                $percentage = @$course->promotionCourse->promotion->percentage;
-                                                $discount_price = number_format($course->price - ($course->price * $percentage) / 100, 2);
-                                                ?>
+                                                    <?php
+                                                    $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
+                                                    $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
+                                                    $percentage = @$course->promotionCourse->promotion->percentage;
+                                                    $discount_price = number_format($course->price - ($course->price * $percentage) / 100, 2);
+                                                    ?>
                                                 @if (now()->gt($startDate) && now()->lt($endDate))
                                                     <div class="instructor-bottom-item font-14 font-semi-bold">
                                                         {{ __('Price') }}:
@@ -1021,7 +1026,8 @@
                                 <div class="training-overlay section-overlay h-100">
                                     <div class="section-title">
                                         <div class="section-heading-img flex-shrink-0">
-                                            <img src="{{ asset('uploads_demo/about_us_general/team-members-heading-img.png') }}"
+                                            <img
+                                                src="{{ asset('uploads_demo/about_us_general/team-members-heading-img.png') }}"
                                                 alt="course">
                                         </div>
                                         <div>
@@ -1030,7 +1036,8 @@
                                             <p class="section-sub-heading mb-la-24 font-la-14">
                                                 {{ __('Consult with your favorite consultant!') }}</p>
                                             <a href="{{ route('consultationInstructorList') }}"
-                                                class=" theme-button2 theme-button3 white-color sf-bg-transparent">{{ __('View All') }}<i
+                                               class=" theme-button2 theme-button3 white-color sf-bg-transparent">{{ __('View All') }}
+                                                <i
                                                     class="fas fa-arrow-right mx-2"></i>
                                             </a>
                                         </div>
@@ -1043,7 +1050,8 @@
                                 @foreach ($consultationInstructors as $user)
                                     <!-- Course item start -->
                                     <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3 mt-0 mb-25 w-100">
-                                        <div class="card instructor-item position-relative text-center border-0 p-30 px-3">
+                                        <div
+                                            class="card instructor-item position-relative text-center border-0 p-30 px-3">
                                             @php
                                                 $percent = $user->hourly_rate && $user->hourly_old_rate ? (($user->hourly_old_rate - $user->hourly_rate) * 100) / $user->hourly_old_rate : 0;
                                             @endphp
@@ -1055,7 +1063,7 @@
                                             <div class="search-instructor-img-wrap mb-15">
                                                 <a href="{{ route('userProfile', $user->id) }}">
                                                     <img src="{{ getImageFile(@$user->image_path) }}" alt="instructor"
-                                                        class="fit-image rounded-circle mx-auto"></a>
+                                                         class="fit-image rounded-circle mx-auto"></a>
                                             </div>
                                             <div class="card-body p-0">
                                                 <h6 class="card-title"><a
@@ -1067,89 +1075,93 @@
                                                         <span
                                                             class="mx-2">||</span>{{ get_instructor_ranking_level($user->badges) }}
                                                 </p>
-                                @endif
+                                                @endif
 
-                                <?php
-                                $average_rating = $user->courses->where('average_rating', '>', 0)->avg('average_rating');
-                                ?>
-                                <div
-                                    class="course-rating search-instructor-rating w-100 mb-15 d-inline-flex align-items-center justify-content-center">
+                                                    <?php
+                                                    $average_rating = $user->courses->where('average_rating', '>', 0)->avg('average_rating');
+                                                    ?>
+                                                <div
+                                                    class="course-rating search-instructor-rating w-100 mb-15 d-inline-flex align-items-center justify-content-center">
                                     <span
                                         class="font-medium font-14 me-2">{{ number_format(@$average_rating, 1) }}</span>
-                                    <div class="star-ratings">
-                                        <div class="fill-ratings" style="width: {{ $average_rating * 20 }}%">
-                                            <span>★★★★★</span>
-                                        </div>
-                                        <div class="empty-ratings">
-                                            <span>★★★★★</span>
-                                        </div>
-                                    </div>
-                                    <span
-                                        class="rating-count font-14 ms-2">({{ count(@$user->courses->where('average_rating', '>', 0)) }})</span>
-                                </div>
-                                <div class="search-instructor-bottom-item font-14 font-medium">
-                                    <div
-                                        class="search-instructor-award-img d-inline-flex flex-wrap justify-content-center">
-                                        @foreach ($user->badges as $badge)
-                                            <img src="{{ asset($badge->badge_image) }}" title="{{ $badge->name }}"
-                                                alt="{{ $badge->name }}" class="fit-image rounded-circle">
-                                        @endforeach
-                                    </div>
-                                </div>
+                                                    <div class="star-ratings">
+                                                        <div class="fill-ratings"
+                                                             style="width: {{ $average_rating * 20 }}%">
+                                                            <span>★★★★★</span>
+                                                        </div>
+                                                        <div class="empty-ratings">
+                                                            <span>★★★★★</span>
+                                                        </div>
+                                                    </div>
+                                                    <span
+                                                        class="rating-count font-14 ms-2">({{ count(@$user->courses->where('average_rating', '>', 0)) }})</span>
+                                                </div>
+                                                <div class="search-instructor-bottom-item font-14 font-medium">
+                                                    <div
+                                                        class="search-instructor-award-img d-inline-flex flex-wrap justify-content-center">
+                                                        @foreach ($user->badges as $badge)
+                                                            <img src="{{ asset($badge->badge_image) }}"
+                                                                 title="{{ $badge->name }}"
+                                                                 alt="{{ $badge->name }}"
+                                                                 class="fit-image rounded-circle">
+                                                        @endforeach
+                                                    </div>
+                                                </div>
 
-                                <div class="search-instructor-price d-inline-flex align-items-center mb-15">
-                                    @if ($user->consultation_available == 1)
-                                        @if ($user->hourly_rate < $user->hourly_old_rate)
-                                            <div class="search-instructor-new-price font-medium mx-1">
-                                                {{ $user->hourly_rate }}/{{ __('Hour') }}
+                                                <div
+                                                    class="search-instructor-price d-inline-flex align-items-center mb-15">
+                                                    @if ($user->consultation_available == 1)
+                                                        @if ($user->hourly_rate < $user->hourly_old_rate)
+                                                            <div class="search-instructor-new-price font-medium mx-1">
+                                                                {{ $user->hourly_rate }}/{{ __('Hour') }}
+                                                            </div>
+                                                            <div
+                                                                class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
+                                                                {{ $user->hourly_old_rate }}</div>
+                                                        @else
+                                                            <div class="search-instructor-new-price font-medium mx-1">
+                                                                {{ $user->hourly_rate }}/{{ __('Hour') }}
+                                                            </div>
+                                                            <div
+                                                                class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        <div class="search-instructor-new-price font-medium mx-1"></div>
+                                                        <div
+                                                            class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="w-100">
+                                                    @php $hourly_fee = 0; @endphp
+                                                    @if ($currencyPlacement ?? get_currency_placement() == 'after')
+                                                        @php $hourly_fee = $user->hourly_rate . ' ' . $currencySymbol ?? get_currency_symbol() . '/h'; @endphp
+                                                    @else
+                                                        @php $hourly_fee = $currencySymbol ?? get_currency_symbol() . ' ' . $user->hourly_rate . '/h'; @endphp
+                                                    @endif
+                                                    <button type="button" data-type="{{ $user->available_type }}"
+                                                            data-booking_instructor_user_id="{{ $user->id }}"
+                                                            data-hourly_fee="{{ $hourly_fee }}"
+                                                            data-hourly_rate="{{ $user->hourly_rate }}"
+                                                            data-get_off_days_route="{{ route('getOffDays', $user->id) }}"
+                                                            class="theme-btn theme-button1 theme-button3 w-100 bookSchedule"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#consultationBookingModal">{{ __('Book Schedule') }}
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div
-                                                class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
-                                                {{ $user->hourly_old_rate }}</div>
-                                        @else
-                                            <div class="search-instructor-new-price font-medium mx-1">
-                                                {{ $user->hourly_rate }}/{{ __('Hour') }}
-                                            </div>
-                                            <div
-                                                class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
-                                            </div>
-                                        @endif
-                                    @else
-                                        <div class="search-instructor-new-price font-medium mx-1"></div>
-                                        <div
-                                            class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
                                         </div>
-                                    @endif
-                                </div>
-                                <div class="w-100">
-                                    @php $hourly_fee = 0; @endphp
-                                    @if ($currencyPlacement ?? get_currency_placement() == 'after')
-                                        @php $hourly_fee = $user->hourly_rate . ' ' . $currencySymbol ?? get_currency_symbol() . '/h'; @endphp
-                                    @else
-                                        @php $hourly_fee = $currencySymbol ?? get_currency_symbol() . ' ' . $user->hourly_rate . '/h'; @endphp
-                                    @endif
-                                    <button type="button" data-type="{{ $user->available_type }}"
-                                        data-booking_instructor_user_id="{{ $user->id }}"
-                                        data-hourly_fee="{{ $hourly_fee }}"
-                                        data-hourly_rate="{{ $user->hourly_rate }}"
-                                        data-get_off_days_route="{{ route('getOffDays', $user->id) }}"
-                                        class="theme-btn theme-button1 theme-button3 w-100 bookSchedule"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#consultationBookingModal">{{ __('Book Schedule') }}
-                                    </button>
-                                </div>
+
+                                    </div>
+                                    <!-- Course item end -->
+                                @endforeach
                             </div>
                         </div>
-
                     </div>
-                    <!-- Course item end -->
-            @endforeach
-            </div>
-            </div>
-            </div>
-            </div>
+                </div>
+            @endif
         @endif
-    @endif
     @endif
     {{-- Personalized Training section end --}}
 
@@ -1170,21 +1182,21 @@
                     <div class="row">
 
                         <div class="nav nav-pills justify-content-center align-items-center" id="pills-tab"
-                            role="tablist">
+                             role="tablist">
                             <span class="plan-switch-month-year-text mx-3"> {{ __('Monthly') }}</span>
                             <div class="price-tab-lang">
 
                                 <span class="nav-item" role="presentation">
 
                                     <button class="nav-link active" id="pills-monthly-tab" data-bs-toggle="pill"
-                                        data-bs-target="#pills-monthly" type="button" role="tab"
-                                        aria-controls="pills-monthly" aria-selected="true"></button>
+                                            data-bs-target="#pills-monthly" type="button" role="tab"
+                                            aria-controls="pills-monthly" aria-selected="true"></button>
                                 </span>
                                 <span class="nav-item" role="presentation">
 
                                     <button class="nav-link" id="pills-yearly-tab" data-bs-toggle="pill"
-                                        data-bs-target="#pills-yearly" type="button" role="tab"
-                                        aria-controls="pills-yearly" aria-selected="false"></button>
+                                            data-bs-target="#pills-yearly" type="button" role="tab"
+                                            aria-controls="pills-yearly" aria-selected="false"></button>
                                 </span>
                             </div>
                             <span class="plan-switch-month-year-text mx-3">
@@ -1212,7 +1224,7 @@
                             <div class="section-title">
                                 <div class="section-heading-img flex-shrink-0">
                                     <img src="{{ getImageFile(get_option('top_instructor_logo')) }}"
-                                        alt="{{ __('Instructor') }}">
+                                         alt="{{ __('Instructor') }}">
                                 </div>
                                 <div>
                                     <h3 class="section-heading section-heading-light w-100">
@@ -1220,7 +1232,8 @@
                                     <p class="section-sub-heading mb-la-24 font-la-14">
                                         {{ __(get_option('top_instructor_subtitle')) }}</p>
                                     <a href="{{ route('instructor') }}"
-                                        class=" theme-button2 theme-button3 sf-bg-transparent white-color">{{ __('View All Instructor') }}<i
+                                       class=" theme-button2 theme-button3 sf-bg-transparent white-color">{{ __('View All Instructor') }}
+                                        <i
                                             class="fas fa-arrow-right mx-2"></i>
                                     </a>
                                 </div>
@@ -1244,7 +1257,7 @@
                                     <div class="search-instructor-img-wrap mb-15">
                                         <a href="{{ route('userProfile', $user->id) }}">
                                             <img src="{{ getImageFile(@$user->image_path) }}" alt="instructor"
-                                                class="fit-image rounded-circle mx-auto"></a>
+                                                 class="fit-image rounded-circle mx-auto"></a>
                                     </div>
                                     <div class="card-body p-0">
                                         <h6 class="card-title"><a
@@ -1256,71 +1269,74 @@
                                                 <span
                                                     class="mx-2">||</span>{{ get_instructor_ranking_level($user->badges) }}
                                         </p>
-                        @endif
+                                        @endif
 
-                        <?php
-                        $average_rating = $user->courses->where('average_rating', '>', 0)->avg('average_rating');
-                        ?>
-                        <div
-                            class="course-rating search-instructor-rating w-100 mb-15 d-inline-flex align-items-center justify-content-center">
-                            <span class="font-medium font-14 me-2">{{ number_format(@$average_rating, 1) }}</span>
-                            <div class="star-ratings">
-                                <div class="fill-ratings" style="width: {{ $average_rating * 20 }}%">
-                                    <span>★★★★★</span>
-                                </div>
-                                <div class="empty-ratings">
-                                    <span>★★★★★</span>
-                                </div>
-                            </div>
-                            <span
-                                class="rating-count font-14 ms-2">({{ count(@$user->courses->where('average_rating', '>', 0)) }})</span>
-                        </div>
-                        <div class="search-instructor-bottom-item font-14 font-medium">
-                            <div class="search-instructor-award-img d-inline-flex flex-wrap justify-content-center">
-                                @foreach ($user->badges as $badge)
-                                    <img src="{{ asset($badge->badge_image) }}" title="{{ $badge->name }}"
-                                        alt="{{ $badge->name }}" class="fit-image rounded-circle">
-                                @endforeach
-                            </div>
-                        </div>
+                                            <?php
+                                            $average_rating = $user->courses->where('average_rating', '>', 0)->avg('average_rating');
+                                            ?>
+                                        <div
+                                            class="course-rating search-instructor-rating w-100 mb-15 d-inline-flex align-items-center justify-content-center">
+                                            <span
+                                                class="font-medium font-14 me-2">{{ number_format(@$average_rating, 1) }}</span>
+                                            <div class="star-ratings">
+                                                <div class="fill-ratings" style="width: {{ $average_rating * 20 }}%">
+                                                    <span>★★★★★</span>
+                                                </div>
+                                                <div class="empty-ratings">
+                                                    <span>★★★★★</span>
+                                                </div>
+                                            </div>
+                                            <span
+                                                class="rating-count font-14 ms-2">({{ count(@$user->courses->where('average_rating', '>', 0)) }})</span>
+                                        </div>
+                                        <div class="search-instructor-bottom-item font-14 font-medium">
+                                            <div
+                                                class="search-instructor-award-img d-inline-flex flex-wrap justify-content-center">
+                                                @foreach ($user->badges as $badge)
+                                                    <img src="{{ asset($badge->badge_image) }}"
+                                                         title="{{ $badge->name }}"
+                                                         alt="{{ $badge->name }}" class="fit-image rounded-circle">
+                                                @endforeach
+                                            </div>
+                                        </div>
 
-                        <div class="search-instructor-price d-inline-flex align-items-center mb-15">
-                            @if ($user->consultation_available == 1)
-                                @if ($user->hourly_rate < $user->hourly_old_rate)
-                                    <div class="search-instructor-new-price font-medium mx-1">
-                                        {{ $user->hourly_rate }}/{{ __('Hour') }}
+                                        <div class="search-instructor-price d-inline-flex align-items-center mb-15">
+                                            @if ($user->consultation_available == 1)
+                                                @if ($user->hourly_rate < $user->hourly_old_rate)
+                                                    <div class="search-instructor-new-price font-medium mx-1">
+                                                        {{ $user->hourly_rate }}/{{ __('Hour') }}
+                                                    </div>
+                                                    <div
+                                                        class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
+                                                        {{ $user->hourly_old_rate }}</div>
+                                                @else
+                                                    <div class="search-instructor-new-price font-medium mx-1">
+                                                        {{ $user->hourly_rate }}/{{ __('Hour') }}
+                                                    </div>
+                                                    <div
+                                                        class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <div class="search-instructor-new-price font-medium mx-1"></div>
+                                                <div
+                                                    class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="w-100">
+                                            <a href="{{ route('userProfile', $user->id) }}"
+                                               class="green-theme-btn theme-button1 w-100">{{ __('View Profile') }}</a>
+                                        </div>
                                     </div>
-                                    <div
-                                        class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
-                                        {{ $user->hourly_old_rate }}</div>
-                                @else
-                                    <div class="search-instructor-new-price font-medium mx-1">
-                                        {{ $user->hourly_rate }}/{{ __('Hour') }}
-                                    </div>
-                                    <div
-                                        class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
-                                    </div>
-                                @endif
-                            @else
-                                <div class="search-instructor-new-price font-medium mx-1"></div>
-                                <div
-                                    class="search-instructor-old-price text-decoration-line-through color-gray font-13 font-medium mx-1">
                                 </div>
-                            @endif
-                        </div>
-                        <div class="w-100">
-                            <a href="{{ route('userProfile', $user->id) }}"
-                                class="green-theme-btn theme-button1 w-100">{{ __('View Profile') }}</a>
-                        </div>
+
+                            </div>
+                        @endforeach
                     </div>
                 </div>
-
             </div>
-    @endforeach
-    </div>
-    </div>
-    </div>
-    </div>
+        </div>
     @endif
     {{-- Personalized Training section end --}}
 
@@ -1343,15 +1359,15 @@
                             role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="instructor-tab" data-bs-toggle="tab"
-                                    data-bs-target="#instructor-tab-pane" type="button" role="tab"
-                                    aria-controls="instructor-tab-pane"
-                                    aria-selected="true">{{ __('Instructor') }}</button>
+                                        data-bs-target="#instructor-tab-pane" type="button" role="tab"
+                                        aria-controls="instructor-tab-pane"
+                                        aria-selected="true">{{ __('Instructor') }}</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="organization-tab" data-bs-toggle="tab"
-                                    data-bs-target="#organization-tab-pane" type="button" role="tab"
-                                    aria-controls="organization-tab-pane"
-                                    aria-selected="false">{{ __('Organization') }}</button>
+                                        data-bs-target="#organization-tab-pane" type="button" role="tab"
+                                        aria-controls="organization-tab-pane"
+                                        aria-selected="false">{{ __('Organization') }}</button>
                             </li>
                         </ul>
                         <div class="tab-content" id="home2SassTabContent">
@@ -1378,7 +1394,7 @@
                             <div class="section-title text-center mb-42">
                                 <div class="section-heading-img">
                                     <img src="{{ getImageFile(get_option('customer_say_logo')) }}"
-                                        alt="{{ __('achievement') }}">
+                                         alt="{{ __('achievement') }}">
                                 </div>
                                 <h3 class="section-heading section-heading-light mx-auto w-100">
                                     {{ __(get_option('customer_say_title')) }}
@@ -1392,8 +1408,8 @@
                                 <div class="d-flex flex-column flex-md-row gap-4">
                                     <div class="d-flex flex-column align-items-center align-items-md-start">
                                         <img class="rectangle-2-img fit-image object-fit-cover"
-                                            src="{{ getImageFile(get_option('customer_say_first_image')) }}"
-                                            alt="{{ __(get_option('customer_say_first_name')) }}">
+                                             src="{{ getImageFile(get_option('customer_say_first_image')) }}"
+                                             alt="{{ __(get_option('customer_say_first_name')) }}">
                                         <div
                                             class="flex-grow-1 testimonial-content landing-2 d-flex flex-column align-items-center align-items-md-start">
                                             <h6 class="font-16">{{ __(get_option('customer_say_first_name')) }}</h6>
@@ -1406,8 +1422,8 @@
                                             class="testimonial-top-content d-flex align-items-center justify-content-md-start justify-content-center">
                                             <div class="flex-shrink-0 quote-img-wrap">
                                                 <img class="wh-30"
-                                                    src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
-                                                    alt="quote">
+                                                     src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
+                                                     alt="quote">
                                             </div>
                                         </div>
                                         <div
@@ -1423,7 +1439,7 @@
                                                         class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                         <div class="star-ratings">
                                                             <div class="fill-ratings"
-                                                                style="width: {{ (float) get_option('customer_say_first_comment_rating_star') * 20 }}%">
+                                                                 style="width: {{ (float) get_option('customer_say_first_comment_rating_star') * 20 }}%">
                                                                 <span>★★★★★</span>
                                                             </div>
                                                             <div class="empty-ratings">
@@ -1444,8 +1460,8 @@
                                 <div class="d-flex flex-column flex-md-row gap-4">
                                     <div class="d-flex flex-column align-items-center align-items-md-start">
                                         <img class="rectangle-2-img fit-image object-fit-cover"
-                                            src="{{ getImageFile(get_option('customer_say_second_image')) }}"
-                                            alt="{{ __(get_option('customer_say_second_name')) }}">
+                                             src="{{ getImageFile(get_option('customer_say_second_image')) }}"
+                                             alt="{{ __(get_option('customer_say_second_name')) }}">
                                         <div
                                             class="flex-grow-1 testimonial-content landing-2 d-flex flex-column align-items-center align-items-md-start">
                                             <h6 class="font-16">{{ __(get_option('customer_say_second_name')) }}</h6>
@@ -1458,8 +1474,8 @@
                                             class="testimonial-top-content d-flex align-items-center justify-content-md-start justify-content-center">
                                             <div class="flex-shrink-0 quote-img-wrap">
                                                 <img class="wh-30"
-                                                    src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
-                                                    alt="quote">
+                                                     src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
+                                                     alt="quote">
                                             </div>
                                         </div>
                                         <div
@@ -1475,7 +1491,7 @@
                                                         class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                         <div class="star-ratings">
                                                             <div class="fill-ratings"
-                                                                style="width: {{ (float) get_option('customer_say_second_comment_rating_star') * 20 }}%">
+                                                                 style="width: {{ (float) get_option('customer_say_second_comment_rating_star') * 20 }}%">
                                                                 <span>★★★★★</span>
                                                             </div>
                                                             <div class="empty-ratings">
@@ -1496,8 +1512,8 @@
                                 <div class="d-flex flex-column flex-md-row gap-4">
                                     <div class="d-flex flex-column align-items-center align-items-md-start">
                                         <img class="rectangle-2-img fit-image object-fit-cover"
-                                            src="{{ getImageFile(get_option('customer_say_third_image')) }}"
-                                            alt="{{ __(get_option('customer_say_third_name')) }}">
+                                             src="{{ getImageFile(get_option('customer_say_third_image')) }}"
+                                             alt="{{ __(get_option('customer_say_third_name')) }}">
                                         <div
                                             class="flex-grow-1 testimonial-content landing-2 d-flex flex-column align-items-center align-items-md-start">
                                             <h6 class="font-16">{{ __(get_option('customer_say_third_name')) }}</h6>
@@ -1510,8 +1526,8 @@
                                             class="testimonial-top-content d-flex align-items-center justify-content-md-start justify-content-center">
                                             <div class="flex-shrink-0 quote-img-wrap">
                                                 <img class="wh-30"
-                                                    src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
-                                                    alt="quote">
+                                                     src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
+                                                     alt="quote">
                                             </div>
                                         </div>
                                         <div
@@ -1527,7 +1543,7 @@
                                                         class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                         <div class="star-ratings">
                                                             <div class="fill-ratings"
-                                                                style="width: {{ (float) get_option('customer_say_third_comment_rating_star') * 20 }}%">
+                                                                 style="width: {{ (float) get_option('customer_say_third_comment_rating_star') * 20 }}%">
                                                                 <span>★★★★★</span>
                                                             </div>
                                                             <div class="empty-ratings">
@@ -1548,8 +1564,8 @@
                                 <div class="d-flex flex-column flex-md-row gap-4">
                                     <div class="d-flex flex-column align-items-center align-items-md-start">
                                         <img class="rectangle-2-img fit-image object-fit-cover"
-                                            src="{{ getImageFile(get_option('customer_say_fourth_image')) }}"
-                                            alt="{{ __(get_option('customer_say_fourth_name')) }}">
+                                             src="{{ getImageFile(get_option('customer_say_fourth_image')) }}"
+                                             alt="{{ __(get_option('customer_say_fourth_name')) }}">
                                         <div
                                             class="flex-grow-1 testimonial-content landing-2 d-flex flex-column align-items-center align-items-md-start">
                                             <h6 class="font-16">{{ __(get_option('customer_say_fourth_name')) }}</h6>
@@ -1562,8 +1578,8 @@
                                             class="testimonial-top-content d-flex align-items-center justify-content-md-start justify-content-center">
                                             <div class="flex-shrink-0 quote-img-wrap">
                                                 <img class="wh-30"
-                                                    src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
-                                                    alt="quote">
+                                                     src="{{ asset('frontend/assets/img/icons-svg/quote.svg') }}"
+                                                     alt="quote">
                                             </div>
                                         </div>
                                         <div
@@ -1579,7 +1595,7 @@
                                                         class="search-instructor-rating w-100 d-inline-flex align-items-center justify-content-center">
                                                         <div class="star-ratings">
                                                             <div class="fill-ratings"
-                                                                style="width: {{ (float) get_option('customer_say_fourth_comment_rating_star') * 20 }}%">
+                                                                 style="width: {{ (float) get_option('customer_say_fourth_comment_rating_star') * 20 }}%">
                                                                 <span>★★★★★</span>
                                                             </div>
                                                             <div class="empty-ratings">
@@ -1635,8 +1651,8 @@
                                         </button>
                                     </h2>
                                     <div id="collapse_{{ $key }}"
-                                        class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}"
-                                        aria-labelledby="heading_{{ $key }}" data-bs-parent="#accordionFaq">
+                                         class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}"
+                                         aria-labelledby="heading_{{ $key }}" data-bs-parent="#accordionFaq">
                                         <div class="accordion-body">
                                             {{ __($faqQuestion->answer) }}
                                         </div>
@@ -1661,8 +1677,8 @@
                                         </button>
                                     </h2>
                                     <div id="collapse_{{ $key + $half }}"
-                                        class="accordion-collapse collapse {{ $key + $half == 0 ? 'show' : '' }}"
-                                        aria-labelledby="heading_{{ $key + $half }}" data-bs-parent="#accordionFaq-2">
+                                         class="accordion-collapse collapse {{ $key + $half == 0 ? 'show' : '' }}"
+                                         aria-labelledby="heading_{{ $key + $half }}" data-bs-parent="#accordionFaq-2">
                                         <div class="accordion-body">
                                             {{ __($faqQuestion->answer) }}
                                         </div>
@@ -1694,11 +1710,12 @@
 
     <!-- New Video Player Modal Start-->
     <div class="modal fade VideoTypeModal" id="newVideoPlayerModal" tabindex="-1" aria-labelledby="newVideoPlayerModal"
-        aria-hidden="true">
+         aria-hidden="true">
 
         <div class="modal-header border-bottom-0">
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span class="iconify"
-                    data-icon="akar-icons:cross"></span></button>
+                                                                                                     data-icon="akar-icons:cross"></span>
+            </button>
         </div>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1706,8 +1723,8 @@
                     <div class="video-player-area">
                         <!-- HTML 5 Video -->
                         <video id="player" playsinline controls
-                            data-poster="{{ getImageFile(get_option('become_instructor_video_preview_image')) }}"
-                            controlsList="nodownload">
+                               data-poster="{{ getImageFile(get_option('become_instructor_video_preview_image')) }}"
+                               controlsList="nodownload">
                             <source src="{{ getVideoFile(get_option('become_instructor_video')) }}" type="video/mp4">
                         </video>
                     </div>
@@ -1746,7 +1763,3 @@
     </script>
     <!-- Video Player js -->
 @endpush
-
-</body>
-
-</html>

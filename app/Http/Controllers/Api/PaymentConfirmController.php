@@ -102,10 +102,6 @@ class PaymentConfirmController extends Controller
                         $target_url2 = route('lms_product.instructor.product.my-product');
                         $this->sendForApi($text2, 2, $target_url2, @$item->product->user_id, $order->user_id);
                         /** ====== Send notification to instructor =========*/
-                    } else {
-                        $text = __("Your bank payment has been cancelled.");
-                        $target_url = route('lms_product.student.purchase_list');
-                        $this->sendForApi($text, 3, $target_url, $order->user_id,  $order->user_id);
                     }
                 }
 

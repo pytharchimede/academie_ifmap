@@ -31,21 +31,11 @@ class VersionUpdateController extends Controller
 
     public function processUpdate(Request $request)
     {
-        $request->validate([
-            'purchase_code' => 'required',
-            'email' => 'bail|required|email'
-        ],[
-            'purchase_code.required' => 'Purchase code field is required',
-            'email.required' => 'Customer email field is required',
-            'email.email' => 'Customer email field is must a valid email'
-        ]);
 
-        $response = Http::acceptJson()->post('https://support.zainikthemes.com/api/745fca97c52e41daa70a99407edf44dd/active', [
+        $response = Http::acceptJson()->post('https://support.zainikthemes.com/api/745fca97c52e41daa70a99407edf44dd/version-update', [
             'app' => config('app.app_code'),
             'is_localhost' => env('IS_LOCAL', false),
             'type' => 1,
-            'email' => $request->email,
-            'purchase_code' => $request->purchase_code,
             'version' => config('app.build_version'),
             'url' => $request->fullUrl(),
             'app_url' => env('APP_URL'),
@@ -310,5 +300,58 @@ class VersionUpdateController extends Controller
         if (file_exists($path)) {
             File::delete($path);
         }
+    }
+
+
+    public function pathFile()
+    {
+        $data['title'] = __('Version Update');
+
+        return view('admin.version_update.update-path-file', $data);
+
+    }
+
+    public function storePathFile(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'path' => 'required|string',
+            'file' => 'required|file',
+        ]);
+
+        // Get the full path where the file should be stored
+        $filePath = base_path($request->path);
+
+        // Ensure the directory exists
+        $directory = dirname($filePath);
+        if (!\Illuminate\Support\Facades\File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        // Move the uploaded file to the desired location, overwriting if necessary
+        $file = $request->file('file');
+        $file->move($directory, basename($filePath));
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'File stored successfully.');
+    }
+
+    public function downloadPathFile(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'path' => 'required|string',
+        ]);
+
+        // Get the full path of the file to be downloaded
+        $filePath = base_path($request->path);
+
+        // Check if the file exists
+        if (!File::exists($filePath)) {
+            return  Redirect::back()->withErrors(['message' =>'File not found.']);
+        }
+
+        // Return the file for download
+        return response()->download($filePath);
     }
 }

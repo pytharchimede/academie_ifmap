@@ -47,17 +47,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @php 
+                                        @php
                                             $current = 0;
                                         @endphp
                                         @foreach ($userPackages as $userPackage)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
-                                                    @if ($userPackage->where('status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now()) && !$current)
-                                                        @php 
+                                                    @if ($userPackage->status == PACKAGE_STATUS_ACTIVE && $userPackage->enroll_date <= now() && $userPackage->expired_date >= now() && !$current)
+                                                        @php
                                                             $current = 1;
-                                                        @endphp    
+                                                        @endphp
                                                     <a href="{{ route('saas_plan_details',$userPackage->id) }}">{{ $userPackage->package->title }} <span class="badge bg-success">{{ __('Current') }}</span></a>
                                                     @else
                                                         {{ $userPackage->package->title }}

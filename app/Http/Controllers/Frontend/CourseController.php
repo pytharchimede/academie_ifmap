@@ -46,7 +46,7 @@ class CourseController extends Controller
             if( $data['courses']->lastPage() == $request->page){
                 $lastPage = true;
             }
-    
+
             $data['lastPage'] = $lastPage;
             $data['html'] = View::make('frontend.course.render-course-list-only', $data)->render();
             $data['status'] = true;
@@ -104,7 +104,7 @@ class CourseController extends Controller
 
         $authUser = auth()->user();
         $relation = ($authUser) ? getUserRoleRelation($authUser) : NULL;
-        
+
         if($data['course']->private_mode == 1 && (is_null($authUser) || ($authUser->$relation->organization_id != $data['course']->organization_id && $authUser->id != $data['course']->user_id))){
             abort(403);
         }
@@ -150,7 +150,7 @@ class CourseController extends Controller
         $data['course_exits'] = 0;
         if ($user) {
 
-            $courseIds = Enrollment::where(['user_id' => $user->id, 'course_id' => $data['course']->id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->pluck('course_id')->count();
+            $courseIds = Enrollment::where(['user_id' => $user->id, 'course_id' => $data['course']->id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->pluck('course_id')->count();
             if ($courseIds) {
                 $data['course_exits'] = 'enrolled';
             }

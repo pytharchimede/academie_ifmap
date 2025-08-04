@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Addon\Product\Product;
 use App\Models\BookingHistory;
 use App\Models\Course;
@@ -306,45 +307,56 @@ class ReportController extends Controller
 
         /** ====== send notification to student ===== */
         $orderItems = Order_item::where('order_id', $order->id)->get();
+        $sendEmail = new EmailSendService();
         foreach ($orderItems as $orderItem)
         {
             if(!is_null($orderItem->product_id)){
                 if ($status == 'paid') {
-                    
+
                     Product::where('id', $orderItem->product_id)->decrement('quantity', $orderItem->unit);
 
                     $text = __("Your purchase product been approved.");
                     $target_url = route('lms_product.student.purchase_list');
-    
+                    $this->send($text, 3, $target_url, @$order->user_id);
+
+                    //to student
+                    $sendEmail->sendCommonUserAndLink($order->user, $target_url, 'product-order-approved-student');
+
                     /** ====== Send notification to instructor =========*/
                     $text2 = "New product sold";
                     $target_url2 = route('lms_product.instructor.product.my-product');
                     $this->send($text2, 2, $target_url2, @$orderItem->product->user_id);
+                    $sendEmail->sendCommonUserAndLink($orderItem->product->user, $target_url2, 'product-order-approved-instructor');
                     /** ====== Send notification to instructor =========*/
-    
+
                 } else {
                     $text = __("Your bank payment has been cancelled.");
                     $target_url = route('lms_product.student.purchase_list');
                     $this->send($text, 3, $target_url, $order->user_id);
+                    $sendEmail->sendCommonUserAndLink($order->user, $target_url, 'product-order-cancelled-student');
                 }
-    
-            }else{
+
+            }elseif($orderItem->course){
                 if ($status == 'paid') {
                     $text = __("Your new course has been approved and added.");
                     $target_url = route('student.my-course.show', @$orderItem->course->slug);
-    
+                    $this->send($text, 3, $target_url, @$orderItem->user_id);
+                    $sendEmail->sendCommonUserAndLink($order->user, $target_url, 'course-order-approved-student');
+
                     /** ====== Send notification to instructor =========*/
                     $text2 = "New student enrolled";
                     $target_url2 = route('instructor.all-student');
-                    $this->send($text2, 2, $target_url2, @$orderItem->course->user_id);
+                    $this->send($text2, 2, $target_url2, @$orderItem->course->owner_user_id);
+                    $sendEmail->sendCommonUserAndLink($order->course->user, $target_url2, 'course-order-approved-instructor');
                     /** ====== Send notification to instructor =========*/
-    
+
                 } else {
                     $text = __("Your bank payment has been cancelled.");
                     $target_url = route('student.my-learning');
                     $this->send($text, 3, $target_url, $order->user_id);
+                    $sendEmail->sendCommonUserAndLink($order->user, $target_url, 'course-order-cancelled-student');
                 }
-    
+
             }
         }
         /** ====== send notification to student ===== */
@@ -395,10 +407,13 @@ class ReportController extends Controller
                     $text = __("Your consultation booking cancelled money back done");
                     $target_url = route('student.my-consultation');
                     $this->send($text, 3, $target_url, $booking->student_user_id);
+                    $sendEmail = new EmailSendService();
+                    $sendEmail->sendCommonUserAndLink($booking->user, $target_url, 'consultation-cancelled-student');
 
                     /** ====== send notification to instructor ===== */
                     $target_url = route('instructor.bookingHistory');
                     $this->send($text, 2, $target_url, $booking->instructor_user_id);
+                    $sendEmail->sendCommonUserAndLink($booking->instructorUser, $target_url, 'consultation-cancelled-instructor');
 
                     DB::commit();
                     return response()->json([

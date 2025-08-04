@@ -55,11 +55,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="paypal_currency" class="form-control paypal_currency currency">
+                                                <select  name="paypal_currency" class="form-control paypal_currency currency" data-gateway="paypal">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('paypal_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-paypal" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -140,11 +143,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="stripe_currency" class="form-control stripe_currency currency">
+                                                <select  name="stripe_currency" class="form-control stripe_currency currency" data-gateway="stripe">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('stripe_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-stripe" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -228,11 +234,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="razorpay_currency" class="form-control razorpay_currency currency">
+                                                <select  name="razorpay_currency" class="form-control razorpay_currency currency" data-gateway="razorpay">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('razorpay_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-razorpay" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -292,11 +301,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="sslcommerz_currency" class="form-control sslcommerz_currency currency">
+                                                <select  name="sslcommerz_currency" class="form-control sslcommerz_currency currency" data-gateway="sslcommerz">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('sslcommerz_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-sslcommerz" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -387,11 +399,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="mollie_currency" class="form-control mollie_currency currency">
+                                                <select  name="mollie_currency" class="form-control mollie_currency currency" data-gateway="mollie">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('mollie_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-mollie" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -443,11 +458,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="im_currency" class="form-control im_currency currency">
+                                                <select  name="im_currency" class="form-control im_currency currency" data-gateway="instamojo">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('im_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-instamojo" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -539,11 +557,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="paystack_currency" class="form-control paystack_currency currency">
+                                                <select  name="paystack_currency" class="form-control paystack_currency currency" data-gateway="paystack">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('paystack_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-paystack" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -596,11 +617,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="mercado_currency" class="form-control mercado_currency currency">
+                                                <select  name="mercadopago_currency" class="form-control mercadopago_currency currency" data-gateway="mercadopago">
                                                     @foreach(getCurrency() as $code => $currency)
-                                                        <option value="{{$code}}" {{ get_option('mercado_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
+                                                        <option value="{{$code}}" {{ get_option('mercadopago_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-mercadopago" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -610,9 +634,9 @@
                                             <div class="input-group mb-3">
                                                 <span
                                                     class="input-group-text">{{ '1 ' . get_currency_symbol() . ' = ' }}</span>
-                                                <input type="number" step="any" min="0" name="mercado_conversion_rate"
-                                                       value="{{ get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 1 }}" class="form-control">
-                                                <span class="input-group-text mercado_append_currency append_currency"></span>
+                                                <input type="number" step="any" min="0" name="mercadopago_conversion_rate"
+                                                       value="{{ get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 1 }}" class="form-control">
+                                                <span class="input-group-text mercadopago_append_currency append_currency"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -620,10 +644,10 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Status') }} </label>
-                                                <select name="mercado_status" class="form-control">
+                                                <select name="mercadopago_status" class="form-control">
                                                     <option value=""> {{ __('Select Option') }}</option>
-                                                    <option value="1"{{ get_option('mercado_status') == 1 ? 'selected' : '' }}>{{ __('Enable') }} </option>
-                                                    <option value="0"{{ get_option('mercado_status') == '0' ? 'selected' : '' }}>{{ __('Disable') }} </option>
+                                                    <option value="1"{{ get_option('mercadopago_status') == 1 ? 'selected' : '' }}>{{ __('Enable') }} </option>
+                                                    <option value="0"{{ get_option('mercadopago_status') == '0' ? 'selected' : '' }}>{{ __('Disable') }} </option>
                                                 </select>
                                             </div>
                                         </div>
@@ -666,11 +690,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="flutterwave_currency" class="form-control currency">
+                                                <select  name="flutterwave_currency" class="form-control currency" data-gateway="flutterwave">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('flutterwave_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-flutterwave" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -731,11 +758,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="coinbase_currency" class="form-control currency">
+                                                <select  name="coinbase_currency" class="form-control currency" data-gateway='coinbase'>
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('coinbase_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-coinbase" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -805,11 +835,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="zitopay_currency" class="form-control currency">
+                                                <select  name="zitopay_currency" class="form-control currency" data-gateway="zitopay">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('zitopay_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-zitopay" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -853,11 +886,14 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="iyzipay_currency" class="form-control currency">
+                                                <select  name="iyzipay_currency" class="form-control currency" data-gateway = "iyzipay">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('iyzipay_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-iyzipay" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -928,7 +964,7 @@
                                     <h5 class="p-2">{{ __('Bitpay') }}</h5>
                                 </div>
                                 <div class="admin-dashboard-payment-title-left col-6 border border-bottom-0 pr-4 text-center">
-                                    <h5 class="p-2">{{ __('iyzico') }}</h5>
+                                    <h5 class="p-2">{{ __('Brain Tree') }}</h5>
                                 </div>
                             </div>
                             <div class="row justify-content-center px-3 pb-0 mb-3">
@@ -938,11 +974,15 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="bitpay_currency" class="form-control currency">
+                                                <select  name="bitpay_currency" class="form-control currency" data-gateway="bitpay">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('bitpay_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <!-- Currency match warning message -->
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-bitpay" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1002,11 +1042,15 @@
                                         <div class="col-md-12">
                                             <div class="form-group text-black">
                                                 <label>{{ __('Currency ISO Code') }} </label>
-                                                <select  name="braintree_currency" class="form-control currency">
+                                                <select  name="braintree_currency" class="form-control currency" data-gateway="braintree">
                                                     @foreach(getCurrency() as $code => $currency)
                                                         <option value="{{$code}}" {{ get_option('braintree_currency') == $code ? 'selected' : '' }}>{{$currency}}</option>
                                                     @endforeach
                                                 </select>
+                                                <!-- Currency match warning message -->
+                                                <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-braintree" style="display: none;">
+                                                    {{__('Currency not supported, please check and add carefully.')}}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1080,6 +1124,113 @@
                                 </div>
                             </div>
 
+                            <div class="row p-3 pb-0">
+                                @foreach(newGateway() as $index => $gatewayName)
+                                    <div class="col-lg-6">
+                                        <div class="admin-dashboard-payment-title-left border border-bottom-0 pr-4 text-center">
+                                            <h5 class="p-2">{{ ucfirst($gatewayName) }}</h5>
+                                        </div>
+                                        <div class="row px-3 pb-0 mb-3">
+                                            <div class="payment-getaway  border p-3">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group text-black">
+                                                            <label>{{ __('Currency ISO Code') }}</label>
+                                                            <select name="{{ $gatewayName }}_currency" class="form-control currency" data-gateway="{{ $gatewayName }}">
+                                                                @foreach(getCurrency() as $code => $currency)
+                                                                    <option value="{{ $code }}" {{ get_option($gatewayName . '_currency') == $code ? 'selected' : '' }}>
+                                                                        {{ $currency }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <!-- Currency match warning message -->
+                                                            <div class="currency-warning fs-14 text-danger pt-10" id="currency-warning-{{ $gatewayName }}" style="display: none;">
+                                                                {{__('Currency not supported, please check and add carefully.')}}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <label>{{ __('Conversion Rate') }}</label>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">{{ '1 ' . get_currency_symbol() . ' = ' }}</span>
+                                                            <input type="number" step="any" min="0" name="{{ $gatewayName }}_conversion_rate"
+                                                                   value="{{ get_option($gatewayName . '_conversion_rate', 1) }}" class="form-control">
+                                                            <span class="input-group-text append_currency"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group text-black">
+                                                            <label>{{ __('Status') }}</label>
+                                                            <select name="{{ $gatewayName }}_status" class="form-control">
+                                                                <option value=""> {{ __('Select Option') }}</option>
+                                                                <option value="1" {{ get_option($gatewayName . '_status') == '1' ? 'selected' : '' }}>
+                                                                    {{ __('Enable') }}
+                                                                </option>
+                                                                <option value="0" {{ get_option($gatewayName . '_status') == '0' ? 'selected' : '' }}>
+                                                                    {{ __('Disable') }}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group text-black">
+                                                            <label>{{ __($gatewayName.' Mode') }}</label>
+                                                            <select name="{{ $gatewayName }}_mode" class="form-control">
+                                                                <option value="sandbox" {{ get_option($gatewayName . '_mode') == 'sandbox' ? 'selected' : '' }}>
+                                                                    {{ __('Sandbox') }}
+                                                                </option>
+                                                                <option value="live" {{ get_option($gatewayName . '_mode') == 'live' ? 'selected' : '' }}>
+                                                                    {{ __('Live') }}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if(gatewaySettings()["$gatewayName"][0]['is_show'] == 1)
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group text-black">
+                                                                <label> {{ gatewaySettings()["$gatewayName"][0]['label'] }} </label>
+                                                                <input type="text" name="{{$gatewayName}}_url" value="{{ get_option($gatewayName.'_url') }}" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if(gatewaySettings()["$gatewayName"][1]['is_show'] == 1)
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group text-black">
+                                                                <label> {{gatewaySettings()["$gatewayName"][1]['label']}} </label>
+                                                                <input type="text" name="{{$gatewayName}}_key" value="{{ get_option($gatewayName.'_key') }}" class="form-control">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if(gatewaySettings()["$gatewayName"][2]['is_show'] == 1)
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group text-black">
+                                                                <label> {{gatewaySettings()["$gatewayName"][2]['label']}} </label>
+
+                                                                <input type="text" name="{{$gatewayName}}_secret" value="{{ get_option($gatewayName.'_secret') }}" class="form-control">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="input__group general-settings-btn">
@@ -1094,6 +1245,8 @@
         </div>
     </div>
     <!-- Page content area end -->
+    <input type="hidden" id="supportedCurrency" value="{{json_encode(getGatewaySupportedCurrencies())}}">
+
 @endsection
 
 @push('script')

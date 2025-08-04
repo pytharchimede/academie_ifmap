@@ -316,7 +316,7 @@
                                     </div>
                                     <div class="forum-category-single-item-right flex-grow-1 ms-3">
                                         <p class="font-14 color-hover">{{ @$suggestedForumPost->forumCategory->title }}</p>
-                                        <h6 class="font-20">{{ $suggestedForumPost->title }}</h6>
+                                        <h6 class="font-20"><a href="{{ route('forum.forumPostDetails', $suggestedForumPost->uuid) }}">{{ @$suggestedForumPost->title }}</a></h6>
                                         <p class="font-15">{!! strip_tags(Str::words($suggestedForumPost->description, 60)) !!}</p>
 
                                         <div class="forum-category-single-item-bottom d-flex justify-content-between">

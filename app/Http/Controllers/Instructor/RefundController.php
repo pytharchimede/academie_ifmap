@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Refund;
 use App\Models\Transaction;
 use App\Traits\General;
@@ -30,14 +31,17 @@ class RefundController extends Controller
             if(is_null($refund)){
                 return response()->json(['status' => false, 'message' => 'Request not found'], 404);
             }
-            
+
+            $sendEmail = new EmailSendService();
             if($request->type == 2){
                 $refund->update([
                     'status' => STATUS_REJECTED,
                     'feedback' => $request->feedback,
                 ]);
-    
+
                 $this->send('Refund Request Rejected', 3, null, $refund->user_id);
+                $sendEmail->sendRefundRequestRejectedToUser($refund->user, $request->feedback);
+
                 DB::commit();
                 return response()->json(['status' => true, 'message' => 'Rejected successfully'], 200);
             }
@@ -47,13 +51,13 @@ class RefundController extends Controller
                 ]);
 
                 $refund->enrollment()->update(['status' => STATUS_PENDING]);
-    
+
                 //refund process
                 createTransaction($refund->user_id, $refund->amount, TRANSACTION_REFUND, 'Refund', 'Order_item (' . $refund->order_item_id . ')');
                 if ($refund->user) {
                     $refund->user->increment('balance', decimal_to_int($refund->amount));
                 }
-                
+
                 $allTransaction = Transaction::where('order_item_id', $refund->order_item_id)->get();
                 foreach($allTransaction as $transaction){
                     createTransaction($transaction->user_id, $transaction->amount, TRANSACTION_SELL_REFUND, 'Refund Reversed', 'Order_item (' . $transaction->order_item_id . ')');
@@ -63,10 +67,11 @@ class RefundController extends Controller
                 }
 
                 $this->send('Refund Request Accepted', 3, null, $refund->user_id);
+                $sendEmail->sendRefundRequestAcceptedToUser($refund->user);
                 DB::commit();
                 return response()->json(['status' => true, 'message' => 'Approved Successfully'], 200);
             }
-            
+
         }catch(Exception $e){
             DB::rollback();
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);

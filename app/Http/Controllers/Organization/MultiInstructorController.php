@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\CourseInstructor;
 use App\Traits\General;
 use App\Traits\SendNotification;
@@ -35,12 +36,16 @@ class MultiInstructorController extends Controller
         $courseInstructor->status = $request->status;
         $courseInstructor->save();
 
+        $sendEmail = new EmailSendService();
+
         if ($request->status == STATUS_ACCEPTED) {
             $text = __("Co instructor request has been approved");
+            $sendEmail->sendCoInstructorRequestApproved($courseInstructor->course->user_id, auth()->user());
         }
 
         if ($request->status == STATUS_REJECTED) {
             $text = __("Co instructor request has been rejected");
+            $sendEmail->sendCoInstructorRequestRejected($courseInstructor->course->user_id, auth()->user());
         }
 
         $target_url = route('course-details', $courseInstructor->course->slug);

@@ -78,6 +78,15 @@ class EmailTemplateController extends Controller
         return view('admin.emailTemplate.edit', $data);
     }
 
+    public function delete($uuid)
+    {
+        if (!Auth::user()->can('user_management')) {
+            abort('403');
+        } // end permission checking
+
+        return $this->model->deleteByUuid($uuid);
+    }
+
     public function update(EmailTemplateRequest $request, $uuid)
     {
         if (!Auth::user()->can('user_management')) {

@@ -17,6 +17,7 @@ use App\Models\Exam;
 use App\Models\FaqQuestion;
 use App\Models\Home;
 use App\Models\InstructorSupport;
+use App\Models\Language;
 use App\Models\Package;
 use App\Models\Review;
 use App\Models\State;
@@ -24,6 +25,7 @@ use App\Models\User;
 use App\Models\UserPackage;
 use App\Traits\ApiStatusTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -298,70 +300,75 @@ class HomeController extends Controller
 
     public function categoryCourse($slug)
     {
-        $featureCategory = Category::where('slug', $slug)->with('activeCourses')->with('courses.reviews')->with('courses.user')->with('courses.promotionCourse.promotion')->with('courses.instructor.ranking_level')->with('courses.specialPromotionTagCourse.specialPromotionTag')->first();
+        try {
+            $featureCategory = Category::where('slug', $slug)->with('activeCourses')->with('courses.reviews')->with('courses.user')->with('courses.promotionCourse.promotion')->with('courses.instructor.ranking_level')->with('courses.specialPromotionTagCourse.specialPromotionTag')->first();
 
-        $data['topCourse'] = Enrollment::query()
-            ->whereMonth('created_at', now()->month)
-            ->whereNotNull('course_id')
-            ->select('course_id', DB::raw('count(*) as total'))
-            ->groupBy('course_id')
-            ->limit(10)
-            ->orderBy('total', 'desc')
-            ->get()
-            ->pluck('course_id')
-            ->toArray();
+            $data['topCourse'] = Enrollment::query()
+                ->whereMonth('created_at', now()->month)
+                ->whereNotNull('course_id')
+                ->select('course_id', DB::raw('count(*) as total'))
+                ->groupBy('course_id')
+                ->limit(10)
+                ->orderBy('total', 'desc')
+                ->get()
+                ->pluck('course_id')
+                ->toArray();
 
-        if(count($featureCategory->activeCourses)){
-            foreach($featureCategory->activeCourses->take(12) as $course){
-                $filterData = [];
-                $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
-                $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
-                $percentage = @$course->promotionCourse->promotion->percentage;
-                $discount_price = number_format($course->price - (($course->price * $percentage) / 100), 2);
+            if(count($featureCategory->activeCourses)){
+                foreach($featureCategory->activeCourses->take(12) as $course){
+                    $filterData = [];
+                    $startDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->start_date));
+                    $endDate = date('d-m-Y H:i:s', strtotime(@$course->promotionCourse->promotion->end_date));
+                    $percentage = @$course->promotionCourse->promotion->percentage;
+                    $discount_price = number_format($course->price - (($course->price * $percentage) / 100), 2);
 
-                if(now()->gt($startDate) && now()->lt($endDate)){
-                    $filterData['discount_price'] = $discount_price;
-                    $filterData['price'] = $course->price;
-                }elseif($course->price <= $course->old_price){
-                    $filterData['price'] = $course->old_price;
-                    $filterData['discount_price'] = $course->price;
-                }else{
-                    $filterData['price'] = $course->price;
-                    $filterData['discount_price'] = $course->price;
+                    if(now()->gt($startDate) && now()->lt($endDate)){
+                        $filterData['discount_price'] = $discount_price;
+                        $filterData['price'] = $course->price;
+                    }elseif($course->price <= $course->old_price){
+                        $filterData['price'] = $course->old_price;
+                        $filterData['discount_price'] = $course->price;
+                    }else{
+                        $filterData['price'] = $course->price;
+                        $filterData['discount_price'] = $course->price;
+                    }
+
+                    if($course->learner_accessibility != 'free' && get_option('cashback_system_mode', 0)){
+                        $filterData['cashback'] = calculateCashback($course->price) ;
+                    }
+
+                    $userRelation = getUserRoleRelation($course->user);
+
+                    $filterData['title'] = $course->title;
+                    $filterData['average_rating'] = $course->average_rating;
+                    $filterData['slug'] = $course->slug;
+                    $filterData['id'] = $course->id;
+                    $filterData['created_at'] = $course->created_at;
+                    $filterData['image_url'] = $course->image_url;
+                    $filterData['learner_accessibility'] = $course->learner_accessibility;
+                    $filterData['total_review'] = $course->reviews->count();
+                    $filterData['author'] = $course->$userRelation->name;
+                    $filterData['author_user_id'] = $course->user_id;
+                    $awards = '';
+
+                    foreach($course->$userRelation->awards as $award){
+                        $awards .= ' | '. $award->name;
+                    }
+
+                    $filterData['author_awards'] = $awards;
+
+                    $data['courses'][] = $filterData;
                 }
-
-                if($course->learner_accessibility != 'free' && get_option('cashback_system_mode', 0)){
-                    $filterData['cashback'] = calculateCashback($course->price) ;
-                }
-
-                $userRelation = getUserRoleRelation($course->user);
-
-                $filterData['title'] = $course->title;
-                $filterData['average_rating'] = $course->average_rating;
-                $filterData['slug'] = $course->slug;
-                $filterData['id'] = $course->id;
-                $filterData['created_at'] = $course->created_at;
-                $filterData['image_url'] = $course->image_url;
-                $filterData['learner_accessibility'] = $course->learner_accessibility;
-                $filterData['total_review'] = $course->reviews->count();
-                $filterData['author'] = $course->$userRelation->name;
-                $filterData['author_user_id'] = $course->user_id;
-                $awards = '';
-
-                foreach($course->$userRelation->awards as $award){
-                    $awards .= ' | '. $award->name;
-                }
-
-                $filterData['author_awards'] = $awards;
-
-                $data['courses'][] = $filterData;
+            }else{
+                $data['courses'] = [];
             }
-        }
-        else{
+
+            return $this->success($data);
+        }catch (\Exception $e){
             $data['courses'] = [];
+            return $this->success($data);
         }
 
-        return $this->success($data);
     }
 
     public function faqQuestions()
@@ -495,7 +502,7 @@ class HomeController extends Controller
     public function subscriptions()
     {
         $data['subscriptions'] = Package::where('status', PACKAGE_STATUS_ACTIVE)->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->where('in_home', PACKAGE_STATUS_ACTIVE)->orderBy('order', 'ASC')->get();
-        $data['mySubscriptionPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->first();
+        $data['mySubscriptionPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->where('package_type', PACKAGE_TYPE_SUBSCRIPTION)->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->orderBy('user_packages.id','desc')->first();
         return $this->success($data);
     }
 
@@ -504,7 +511,7 @@ class HomeController extends Controller
         $packages = Package::where('status', PACKAGE_STATUS_ACTIVE)->where('in_home', PACKAGE_STATUS_ACTIVE)->whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->orderBy('order', 'ASC')->get();
         $data['instructorSaas'] = $packages->where('package_type', PACKAGE_TYPE_SAAS_INSTRUCTOR);
         $data['organizationSaas'] = $packages->where('package_type', PACKAGE_TYPE_SAAS_ORGANIZATION);
-        $data['mySaasPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->first();
+        $data['mySaasPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->orderBy('user_packages.id','desc')->first();
         return $this->success($data);
     }
 
@@ -519,6 +526,8 @@ class HomeController extends Controller
     }
 
     public function getLanguageJson($code){
+        $language = Language::where('iso_code', $code)->first();
+        $code = is_null($language) ? get_default_language() : $code;
         $data = json_decode(file_get_contents(resource_path('lang/'.$code.'.json')));
         return $this->success($data);
     }

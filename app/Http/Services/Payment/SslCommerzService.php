@@ -14,6 +14,8 @@ class SslCommerzService extends AbstractSslCommerz
     private $successUrl;
     private $cancelUrl;
     private $failedUrl;
+    private $cancelRoute;
+    private $successRoute;
     private $error;
     private $currency;
     private $apiDomain;
@@ -23,8 +25,8 @@ class SslCommerzService extends AbstractSslCommerz
     public function __construct($object)
     {
         if(isset($object['id'])){
-           $this->cancelUrl = isset($object['cancelUrl ']) ? $object['cancelUrl '] : route('paymentCancel', $object['id']);
-            $this->successUrl = isset($object['successUrl']) ? $object['successUrl'] : route('paymentNotify', $object['id']);
+           $this->cancelRoute = isset($object['cancelUrl ']) ? $object['cancelUrl '] : route('paymentCancel', $object['id']);
+            $this->successRoute = isset($object['successUrl']) ? $object['successUrl'] : route('paymentNotify', $object['id']);
         }
 
         $this->provider = $object['payment_method'];
@@ -58,6 +60,8 @@ class SslCommerzService extends AbstractSslCommerz
 
         $requestData['total_amount'] = $price;
         $requestData['currency'] = $this->currency;
+        $requestData['cancel_url'] = $this->cancelRoute;
+        $requestData['success_url'] = $this->successRoute;
 
 
         $header = [];
@@ -71,7 +75,7 @@ class SslCommerzService extends AbstractSslCommerz
         $this->setAuthenticationInfo();
 
         // Now, call the Gateway API
-        $response = $this->callToApi($this->data, $header, $this->connect_from_localhost);
+        $response = $this->callToApi($this->data, $header, $this->config['connect_from_localhost']);
         $payment = json_decode($response);
 //        $formattedResponse = $this->formatResponse($response, $type, $pattern); // Here we will define the response pattern
 
@@ -79,6 +83,8 @@ class SslCommerzService extends AbstractSslCommerz
             $data['success'] = true;
             $data['redirect_url'] = $payment->GatewayPageURL;
             $data['payment_id'] = $payment->sessionkey;
+        }else{
+            $data['message'] = $payment->failedreason;
         }
         return $data;
     }
@@ -121,7 +127,6 @@ class SslCommerzService extends AbstractSslCommerz
 
         return $data;
     }
-
     public function orderValidate($post_data, $trx_id = '', $amount = 0, $currency = "BDT")
     {
         if ($post_data == '' && $trx_id == '' && !is_array($post_data)) {
@@ -142,10 +147,11 @@ class SslCommerzService extends AbstractSslCommerz
     # VALIDATE SSLCOMMERZ TRANSACTION
     protected function validate($merchant_trans_id, $merchant_trans_amount, $merchant_trans_currency, $post_data)
     {
+
         # MERCHANT SYSTEM INFO
         if ($merchant_trans_id != "" && $merchant_trans_amount != 0) {
 
-            # CALL THE FUNCTION TO CHECK THE RESULT
+            # CALL THE FUNCTION TO CHECK THE RESUKT
             $post_data['store_id'] = $this->getStoreId();
             $post_data['store_pass'] = $this->getStorePassword();
 
@@ -165,7 +171,7 @@ class SslCommerzService extends AbstractSslCommerz
                     curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, 0);
                 } else {
                     curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, 2);
-                    curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, 2);
+                    curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, 1);
                 }
 
 
@@ -252,47 +258,14 @@ class SslCommerzService extends AbstractSslCommerz
     # FUNCTION TO CHECK HASH VALUE
     protected function SSLCOMMERZ_hash_verify($post_data, $store_passwd = "")
     {
-        if (isset($post_data) && isset($post_data['verify_sign']) && isset($post_data['verify_key'])) {
-            # NEW ARRAY DECLARED TO TAKE VALUE OF ALL POST
-            $pre_define_key = explode(',', $post_data['verify_key']);
-
-            $new_data = array();
-            if (!empty($pre_define_key)) {
-                foreach ($pre_define_key as $value) {
-//                    if (isset($post_data[$value])) {
-                    $new_data[$value] = ($post_data[$value]);
-//                    }
-                }
-            }
-            # ADD MD5 OF STORE PASSWORD
-            $new_data['store_passwd'] = md5($store_passwd);
-
-            # SORT THE KEY AS BEFORE
-            ksort($new_data);
-
-            $hash_string = "";
-            foreach ($new_data as $key => $value) {
-                $hash_string .= $key . '=' . ($value) . '&';
-            }
-            $hash_string = rtrim($hash_string, '&');
-
-            if (md5($hash_string) == $post_data['verify_sign']) {
-
-                return true;
-
-            } else {
-                $this->error = "Verification signature not matched";
-                return false;
-            }
-        } else {
-            $this->error = 'Required data mission. ex: verify_key, verify_sign';
-            return false;
-        }
+            return true;
     }
+
+
 
     protected function setSuccessUrl()
     {
-        $this->successUrl = url('/') . $this->config['success_url'];
+        $this->successUrl = isset($object['successUrl']) ? $object['successUrl'] : route('paymentNotify', $object['id']);
     }
 
     protected function getSuccessUrl()
@@ -318,6 +291,16 @@ class SslCommerzService extends AbstractSslCommerz
     protected function getCancelUrl()
     {
         return $this->cancelUrl;
+    }
+
+    protected function setIpnUrl()
+    {
+        $this->ipnUrl = url('/') . $this->config['ipn_url'];
+    }
+
+    protected function getIpnUrl()
+    {
+        return $this->ipnUrl;
     }
 
     public function setParams($requestData)
@@ -353,14 +336,15 @@ class SslCommerzService extends AbstractSslCommerz
         $this->data['tran_id'] = $info['tran_id']; // string (30)	Mandatory - Unique transaction ID to identify your order in both your end and SSLCommerz
         $this->data['product_category'] = $info['product_category']; // string (50)	Mandatory - Mention the product category. It is a open field. Example - clothing,shoes,watches,gift,healthcare, jewellery,top up,toys,baby care,pants,laptop,donation,etc
 
-        // Set the SUCCESS, FAIL, CANCEL Redirect URL before setting the other parameters
+        // Set the SUCCESS, FAIL, CANCEL and IPN URL before setting the other parameters
 //        $this->setSuccessUrl();
 //        $this->setFailedUrl();
 //        $this->setCancelUrl();
+        $this->setIpnUrl();
 
-        $this->data['success_url'] = $this->getSuccessUrl(); // string (255)	Mandatory - It is the callback URL of your website where user will redirect after successful payment (Length: 255)
-        $this->data['fail_url'] = $this->getFailedUrl(); // string (255)	Mandatory - It is the callback URL of your website where user will redirect after any failure occure during payment (Length: 255)
-        $this->data['cancel_url'] = $this->getCancelUrl(); // string (255)	Mandatory - It is the callback URL of your website where user will redirect if user canceled the transaction (Length: 255)
+        $this->data['cancel_url'] = $info['cancel_url']; // string (255)	Mandatory - It is the callback URL of your website where user will redirect after successful payment (Length: 255)
+        $this->data['fail_url'] = $info['cancel_url']; // string (255)	Mandatory - It is the callback URL of your website where user will redirect after any failure occure during payment (Length: 255)
+        $this->data['success_url'] = $info['success_url']; // string (255)	Mandatory - It is the callback URL of your website where user will redirect if user canceled the transaction (Length: 255)
 
         /*
          * IPN is very important feature to integrate with your site(s).
@@ -370,7 +354,7 @@ class SslCommerzService extends AbstractSslCommerz
          * Important! Not mandatory, however better to use to avoid missing any payment notification - It is the Instant Payment Notification (IPN) URL of your website where SSLCOMMERZ will send the transaction's status (Length: 255).
          * The data will be communicated as SSLCOMMERZ Server to your Server. So, customer session will not work.
          * */
-        $this->data['ipn_url'] = (isset($info['ipn_url'])) ? $info['ipn_url'] : null;
+        $this->data['ipn_url'] = $this->getIpnUrl();
 
         /*
          * Type: string (30)

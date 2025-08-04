@@ -25,7 +25,10 @@ class StudentController extends Controller
         }
         //End:: Course search
 
-        $data['enrollments'] = $enrollments->with('user')->with('course')->paginate();
+        $data['enrollments'] = $enrollments->join('users', function ($join) {
+            $join->on('users.id', '=', 'enrollments.user_id')
+                 ->whereNull('users.deleted_at');
+        })->select('enrollments.*')->with('user')->with('course')->paginate();
 
         return view('instructor.all-student')->with($data);
     }

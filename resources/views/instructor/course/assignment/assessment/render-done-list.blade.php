@@ -5,7 +5,7 @@
             <div class="card assignment-assessment-item done-assignment-item">
                 <form>
                     <div class="assignment-img-wrap mb-20">
-                        <img src="{{ getImageFile(@$assignmentSubmitDone->user->image_path) }}" alt="img">
+                        <img class="w-100 h-100" src="{{ getImageFile(@$assignmentSubmitDone->user->image_path) }}" alt="img">
                     </div>
                     <div class="card-body p-0">
                         <h6 class="card-title mb-2"><span class="user_name">{{ @$assignmentSubmitDone->user->name }}</span></h6>

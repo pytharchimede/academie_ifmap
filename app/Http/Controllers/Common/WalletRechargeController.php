@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Bank;
 use App\Http\Controllers\Logger;
 use App\Http\Services\Payment\BasePaymentService;
@@ -57,7 +58,7 @@ class WalletRechargeController extends Controller
 
     public function checkout(Request $request)
     {
-        if(!get_option('wallet_recharge_system', 0)){
+        if (!get_option('wallet_recharge_system', 0)) {
             $this->showToastrMessage('error', 'Wallet recharge is not enable');
             return redirect()->back();
         }
@@ -67,7 +68,7 @@ class WalletRechargeController extends Controller
         $data['banks'] = Bank::orderBy('name', 'asc')->where('status', 1)->get();
         $amount = $request->amount;
         $data['amount'] = $amount;
-        if($amount > 0){
+        if ($amount > 0) {
             $razorpay_grand_total_with_conversion_rate = ($amount + get_platform_charge($amount)) * (get_option('razorpay_conversion_rate') ? get_option('razorpay_conversion_rate') : 0);
             $data['razorpay_grand_total_with_conversion_rate'] = (float)preg_replace("/[^0-9.]+/", "", number_format($razorpay_grand_total_with_conversion_rate, 2));
 
@@ -77,8 +78,7 @@ class WalletRechargeController extends Controller
             $sslcommerz_grand_total_with_conversion_rate = ($amount + get_platform_charge($amount)) * (get_option('sslcommerz_conversion_rate') ? get_option('sslcommerz_conversion_rate') : 0);
             $data['sslcommerz_grand_total_with_conversion_rate'] = (float)preg_replace("/[^0-9.]+/", "", number_format($sslcommerz_grand_total_with_conversion_rate, 2));
             return view('frontend.wallet.recharge', $data);
-        }
-        else{
+        } else {
             $this->showToastrMessage('error', 'Amount must be grater than 0');
             return redirect()->back();
         }
@@ -109,7 +109,7 @@ class WalletRechargeController extends Controller
             }
             $payment = $this->placeOrder($request->payment_method, $request);
 
-            if(!$payment){
+            if (!$payment) {
                 DB::rollBack();
                 $this->showToastrMessage('error', __('Something went wrong!'));
                 return redirect()->back();
@@ -139,10 +139,16 @@ class WalletRechargeController extends Controller
 
             /** ====== Send notification =========*/
             $text = __("Wallet recharge completed");
-            $this->send($text, 3, null , auth()->id());
+            $this->send($text, 3, null, auth()->id());
+
+            //to user
+            $sendEmail = new EmailSendService();
+            $sendEmail->walletRechargeToUser(auth()->user(), route('wallet./'));
 
             $text = __("Wallet recharge");
             $this->send($text, 1, null, null);
+            //to admin
+            $sendEmail->walletRechargeToAdmin(route('admin.wallet_recharge.list'));
             /** ====== Send notification =========*/
             $this->showToastrMessage('success', 'Payment has been completed');
 
@@ -170,9 +176,7 @@ class WalletRechargeController extends Controller
                 $this->showToastrMessage('error', 'Bank Information Not Valid!');
                 return redirect()->back();
             }
-        }
-
-        if ($request->payment_method == PAYPAL) {
+        } else if ($request->payment_method == PAYPAL) {
             if (empty(env('PAYPAL_CLIENT_ID')) || empty(env('PAYPAL_SECRET')) || empty(env('PAYPAL_MODE'))) {
                 $this->showToastrMessage('error', 'Paypal payment gateway is off!');
                 return redirect()->back();
@@ -180,9 +184,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('paypal_conversion_rate') ? get_option('paypal_conversion_rate') : 0);
             $currency = get_option('paypal_currency');
-        }
-
-        if ($request->payment_method == STRIPE) {
+        } else if ($request->payment_method == STRIPE) {
             if (!get_option('stripe_status', 0)) {
                 $this->showToastrMessage('error', 'Stripe payment gateway is off!');
                 return redirect()->back();
@@ -190,9 +192,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('stripe_conversion_rate') ? get_option('stripe_conversion_rate') : 0);
             $currency = get_option('stripe_currency');
-        }
-
-        if ($request->payment_method == MOLLIE) {
+        } else if ($request->payment_method == MOLLIE) {
             if (empty(env('MOLLIE_KEY'))) {
                 $this->showToastrMessage('error', 'Mollie payment gateway is off!');
                 return redirect()->back();
@@ -200,9 +200,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('mollie_conversion_rate') ? get_option('mollie_conversion_rate') : 0);
             $currency = get_option('mollie_currency');
-        }
-
-        if ($request->payment_method == INSTAMOJO) {
+        } else if ($request->payment_method == INSTAMOJO) {
             if (empty(env('IM_API_KEY')) || empty(env('IM_AUTH_TOKEN')) || empty(env('IM_URL'))) {
                 $this->showToastrMessage('error', 'Instamojo payment gateway is off!');
                 return redirect()->back();
@@ -210,9 +208,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('im_conversion_rate') ? get_option('im_conversion_rate') : 0);
             $currency = get_option('im_currency');
-        }
-
-        if ($request->payment_method == PAYSTAC) {
+        } else if ($request->payment_method == PAYSTAC) {
             if (empty(env('PAYSTACK_PUBLIC_KEY')) || empty(env('PAYSTACK_SECRET_KEY'))) {
                 $this->showToastrMessage('error', 'Paystack payment gateway is off!');
                 return redirect()->back();
@@ -220,17 +216,15 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('paystack_conversion_rate') ? get_option('paystack_conversion_rate') : 0);
             $currency = get_option('paystack_currency');
-        }
-        if ($request->payment_method == MERCADOPAGO) {
+        } else if ($request->payment_method == MERCADOPAGO) {
             if (empty(env('MERCADO_PAGO_CLIENT_ID')) || empty(env('MERCADO_PAGO_CLIENT_SECRET'))) {
                 $this->showToastrMessage('error', 'MERCADO_PAGO payment gateway is off!');
                 return redirect()->back();
             }
 
-            $conversion_rate = (get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0);
-            $currency = get_option('mercado_currency');
-        }
-        if ($request->payment_method == FLUTTERWAVE) {
+            $conversion_rate = (get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0);
+            $currency = get_option('mercadopago_currency');
+        } else if ($request->payment_method == FLUTTERWAVE) {
             if (empty(env('FLW_PUBLIC_KEY')) || empty(env('FLW_SECRET_KEY'))) {
                 $this->showToastrMessage('error', 'Flutterwave payment gateway is off!');
                 return redirect()->back();
@@ -238,8 +232,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('flutterwave_conversion_rate') ? get_option('flutterwave_conversion_rate') : 0);
             $currency = get_option('flutterwave_currency');
-        }
-        if ($request->payment_method == COINBASE) {
+        } else if ($request->payment_method == COINBASE) {
             if (empty(get_option('coinbase_key'))) {
                 $this->showToastrMessage('error', 'Coinbase payment gateway is off!');
                 return redirect()->back();
@@ -247,9 +240,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('coinbase_conversion_rate') ? get_option('coinbase_conversion_rate') : 0);
             $currency = get_option('coinbase_currency');
-        }
-
-        if ($request->payment_method == ZITOPAY) {
+        } else if ($request->payment_method == ZITOPAY) {
             if (empty(get_option('zitopay_username'))) {
                 $this->showToastrMessage('error', 'Zitopay payment gateway is off!');
                 return redirect()->back();
@@ -257,9 +248,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('zitopay_conversion_rate') ? get_option('zitopay_conversion_rate') : 0);
             $currency = get_option('zitopay_currency');
-        }
-
-        if ($request->payment_method == IYZIPAY) {
+        } else if ($request->payment_method == IYZIPAY) {
             if (empty(get_option('iyzipay_key'))) {
                 $this->showToastrMessage('error', 'Iyzipay payment gateway is off!');
                 return redirect()->back();
@@ -267,9 +256,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('iyzipay_conversion_rate') ? get_option('iyzipay_conversion_rate') : 0);
             $currency = get_option('iyzipay_currency');
-        }
-
-        if ($request->payment_method == BITPAY) {
+        } else if ($request->payment_method == BITPAY) {
             if (empty(get_option('bitpay_key'))) {
                 $this->showToastrMessage('error', 'Bitpay payment gateway is off!');
                 return redirect()->back();
@@ -277,9 +264,7 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('bitpay_conversion_rate') ? get_option('bitpay_conversion_rate') : 0);
             $currency = get_option('bitpay_currency');
-        }
-
-        if ($request->payment_method == BRAINTREE) {
+        } else if ($request->payment_method == BRAINTREE) {
             if (empty(get_option('braintree_key'))) {
                 $this->showToastrMessage('error', 'Braintree payment gateway is off!');
                 return redirect()->back();
@@ -287,6 +272,23 @@ class WalletRechargeController extends Controller
 
             $conversion_rate = (get_option('braintree_conversion_rate') ? get_option('braintree_conversion_rate') : 0);
             $currency = get_option('braintree_currency');
+        } else if ($request->payment_method == 'mercadopago') {
+            if (empty(get_option('MERCADO_PAGO_CLIENT_ID'))) {
+                $this->showToastrMessage('error', __('Selected payment gateway is off!'));
+                return redirect()->back();
+            }
+
+            $conversion_rate = (get_option($request->payment_method . '_conversion_rate') ? get_option($request->payment_method . '_conversion_rate') : 0);
+            $currency = get_option($request->payment_method . '_currency');
+        }
+        else {
+            if (empty(get_option($request->payment_method . '_key'))) {
+                $this->showToastrMessage('error', 'Selected payment gateway is off!');
+                return redirect()->back();
+            }
+
+            $conversion_rate = (get_option($request->payment_method . '_conversion_rate') ? get_option($request->payment_method . '_conversion_rate') : 0);
+            $currency = get_option($request->payment_method . '_currency');
         }
 
         $payment = $this->placeOrder($request->payment_method, $request);
@@ -320,13 +322,16 @@ class WalletRechargeController extends Controller
             /** ====== Send notification =========*/
             $text = __("Wallet Recharge request");
             $this->send($text, 1, null, null);
+            //to admin
+            $sendEmail = new EmailSendService();
+            $sendEmail->walletRechargePendingToAdmin(route('admin.wallet_recharge.pending_list'));
             /** ====== Send notification =========*/
             $this->showToastrMessage('success', 'Request has been Placed! Please Wait for Approve');
             return redirect()->route('wallet_recharge.thank-you');
-        } else if ($request->payment_method == SSLCOMMERZ)  {
+        } else if ($request->payment_method == SSLCOMMERZ) {
 
             $total = $payment->grand_total * (get_option('sslcommerz_conversion_rate') ? get_option('sslcommerz_conversion_rate') : 0);
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $user = auth()->user();
             # CUSTOMER INFORMATION
             $post_data = array();
@@ -346,12 +351,12 @@ class WalletRechargeController extends Controller
 
             # SHIPMENT INFORMATION
             $post_data['ship_name'] = get_option('app_name') ?? 'LMS Store';
-            $post_data['ship_add1'] = $request->input('phone_number',$user->address);
-            $post_data['ship_add2'] =  '';
-            $post_data['ship_city'] =  '';
-            $post_data['ship_state'] =  '';
+            $post_data['ship_add1'] = $request->input('phone_number', $user->address);
+            $post_data['ship_add2'] = '';
+            $post_data['ship_city'] = '';
+            $post_data['ship_state'] = '';
             $post_data['ship_postcode'] = '';
-            $post_data['ship_phone'] = $request->input('phone_number',$user->address);
+            $post_data['ship_phone'] = $request->input('phone_number', $user->address);
             $post_data['ship_country'] = @$user->student->country->country_name ?? 'BD';
 
             $post_data['shipping_method'] = "NO";
@@ -373,18 +378,18 @@ class WalletRechargeController extends Controller
             ];
 
             $getWay = new BasePaymentService($object);
-            $responseData = $getWay->makePayment($total,$post_data);
-            if($responseData['success']){
+            $responseData = $getWay->makePayment($total, $post_data);
+            if ($responseData['success']) {
                 $payment->payment_id = $responseData['payment_id'];
                 $payment->save();
                 return Redirect::away($responseData['redirect_url']);
-            }else{
+            } else {
                 $this->showToastrMessage('error', 'Something went wrong!');
                 return redirect()->back();
             }
-        }else{
+        } else {
             $total = $payment->grand_total * $conversion_rate;
-            $total = number_format($total, 2,'.','');
+            $total = number_format($total, 2, '.', '');
             $object = [
                 'id' => $payment->uuid,
                 'payment_method' => $request->payment_method,
@@ -394,11 +399,11 @@ class WalletRechargeController extends Controller
 
             $getWay = new BasePaymentService($object);
             $responseData = $getWay->makePayment($total);
-            if($responseData['success']){
+            if ($responseData['success']) {
                 $payment->payment_id = $responseData['payment_id'];
                 $payment->save();
                 return Redirect::away($responseData['redirect_url']);
-            }else{
+            } else {
                 $this->showToastrMessage('error', $responseData['message']);
                 return redirect()->back();
             }
@@ -436,8 +441,8 @@ class WalletRechargeController extends Controller
             $payment_currency = get_option('flutterwave_currency');
             $conversion_rate = get_option('flutterwave_conversion_rate') ? get_option('flutterwave_conversion_rate') : 0;
         } elseif ($payment_method == MERCADOPAGO) {
-            $payment_currency = get_option('mercado_currency');
-            $conversion_rate = get_option('mercado_conversion_rate') ? get_option('mercado_conversion_rate') : 0;
+            $payment_currency = get_option('mercadopago_currency');
+            $conversion_rate = get_option('mercadopago_conversion_rate') ? get_option('mercadopago_conversion_rate') : 0;
         } elseif ($payment_method == INSTAMOJO) {
             $payment_currency = get_option('im_currency');
             $conversion_rate = get_option('im_conversion_rate') ? get_option('im_conversion_rate') : 0;
@@ -459,6 +464,9 @@ class WalletRechargeController extends Controller
         } elseif ($payment_method == BRAINTREE) {
             $payment_currency = get_option('braintree_currency');
             $conversion_rate = get_option('braintree_conversion_rate') ? get_option('braintree_conversion_rate') : 0;
+        } else {
+            $payment_currency = get_option($payment_method . '_currency');
+            $conversion_rate = get_option($payment_method . '_conversion_rate') ? get_option($payment_method . '_conversion_rate') : 0;
         }
 
         $data['payment_currency'] = $payment_currency;

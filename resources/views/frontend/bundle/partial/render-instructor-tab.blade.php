@@ -9,7 +9,7 @@
 <div class="tab-pane fade" id="Instructor" role="tabpanel" aria-labelledby="Instructor-tab">
     <div class="row">
         <h6 class="mb-4 col-12">{{ __('Meet Your Instructor') }}</h6>
-        <div class="col-md-7 col-lg-12 col-xl-7 p-0">
+        <div class="col-md-6 col-lg-12 col-xl-6 col-xxl-7 p-0">
             <div class="meet-your-instructor-left d-flex">
                 <div class="meet-instructor-img-wrap flex-shrink-0">
                     <img src="{{ getImageFile(@$bundle->user->image_path) }}" alt="img">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-5 col-lg-12 col-xl-5 p-0">
+        <div class="col-md-6 col-lg-12 col-xl-6 col-xxl-5 p-0">
             <div class="meet-your-instructor-right">
                 <div class="d-flex">
                     <div>

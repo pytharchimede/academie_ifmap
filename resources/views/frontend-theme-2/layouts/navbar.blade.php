@@ -76,6 +76,21 @@
                     </div>
                     <div class="header-nav-right-side d-flex">
                         <ul class="navbar-nav">
+                            @if(env('LOGIN_HELP') == 'active')
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown"
+                                       data-bs-toggle="dropdown">{{__('Theme')}}</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="/?theme=1">Default</a></li>
+                                        <li><a class="dropdown-item" href="/?theme=2">Classic</a></li>
+                                        <li><a class="dropdown-item" href="/?theme=3">Modern</a></li>
+                                        <li><a class="dropdown-item" href="/?theme=4">Language Learning</a></li>
+                                        <li><a class="dropdown-item" href="/?theme=5">Cooking Learning</a></li>
+                                        <li><a class="dropdown-item" href="/?theme=6">Meditation Learning</a></li>
+                                        <li><a class="dropdown-item" href="/?theme=7">Kindergarten Learning</a></li>
+                                    </ul>
+                                </li>
+                            @endif
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown"
                                     data-bs-toggle="dropdown">{{ __('Pages') }}</a>

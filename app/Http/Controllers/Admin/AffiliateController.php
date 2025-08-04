@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\AffiliateHistory;
 use App\Models\AffiliateRequest;
 use App\Models\User;
@@ -36,17 +37,21 @@ class AffiliateController extends Controller
             $req = AffiliateRequest::findOrFail($request->id);
             $req->status = $request->status;
 
+            $emailSend = new EmailSendService();
 
             if ($req->status == STATUS_APPROVED) {
                 $user = User::where(['id' => $req->user_id])->first();
                 $user->is_affiliator = AFFILIATOR;
                 $user->save();
+                $this->send('Affiliate request has been approved', 3,'', $req->user_id);
+                $emailSend->sendAffiliateStatusChange($user, 1);
             } else if($req->status == STATUS_REJECTED) {
                 $req->comments = $request->note;
                 $user = User::where(['id' => $req->user_id])->first();
                 $user->is_affiliator = AFFILIATE_REQUEST_REJECTED;
                 $user->save();
-                $this->send($request->note, 2,'', $req->user_id);
+                $this->send($request->note, 3,'', $req->user_id);
+                $emailSend->sendAffiliateStatusChange($user, 0);
 
             }else{
                 $user = User::where(['id' => $req->user_id])->first();

@@ -57,6 +57,10 @@
                                     <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_DEFAULT ? '' : 'd-none' }}" id="theme-{{ THEME_DEFAULT }}" src="{{ asset('admin/images/background/theme-1.jpg') }}" alt="">
                                     <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_TWO ? '' : 'd-none' }}" id="theme-{{ THEME_TWO }}" src="{{ asset('admin/images/background/theme-2.jpg') }}" alt="">
                                     <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_THREE ? '' : 'd-none' }}" id="theme-{{ THEME_THREE }}" src="{{ asset('admin/images/background/theme-3.jpg') }}" alt="">
+                                    <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_FOUR ? '' : 'd-none' }}" id="theme-{{ THEME_FOUR }}" src="{{ asset('admin/images/background/theme-4.jpg') }}" alt="">
+                                    <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_FIVE ? '' : 'd-none' }}" id="theme-{{ THEME_FIVE }}" src="{{ asset('admin/images/background/theme-5.jpg') }}" alt="">
+                                    <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_SIX ? '' : 'd-none' }}" id="theme-{{ THEME_SIX }}" src="{{ asset('admin/images/background/theme-6.jpg') }}" alt="">
+                                    <img class="theme-img {{ get_option('theme', THEME_DEFAULT) == THEME_SEVEN ? '' : 'd-none' }}" id="theme-{{ THEME_SEVEN }}" src="{{ asset('admin/images/background/theme-7.jpg') }}" alt="">
                                 </div>
                             </div>
                             <div class="row mb-3">

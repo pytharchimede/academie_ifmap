@@ -8826,3 +8826,223 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .dropdown-menu-profile::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.youtube-player {
+    position: relative;
+    display: block;
+    /*float: left;*/
+    background: transparent;
+    width: 100%;
+    height: 645px;
+    overflow:hidden;
+    margin: 0 auto;
+}
+
+.youtube-player iframe{
+    position: absolute;
+    top: -100%;
+    height: 300% !important;
+    width: 100%;
+}
+
+.youtube-player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    background: linear-gradient(transparent,rgba(0,0,0,.75));
+    border-radius: 2px;
+    opacity: 0;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    position: absolute;
+    bottom: 7px;
+    width: 100%;
+}
+@media screen and (max-width: 767px) {
+    .youtube-player-controls{
+        justify-content: space-between;
+        flex-wrap: wrap;
+        height: auto;
+        bottom: 0;
+    }
+}
+
+.youtube-player-controls button {
+    width: 32px;
+    height: 32px;
+    margin: 10px 12px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #eee;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+@media screen and (max-width: 767px) {
+    .youtube-player-controls button,
+    .youtube-player-controls .progress-text,
+    .youtube-player-controls .sound-bar{
+        order: 1;
+    }
+}
+@media screen and (max-width: 399px) {
+    .youtube-player-controls button{
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.youtube-player-controls button:hover{
+    background: #5e3fd7;
+    color: #fff;
+}
+
+.youtube-player-controls progress {
+    height: 5px;
+    line-height: 48px;
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 1em auto;
+    padding: 0;
+    border: 0 none;
+    background: #ffffff50;
+    border-radius: 4px;
+    /*box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 0.2);*/
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.youtube-player-controls progress.progress-bar{
+    width: 40%;
+}
+
+/*@media screen and (max-width: 1200px) {*/
+/*    .youtube-player-controls progress.progress-bar{*/
+/*        width: 50%;*/
+/*    }*/
+/*}*/
+@media screen and (max-width: 767px) {
+    .youtube-player-controls progress.progress-bar{
+        width: 100%;
+        order: 0;
+        margin: 1em !important;
+    }
+}
+
+.youtube-player-controls progress.sound-bar{
+    width: 10%;
+}
+@media screen and (max-width: 767px) {
+    .youtube-player-controls progress.sound-bar{
+        width: 25%;
+    }
+}
+@media screen and (max-width: 575px) {
+    .youtube-player-controls progress.sound-bar{
+        width: 15%;
+        margin: 0 !important;
+    }
+}
+@media screen and (max-width: 399px) {
+    .youtube-player-controls progress.sound-bar{
+        width: 10%;
+    }
+}
+
+progress::-webkit-progress-bar {
+    background: transparent;
+}
+
+progress::-webkit-progress-value {
+    background: #5e3fd7;
+    border-radius: 2px;
+    /*box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 2px 5px 0px rgba(0, 0, 0, 0.3);*/
+    box-shadow: none;
+}
+
+.youtube-player-controls span {
+    color: #eee;
+    padding-left: 12px;
+    height: 32px;
+    line-height: 32px;
+    width: auto;
+    margin: 10px 0 10px 12px;
+    padding: 0;
+}
+
+.sound-bar {
+    width: 100px;
+}
+
+.youtube-player::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+}
+.youtube-player-controls{
+    z-index: 2;
+}
+button.youtube-video-overBtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 78px;
+    height: 78px;
+    background-color: #5e3fd7;
+    color: #fff;
+    border-radius: 50%;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+    .youtube-player {
+        max-width: 668px;
+        height: 375px;
+    }
+}
+@media screen and (min-width: 576px) and (max-width: 767px) {
+    .youtube-player {
+        max-width: 476px;
+        height: 270px;
+    }
+}
+@media screen and (min-width: 400px) and (max-width: 575px) {
+    .youtube-player {
+        max-width: 370px;
+        height: 210px;
+    }
+}
+@media screen and (max-width: 399px) {
+    .youtube-player {
+        max-width: 330px;
+        height: 185px;
+    }
+}
+
+#youtubeVideoPlayerModal .modal-content {
+    background-color: transparent;
+    border: none;
+}
+@media screen and (min-width: 992px) {
+    #youtubeVideoPlayerModal .modal-content .youtube-player {
+        height: 420px;
+    }
+}
+@media screen and (max-width: 1600px) {
+    .student-courseDetails-tab{
+        overflow-x: auto;
+    }
+    .student-courseDetails-tabItems{
+        flex-wrap: nowrap;
+    }
+}

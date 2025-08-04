@@ -176,7 +176,7 @@
                                     <div class="leatherboard-item d-flex align-items-center justify-content-between">
                                         <div class="leatherboard-left d-flex align-items-center">
                                             <div class="student-position-no font-medium color-heading">{{get_position($exam->id)}}</div>
-                                            <div class="student-img-wrap flex-shrink-0"><img src="{{getImageFile(auth::user()->image_path)}}" alt="img" class="img-fluid"></div>
+                                            <div class="student-img-wrap flex-shrink-0"><img src="{{getImageFile(auth::user()->image_path)}}" alt="img" class="w-100 h-100 img-fluid"></div>
                                             <div class="student-name font-medium color-heading">{{auth::user()->name}}</div>
                                         </div>
                                         <div class="leatherboard-right d-flex align-items-center justify-content-between">
@@ -202,7 +202,7 @@
                                                 <div class="student-position-no font-medium color-heading">{{$key + 1}}</div>
                                                 <div class="student-img-wrap flex-shrink-0"><img src="{{ getImageFile($top5_take_exam->user->image_path) }}" alt="img" class="img-fluid"></div>
                                                 <div class="student-name font-medium color-heading">{{$top5_take_exam->user->name}}</div>
-                                                <div class="merit-list-crown-img-wrap flex-shrink-0 flex-shrink-0"><img src="{{ asset('frontend/assets/img/student-img/merit-crown.png') }}" alt="img" class="img-fluid"></div>
+                                                <div class="merit-list-crown-img-wrap flex-shrink-0 flex-shrink-0"><img src="{{ asset('frontend/assets/img/achievement-icons/4.png') }}" alt="img" class="img-fluid"></div>
                                             </div>
                                             <div class="leatherboard-right d-flex align-items-center justify-content-between">
                                                 <div class="quiz-mark font-medium color-heading">{{get_total_score($exam->id)}}</div>

@@ -14,7 +14,7 @@ class CoinbaseService extends BasePaymentService
     private $provider;
     private $apiDomain;
     private $client;
-    private $currency;
+    public $currency;
 
     public function __construct($object)
     {
@@ -28,7 +28,7 @@ class CoinbaseService extends BasePaymentService
         $this->currency = $object['currency'];
 
         $this->client_secret = get_option('coinbase_key');
-        
+
         $this->client = new HttpClient();
 
         if (get_option('coinbase_mode') == 'sandbox') {
@@ -77,7 +77,7 @@ class CoinbaseService extends BasePaymentService
 
             $payment = json_decode($coinbase_request->getBody()->getContents());
             Log::info(json_encode($payment));
-            if ($payment->hosted_url) {
+            if ($payment->data->hosted_url) {
                 $data['success'] = true;
                 $data['redirect_url'] = $payment->data->hosted_url;
                 $data['payment_id'] = $payment->data->id;

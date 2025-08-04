@@ -44,7 +44,18 @@
                                 </div>
                             </div>
                             @endif
-                            
+                            @if(get_option('theme', THEME_DEFAULT) > THEME_THREE)
+                            <div class="row">
+                                <div class="custom-form-group mb-3 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                    <label for="home_special_feature_area_subtitle" class="text-lg-right text-black"> {{ __('Feature Section Sub Title') }}</label>
+                                    <input type="text" name="home_special_feature_area_subtitle" id="home_special_feature_area_subtitle"
+                                           value="{{ get_option('home_special_feature_area_subtitle') }}" class="form-control"
+                                               placeholder="{{ __('Type Sub title') }}" required>
+
+                                </div>
+                            </div>
+                            @endif
+
                             <div class="row">
                                 <div class="custom-form-group mb-3 col-md-12 col-lg-3 col-xl-3 col-xxl-2">
                                     <label for="home_special_feature_first_logo" class=" text-lg-right text-black"> {{ __('First Logo') }} </label>

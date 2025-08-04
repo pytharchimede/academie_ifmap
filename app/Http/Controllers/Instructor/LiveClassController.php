@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\GmeetSetting;
@@ -45,21 +46,21 @@ class LiveClassController extends Controller
         $data['courses'] = $data['courses']->withCount([
             'liveClasses as total_upcoming' => function ($q) {
                 $q->select(DB::raw("COUNT(id) as total_upcoming"));
-                $q->where(function($q){
+                $q->where(function ($q) {
                     $q->whereDate('date', now());
                     $q->whereTime('time', '>=', now());
                 });
-                $q->orWhere(function($q){
+                $q->orWhere(function ($q) {
                     $q->whereDate('date', '>', now());
                 });
             },
             'liveClasses as total_past' => function ($q) {
                 $q->select(DB::raw("COUNT(id) as total_past"));
-                $q->where(function($q){
+                $q->where(function ($q) {
                     $q->whereDate('date', now());
                     $q->whereTime('time', '<', now());
                 });
-                $q->orWhere(function($q){
+                $q->orWhere(function ($q) {
                     $q->whereDate('date', '<', now());
                 });
             },
@@ -85,33 +86,32 @@ class LiveClassController extends Controller
         $data['course'] = $this->courseModel->getRecordByUuid($course_uuid);
 
         $data['upcoming_live_classes'] = LiveClass::whereCourseId($data['course']->id)->whereUserId(Auth::user()->id)
-            ->where(function($q){
+            ->where(function ($q) {
                 $q->whereDate('date', now());
                 $q->whereTime('time', '>', now());
             })
-            ->orWhere(function($q){
+            ->orWhere(function ($q) {
                 $q->whereDate('date', '>', now());
             })
             ->latest()->paginate(15, '*', 'upcoming');
 
         $data['current_live_classes'] = LiveClass::whereCourseId($data['course']->id)->whereUserId(Auth::user()->id)
-            ->where(function($q){
+            ->where(function ($q) {
                 $q->whereDate('date', now());
                 $q->whereTime('time', '<=', now());
                 $q->whereTime(DB::raw('SEC_TO_TIME((duration*60) + TIME_TO_SEC(time))'), '>=', now());
             })
             ->latest()->paginate(15, '*', 'past');
-       
+
         $data['past_live_classes'] = LiveClass::whereCourseId($data['course']->id)->whereUserId(Auth::user()->id)
-            ->where(function($q){
+            ->where(function ($q) {
                 $q->whereDate('date', now());
                 $q->whereTime(DB::raw('SEC_TO_TIME((duration*60) + TIME_TO_SEC(time))'), '<', now());
             })
-            ->orWhere(function($q){
+            ->orWhere(function ($q) {
                 $q->whereDate('date', '<', now());
             })
             ->latest()->paginate(15, '*', 'past');
-
 
 
         return view('instructor.live_class.live-class-list', $data);
@@ -173,15 +173,13 @@ class LiveClassController extends Controller
                 $link = GmeetSetting::createMeeting($class->class_topic, $class->date, $endDate);
                 $class->join_url = $link;
                 $class->save();
-            }
-            /** ====== End:: Gmeet create meeting ===== */
+            } /** ====== End:: Gmeet create meeting ===== */
             else if ($class->meeting_host_name == 'jitsi') {
 
-                $link =  get_option('jitsi_server_base_url').$request->jitsi_meeting_id;
+                $link = get_option('jitsi_server_base_url') . $request->jitsi_meeting_id;
                 $class->join_url = $link;
                 $class->save();
-            }
-            else if ($class->meeting_host_name == 'agora') {
+            } else if ($class->meeting_host_name == 'agora') {
                 $class->join_url = route('student.agora-open-class', ['uuid' => $class->uuid, 'type' => 'live_class']);
                 $class->save();
             }
@@ -189,11 +187,16 @@ class LiveClassController extends Controller
 
             /** ====== send notification to student ===== */
             $students = Enrollment::where('course_id', $course->id)->select('user_id')->get();
+            $sendEmail = new EmailSendService();
             foreach ($students as $student) {
                 $text = __("New Live Class Added");
                 $target_url = route('student.my-course.show', $course->slug);
                 $this->send($text, 3, $target_url, $student->user_id);
+
             }
+
+            $userIds = $students->pluck('user_id')->toArray();
+            $sendEmail->sendNewLiveClassToStudent($userIds, $target_url);
             /** ====== send notification to student ===== */
 
             DB::commit();
@@ -236,9 +239,9 @@ class LiveClassController extends Controller
             "timezone" => @$zoom->timezone ?? 'Asia/Dhaka', // set your timezone
             "start_time" => $this->toZoomTimeFormat($data['start_date']), // set your start time
             "settings" => [
-                'host_video' =>  @$zoom->host_video ? true : false,
-                'participant_video' =>  @$zoom->participant_video ? true : false,
-                'waiting_room' =>  @$zoom->waiting_room ? true : false,
+                'host_video' => @$zoom->host_video ? true : false,
+                'participant_video' => @$zoom->participant_video ? true : false,
+                'waiting_room' => @$zoom->waiting_room ? true : false,
                 'join_before_host' => false, // if you want to join before host set true otherwise set false
                 'mute_upon_entry' => false, // if you want to mute participants when they join the meeting set true otherwise set false
                 'audio' => 'both', // values are 'both', 'telephony', 'voip'. default is both.
@@ -247,7 +250,7 @@ class LiveClassController extends Controller
             ],
 
         ]);
-        
+
         return response()->json([
             'start_url' => $meeting['data']['start_url'],
             'join_url' => $meeting['data']['join_url']

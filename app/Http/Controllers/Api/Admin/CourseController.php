@@ -92,7 +92,7 @@ class CourseController extends Controller
         ]);
 
         if ($request->course_id) {
-            $courseOrderExits = Enrollment::where(['user_id' => $request->user_id, 'course_id' => $request->course_id, 'status' => ACCESS_PERIOD_ACTIVE])->whereDate('end_date', '>=', now())->first();
+            $courseOrderExits = Enrollment::where(['user_id' => $request->user_id, 'course_id' => $request->course_id, 'status' => ACCESS_PERIOD_ACTIVE])->where('end_date', '>=', now())->first();
 
             if ($courseOrderExits) {
                 $order = Order::find($courseOrderExits->order_id);
@@ -132,10 +132,10 @@ class CourseController extends Controller
         $order_item->owner_balance = 0;
         $order_item->sell_commission = 0;
         $order_item->save();
-       
-        
+
+
         set_instructor_ranking_level($course->user_id);
-        
+
         /** ====== Send notification =========*/
         $text = __("New student enrolled");
         $target_url = route('instructor.all-student');
@@ -145,7 +145,7 @@ class CourseController extends Controller
             {
                 $this->send($text, 2, $target_url, $item->course->user_id);
             }
-            
+
             $expiredDays = !is_null($request->expired_after_days) && $request->expired_after_days > 0 ? $request->expired_after_days : NULL;
             setEnrollment($item, $expiredDays);
         }

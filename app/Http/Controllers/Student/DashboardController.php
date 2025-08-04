@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\ProfileRequest;
+use App\Http\Services\EmailSendService;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Enrollment;
@@ -50,7 +51,7 @@ class DashboardController extends Controller
     {
         $data['pageTitle'] = __("Profile");
         $data['user'] = auth::user();
-        $data['student'] = $data['user']->student;   
+        $data['student'] = $data['user']->student;
         return view('frontend.student.settings.profile', $data);
     }
 
@@ -217,15 +218,18 @@ class DashboardController extends Controller
                 'cv_filename' => $cv_file_data['original_filename'],
             ];
 
+            $emailSend = new EmailSendService();
             if($request->account_type == USER_ROLE_ORGANIZATION){
                 $this->organizationModel->create($data);
                 $text = __("New instructor request");
                 $target_url = route('instructor.pending');
+                $emailSend->sendInstructorRequestToAdmin($target_url);
             }
             else{
                 $this->instructorModel->create($data);
                 $text = __("New organization request");
                 $target_url = route('organizations.pending');
+                $emailSend->sendInstructorRequestToAdmin($target_url, false);
             }
 
             $this->send($text, 1, $target_url, null);
@@ -269,7 +273,7 @@ class DashboardController extends Controller
         if($request->hasFile('og_image')){
             $user->og_image = $this->saveImage('meta', $request->og_image, null, null);
         }
-        
+
         $user->save();
 
         $student_data = [

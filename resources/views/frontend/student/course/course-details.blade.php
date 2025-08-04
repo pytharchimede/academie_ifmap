@@ -88,10 +88,26 @@
 
                     @if(@$lecture_type == 'youtube')
                     <div class="video-player-area">
-                        <div class="plyr__video-embed" id="playerVideoYoutube">
-                            <iframe src="https://www.youtube.com/embed/{{ @$youtube_video_src }}" allowfullscreen
-                                allowtransparency allow="autoplay">
-                            </iframe>
+                        <div class="youtube-player">
+                            <div id="youtube-player-video" class="youtube-video" data-video-id="{{ @$youtube_video_src }}"></div>
+
+                            <button class="youtube-video-overBtn"><i class="fa fa-play"></i></button>
+
+                            <div class="youtube-player-controls">
+                                <button class="play-button">
+                                    <i class="fa fa-play"></i>
+                                </button>
+                                <progress class="progress-bar" min="0" max="100" value="0"></progress>
+                                <span class="progress-text"></span>
+
+                                <button class="sound-button">
+                                    <i class="fa fa-volume-up"></i>
+                                </button>
+                                <progress class="sound-bar" min="0" max="100" value="0"></progress>
+                                <button class="fullscreen-button">
+                                    <i class="fa fa-expand"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     @elseif(@$lecture_type == 'vimeo')
@@ -134,10 +150,24 @@
                     </div>
                     @elseif($course->intro_video_check == 2 && $course->youtube_video_id)
                     <div class="video-player-area">
-                        <div class="plyr__video-embed" id="youtubePlayer">
-                            <iframe src="https://www.youtube.com/embed/{{ @$course->youtube_video_id }}" allowfullscreen
-                                allowtransparency allow="autoplay">
-                            </iframe>
+                        <div class="youtube-player">
+                            <div id="youtube-player-video" class="youtube-video" data-video-id="{{ @$youtube_video_src }}"></div>
+
+                            <div class="youtube-player-controls">
+                                <button class="play-button">
+                                    <i class="fa fa-play"></i>
+                                </button>
+                                <progress class="progress-bar" min="0" max="100" value="0"></progress>
+                                <span class="progress-text"></span>
+
+                                <button class="sound-button">
+                                    <i class="fa fa-volume-up"></i>
+                                </button>
+                                <progress class="sound-bar" min="0" max="100" value="0"></progress>
+                                <button class="fullscreen-button">
+                                    <i class="fa fa-expand"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     @else
@@ -319,8 +349,8 @@
                     <div class="course-single-details-left-content mt-0">
 
                         <!-- Tab panel nav list -->
-                        <div class="course-tab-nav-wrap course-details-tab-nav-wrap d-flex justify-content-between">
-                            <ul class="nav nav-tabs tab-nav-list border-0" id="myTab" role="tablist">
+                        <div class="course-tab-nav-wrap course-details-tab-nav-wrap d-flex justify-content-between student-courseDetails-tab">
+                            <ul class="nav nav-tabs tab-nav-list border-0 student-courseDetails-tabItems" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <a class="nav-link text-uppercase {{!$action_type ? 'active' : '' }}"
                                         id="Overview-tab" data-bs-toggle="tab" href="#Overview" role="tab"
@@ -352,7 +382,7 @@
                                         aria-selected="false">{{__('Notice')}}</a>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <a class="nav-link text-uppercase" id="LiveClass-tab" data-bs-toggle="tab"
+                                    <a class="nav-link text-uppercase text-nowrap" id="LiveClass-tab" data-bs-toggle="tab"
                                         href="#LiveClass" role="tab" aria-controls="LiveClass"
                                         aria-selected="false">{{__('Live Class')}}</a>
                                 </li>
@@ -495,6 +525,60 @@
 <script src="{{ asset('frontend/assets/js/course/zoom-copy-url.js') }}"></script>
 
 <script>
+    (function() {
+        const devtools = {
+            isOpen: false,
+            orientation: undefined,
+        };
+        const threshold = 160;
+        const emitEvent = (isOpen, orientation) => {
+            window.dispatchEvent(new CustomEvent('devtoolschange', {
+                detail: {
+                    isOpen,
+                    orientation
+                }
+            }));
+        };
+        setInterval(() => {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            const orientation = widthThreshold ? 'vertical' : 'horizontal';
+            if (!(heightThreshold && widthThreshold) && ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || widthThreshold || heightThreshold)) {
+                if (!devtools.isOpen || devtools.orientation !== orientation) {
+                    emitEvent(true, orientation);
+                }
+                devtools.isOpen = true;
+                devtools.orientation = orientation;
+            } else {
+                if (devtools.isOpen) {
+                    emitEvent(false, undefined);
+                }
+                devtools.isOpen = false;
+                devtools.orientation = undefined;
+            }
+        }, 500);
+
+        function isDesktopDevice() {
+            return !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        }
+
+        if (isDesktopDevice()) {
+            window.addEventListener('devtoolschange', function (e) {
+                if (e.detail.isOpen) {
+                    location.replace('/'); // Redirect the user
+                }
+            });
+        }
+
+
+        // Disable copying URL from iframe by adding sandbox restrictions
+        document.querySelectorAll('iframe').forEach(function(iframe) {
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+        });
+    })();
+</script>
+
+<script>
     "use strict"
         //Youtube Video duration done;
         var course_id = $('.course_id').val();
@@ -510,33 +594,9 @@
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        var player;
+        // var player;
         var duration = 0;
         var interval;
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('playerVideoYoutube', {
-                height: '626',
-                width: '100%',
-                videoId: youTubeVideoSource,
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            event.target.playVideo();
-        }
-
-        var done = false;
-
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.ENDED) {
-                callCompleteCourse();
-            }
-        }
 
     @if($course->course_type == COURSE_TYPE_SCORM)
 
@@ -662,6 +722,311 @@
         @endif
 	});
 	//End for Scorm course body
+</script>
+
+<script>
+    var player,
+        youtube_player = document.querySelector('.youtube-player'),
+        controls_bar = document.querySelector('.youtube-player-controls'),
+        video_play_button = document.querySelector('.youtube-video-overBtn'),
+        play_button = document.querySelector('.play-button'),
+        progress_bar = document.querySelector('.progress-bar'),
+        progress_text = document.querySelector('.progress-text'),
+        sound_button = document.querySelector('.sound-button'),
+        sound_bar = document.querySelector('.sound-bar'),
+        full_screen_button = document.querySelector('.fullscreen-button'),
+        y_progress_timer,
+        progressDrag = false,
+        soundDrag = false,
+        isClicking = false,
+        isInFullscreen = false,
+        click_timer,
+        show_controls_timer,
+        hide_controls_timer;
+
+    function initYoutubePlayer() {
+        var videoId = $('#youtube-player-video').data('video-id');
+        player = new YT.Player('youtube-player-video', {
+            width: 853,
+            height: 480,
+            videoId: videoId,
+            playerVars: {
+                autoplay: 1,
+                controls: 0,
+                // playlist: videoId,  astuce indiquer la playlist avec l'id de la video pour ne pas avoir de publicités (no ads)
+                showinfo:0
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerReady(e) {
+        // options
+        player.setVolume(70);
+        sound_bar.value = 70;
+        progress_text.innerHTML = "00:00:00";
+        player.setPlaybackQuality('hd1080');
+
+        // Show / Hide controls
+        youtube_player.addEventListener('mouseenter', showControls);
+        youtube_player.addEventListener('mouseleave', hideControls);
+
+        // user Play / Pause
+        play_button.addEventListener('click', togglePlayPause);
+        video_play_button.addEventListener('click', togglePlayPause);
+
+        // user change progress (drag, click)
+        progress_bar.addEventListener('mousedown', function(e) {
+            progressDrag = true;
+        });
+        document.addEventListener('mouseup', function(e) {
+            if (progressDrag) {
+                setProgress(e);
+                progressDrag = false;
+            }
+            if (soundDrag) {
+                soundDrag = false;
+                setVolume(e);
+            }
+        });
+        document.addEventListener('mousemove', function(e) {
+            if (progressDrag) {
+                setProgress(e);
+            }
+            if (soundDrag) {
+                setVolume(e);
+            }
+        });
+        progress_bar.addEventListener('click', updateProgress);
+
+        // Mute
+        sound_button.addEventListener('click', toggleMute);
+
+        // Volume change
+        sound_bar.addEventListener('mousedown', function(e) {
+            soundDrag = true;
+        });
+        sound_bar.addEventListener('click', setVolume);
+
+        // Fullscreen handling
+        full_screen_button.addEventListener('click', function() {
+            var requestFullScreen = youtube_player.requestFullscreen ||
+                youtube_player.mozRequestFullScreen ||
+                youtube_player.webkitRequestFullscreen ||
+                youtube_player.msRequestFullscreen;
+            if (requestFullScreen) {
+                requestFullScreen.call(youtube_player);
+                full_screen_button.style.display = 'none';
+            }
+        });
+
+        // Exit Fullscreen handling (for ESC or cross icon)
+        document.addEventListener('fullscreenchange', onFullScreenExit);
+        document.addEventListener('webkitfullscreenchange', onFullScreenExit);
+        document.addEventListener('mozfullscreenchange', onFullScreenExit);
+        document.addEventListener('MSFullscreenChange', onFullScreenExit);
+
+        launch_y_progress_timer();
+    }
+
+    // Handle Fullscreen Exit (ESC or Cross Icon)
+    function onFullScreenExit() {
+        if (!document.fullscreenElement && !document.mozFullScreenElement &&
+            !document.webkitFullscreenElement && !document.msFullscreenElement) {
+            full_screen_button.style.display = 'block';
+        }
+    }
+
+    function onPlayerStateChange(e) {
+
+        if (e.data == YT.PlayerState.PLAYING) {
+            video_play_button.style.opacity=0;
+            play_button.innerHTML = '<i class="fa fa-pause"></i>';
+        }
+        if (e.data == YT.PlayerState.PAUSED) {
+            video_play_button.style.opacity=1;
+            play_button.innerHTML = '<i class="fa fa-play"></i>';
+        }
+        if (e.data == YT.PlayerState.ENDED) {
+            video_play_button.style.opacity=1;
+            player.stopVideo();
+            play_button.innerHTML = '<i class="fa fa-play"></i>';
+            showControls();
+            callCompleteCourse();
+        }
+    }
+
+    function showControls() {
+
+        if (isClicking || controls_bar.style.opacity == 1) return false;
+
+        var opacity = 0,
+            current_time = 0,
+            duration = 300;
+
+        clearInterval(show_controls_timer);
+        show_controls_timer = setInterval(function() {
+            controls_bar.style.opacity = opacity;
+
+            opacity += .05;
+            current_time += 16;
+            if (opacity >= 1 && current_time >= duration) {
+                controls_bar.style.opacity = 1;
+                clearInterval(show_controls_timer);
+                return false;
+            }
+        }, 16);
+    }
+
+    function hideControls() {
+
+        if (isClicking || controls_bar.style.opacity == 0 || player.getCurrentTime() == player.getDuration() || (player.getCurrentTime() == 0 && player.getPlayerState() == 2)) return false;
+
+        var opacity = 1,
+            current_time = 0,
+            duration = 300;
+
+        clearInterval(hide_controls_timer);
+        hide_controls_timer = setInterval(function() {
+            controls_bar.style.opacity = opacity;
+
+            opacity -= .05;
+            current_time += 16;
+            if (opacity <= 0 && current_time >= duration) {
+                controls_bar.style.opacity = 0;
+                clearInterval(hide_controls_timer);
+                return false;
+            }
+        }, 16);
+    }
+
+    function launch_y_progress_timer() {
+        clearInterval(y_progress_timer);
+        y_progress_timer = setInterval(updateProgress, 500);
+    }
+
+    function updateProgress() {
+        if (player && player.getDuration()) {
+            var percentage = Math.floor((100 / player.getDuration()) * player.getCurrentTime());
+            if (typeof percentage != 'undefined') {
+                progress_bar.value = percentage;
+
+                // Get current time and total duration
+                var currentTime = player.getCurrentTime();
+                var totalTime = player.getDuration();
+
+                // Format both times
+                var currentTimeFormatted = formatTime(currentTime);
+                var totalTimeFormatted = formatTime(totalTime);
+
+                // Update progress text to show current time / total time
+                progress_text.innerHTML = currentTimeFormatted + ' / ' + totalTimeFormatted;
+            }
+        }
+    }
+
+    function setProgress(e) {
+        var offsetLeft = progress_bar.getBoundingClientRect().left;
+        var position = e.pageX - offsetLeft;
+        var percentage = 100 * position / progress_bar.clientWidth;
+
+        if (percentage > 100) {
+            percentage = 100;
+        }
+        if (percentage < 0) {
+            percentage = 0;
+        }
+
+        var newTime = player.getDuration() * percentage / 100;
+        player.seekTo(newTime);
+    }
+
+    function togglePlayPause() {
+
+        launch_click_timer();
+
+        var play_state = player.getPlayerState();
+        if (play_state == -1 || play_state == 0 || play_state == 2 || play_state == 5) {
+            player.playVideo();
+        }
+        if (play_state == 1) {
+            player.pauseVideo();
+        }
+    }
+
+    function launch_click_timer() {
+        isClicking = true;
+        clearTimeout(click_timer);
+        click_timer = setTimeout(function() {
+            isClicking = false;
+        }, 50);
+    }
+
+    function toggleMute(e) {
+        launch_click_timer();
+        if (player.isMuted()) {
+            player.unMute();
+            updateVolume_controls(player.getVolume());
+        } else {
+            player.mute();
+            updateVolume_controls(0);
+        }
+    }
+
+    function setVolume(e) {
+        var offsetLeft = sound_bar.getBoundingClientRect().left;
+        var position = e.pageX - offsetLeft;
+        var volume = position / sound_bar.clientWidth * 100;
+
+        if (volume < 10) {
+            volume = 0;
+        }
+        if (player.isMuted()) {
+            player.unMute();
+        }
+
+        player.setVolume(volume);
+        updateVolume_controls(volume);
+    }
+
+    function updateVolume_controls(volume) {
+
+        if (volume == 0) {
+            sound_button.innerHTML = '<i class="fa fa-volume-mute"></i>';
+        } else if (volume < 50) {
+            sound_button.innerHTML = '<i class="fa fa-volume-down"></i>';
+        } else {
+            sound_button.innerHTML = '<i class="fa fa-volume-up"></i>';
+        }
+
+        sound_bar.value = volume;
+    }
+
+    function changeVideo(videoId, quality) {
+        player.loadVideoById(videoId, 0, quality);
+    }
+
+    function formatTime(time) {
+        var hours = Math.floor(time / 3600);
+        var minutes = Math.floor((time - (hours * 3600)) / 60);
+        var seconds = Math.floor(time - (hours * 3600) - (minutes * 60));
+
+        var result = hours < 10 ? '0' + hours : hours;
+        result += ':';
+        result += minutes < 10 ? '0' + minutes : minutes;
+        result += ':';
+        result += seconds < 10 ? '0' + seconds : seconds;
+
+        return result;
+    }
+
+
+    window.addEventListener('load', function (){
+        initYoutubePlayer();
+    })
 </script>
 
 @endpush

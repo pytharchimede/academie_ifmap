@@ -43,7 +43,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xxl-12">
-                        @php 
+                        @php
                         $matched = $instructorSaas->where('id', @$mySaasPackage->package_id)->first();
                         $disabledYearly = (!is_null($matched) && $mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_YEARLY ? true : false);
                         $disabledMonthly = ($disabledYearly) ? true : (!is_null($matched) && $mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_MONTHLY ? true : false);
@@ -54,7 +54,7 @@
                                     @foreach($instructorSaas as $index => $saas)
                                     @if(!(get_option('saas_ins_default_package_type') == 'yearly' && $saas->monthly_price <= 1))
                                     @include('frontend.partials.package_card', ['isMonthly' => 1, 'package' => $saas, 'isCurrent' => ($saas->id == @$mySaasPackage->package_id && @$mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_MONTHLY),'isDisabled' => $disabledMonthly])
-                                    @php 
+                                    @php
                                     if($disabledMonthly && $saas->id == $matched->id){
                                         $disabledMonthly = false;
                                     }
@@ -68,7 +68,7 @@
                                     @foreach($instructorSaas as $index => $saas)
                                     @if(!(get_option('saas_ins_default_package_type') == 'monthly' && $saas->yearly_price <= 1))
                                     @include('frontend.partials.package_card', ['isMonthly' => 0, 'package' => $saas, 'isCurrent' => ($saas->id == @$mySaasPackage->package_id && @$mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_YEARLY),'isDisabled' => $disabledYearly])
-                                    @php 
+                                    @php
                                     if($disabledYearly && $saas->id == $matched->id){
                                         $disabledYearly = false;
                                     }
@@ -103,7 +103,7 @@
                 <div class="row">
                     <div class="col-xxl-12">
                         <div class="tab-content" id="nav-tab2Content">
-                            @php 
+                            @php
                             $matched = $organizationSaas->where('id', @$mySaasPackage->package_id)->first();
                             $disabledYearly = (!is_null($matched) && $mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_YEARLY ? true : false);
                             $disabledMonthly = ($disabledYearly) ? true : (!is_null($matched) && $mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_MONTHLY ? true : false);
@@ -113,7 +113,7 @@
                                     @foreach($organizationSaas as $index => $saas)
                                     @if(!(get_option('saas_org_default_package_type') == 'yearly' && $saas->monthly_price <= 1))
                                     @include('frontend.partials.package_card', ['isMonthly' => 1, 'package' => $saas, 'isCurrent' => ($saas->id == @$mySaasPackage->package_id && @$mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_MONTHLY),'isDisabled' => $disabledMonthly])
-                                    @php 
+                                    @php
                                     if($disabledMonthly && $saas->id == $matched->id){
                                         $disabledMonthly = false;
                                     }
@@ -127,7 +127,7 @@
                                     @foreach($organizationSaas as $index => $saas)
                                     @if(!(get_option('saas_org_default_package_type') == 'monthly' && $saas->yearly_price <= 1))
                                     @include('frontend.partials.package_card', ['isMonthly' => 0, 'package' => $saas, 'isCurrent' => ($saas->id == @$mySaasPackage->package_id && @$mySaasPackage->subscription_type == SUBSCRIPTION_TYPE_YEARLY),'isDisabled' => $disabledYearly])
-                                    @php 
+                                    @php
                                     if($disabledYearly && $saas->id == $matched->id){
                                         $disabledYearly = false;
                                     }

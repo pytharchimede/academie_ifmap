@@ -34,7 +34,7 @@ class User extends Authenticatable
         'og_image',
     ];
 
-    
+
     protected $appends = ['image_url'];
 
     /**
@@ -65,6 +65,11 @@ class User extends Authenticatable
     public function students()
     {
         return $this->hasMany(Order_item::class, 'owner_user_id', 'id');
+    }
+
+    public function enrollment_students()
+    {
+        return $this->hasMany(Enrollment::class, 'owner_user_id', 'id')->groupBy('user_id');
     }
 
     public function orderItems()
@@ -235,12 +240,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class,'user_follower','follower_id','user_id');
     }
-   
+
     public function badges()
     {
         return $this->belongsToMany(RankingLevel::class, 'user_badges', 'user_id' , 'ranking_level_id');
     }
-   
+
     public function zoom_settings()
     {
         return $this->hasOne(ZoomSetting::class);

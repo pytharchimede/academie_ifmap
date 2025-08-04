@@ -39,10 +39,10 @@
     // })
     // $('.paystack_append_currency').text($('.paystack_currency').val())
 
-    // $('.mercado_currency').on('change', function () {
-    //     $('.mercado_append_currency').text($(this).val())
+    // $('.mercadopago_currency').on('change', function () {
+    //     $('.mercadopago_append_currency').text($(this).val())
     // })
-    // $('.mercado_append_currency').text($('.mercado_currency').val())
+    // $('.mercadopago_append_currency').text($('.mercadopago_currency').val())
 
 
 
@@ -51,5 +51,31 @@
     })
     $('.currency').trigger("change");
 
+    var supportedCurrencies = JSON.parse($('#supportedCurrency').val());
+
+    $(document).ready(function() {
+
+        $('.currency').each(function() {
+            var $select = $(this);
+            var gatewayName = $select.data('gateway');
+
+            checkCurrencySupport($select, gatewayName);
+
+            $select.on('change', function() {
+                checkCurrencySupport($select, gatewayName);
+            });
+        });
+
+        function checkCurrencySupport($select, gatewayName) {
+            var selectedCurrency = $select.val();
+            var $currencyWarning = $('#currency-warning-' + gatewayName);
+
+            if (supportedCurrencies[gatewayName] && supportedCurrencies[gatewayName].includes(selectedCurrency)) {
+                $currencyWarning.hide();
+            } else {
+                $currencyWarning.show();
+            }
+        }
+    });
 
 })(jQuery)

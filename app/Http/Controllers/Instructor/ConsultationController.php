@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\BookingHistory;
 use App\Models\ConsultationSlot;
 use App\Models\GmeetSetting;
@@ -172,6 +173,9 @@ class ConsultationController extends Controller
         $target_url = route('student.my-consultation');
         $this->send($text, 3, $target_url, $booking->student_user_id);
 
+        $sendEmail = new EmailSendService();
+        $sendEmail->sendConsultationBookingRequestCancelToUser($booking->user, $target_url, $request->cancel_reason);
+
         $this->showToastrMessage('success', __('Status Change Successfully'));
         return redirect()->back();
     }
@@ -205,7 +209,7 @@ class ConsultationController extends Controller
         })->cancelled()->paginate(15, ['*'], 'cancelled');
 
         $data['gmeet'] = GmeetSetting::whereUserId(Auth::id())->where('status', GMEET_AUTHORIZE)->first();
-        
+
         return view('instructor.consultation.booking-history', $data);
     }
 

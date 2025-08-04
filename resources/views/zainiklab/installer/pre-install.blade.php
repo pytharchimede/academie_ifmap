@@ -127,6 +127,12 @@
                         <td><strong>On</strong></td>
                         <td><span class="status {{ !extension_loaded('json') ? 'error' : '' }}">{{ !extension_loaded('json') ? 'Error' : 'Ok' }}</span></td>
                       </tr>
+                      <tr>
+                        <td>Symlink Function</td>
+                        <td><strong>{{ !function_exists('symlink') ? 'Off' : 'On' }}</strong></td>
+                        <td><strong>On</strong></td>
+                        <td><span class="status {{ !function_exists('symlink') ? 'error' : '' }}">{{ !function_exists('symlink') ? 'Error' : 'Ok' }}</span></td>
+                      </tr>
                       {{-- <tr>
                         <td>date.timezone</td>
                         <td><strong>{{ !extension_loaded('date.timezone') ? 'Off' : 'On' }}</strong></td>

@@ -143,6 +143,19 @@ const ZITOPAY = 'zitopay';
 const IYZIPAY = 'iyzipay';
 const BITPAY = 'bitpay';
 const BRAINTREE = 'braintree';
+const RAZORPAY = 'razorpay';
+const BINANCE = 'binance';
+const ALIPAY = 'alipay';
+const XENDIT = 'xendit';
+const PAYTM = 'paytm';
+const MAXICASH = 'maxicash';
+const PAYHERE = 'payhere';
+const CINETPAY = 'cinetpay';
+const VOGUEPAY = 'voguepay';
+const TOYYIBPAY = 'toyyibpay';
+const PAYMOB = 'paymob';
+const AUTHORIZE = 'authorize';
+const PADDLE = 'paddle';
 
 
 const SWR = 'Something went wrong';
@@ -185,3 +198,7 @@ const DIGITAL_PRODUCT=2;
 const THEME_DEFAULT = 1;
 const THEME_TWO = 2;
 const THEME_THREE = 3;
+const THEME_FOUR = 4;
+const THEME_FIVE = 5;
+const THEME_SIX = 6;
+const THEME_SEVEN = 7;

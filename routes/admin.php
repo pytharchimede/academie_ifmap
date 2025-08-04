@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CourseLanguageController;
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\difficultyLevelController;
+use App\Http\Controllers\Admin\EmailNotificationTemplateController;
 use App\Http\Controllers\Admin\ForumCategoryController;
 use App\Http\Controllers\Admin\HomeSettingController;
 use App\Http\Controllers\Admin\InstructorController;
@@ -72,6 +73,15 @@ Route::group(['prefix' => 'email-template', 'as' => 'email-template.'], function
     Route::post('send-email-to-user', [EmailTemplateController::class, 'sendEmailToUser'])->name('send-email-to-user');
 });
 
+// email notification
+Route::group(['prefix' => 'email-notification', 'as' => 'email-notification.'], function () {
+    Route::get('/', [EmailNotificationTemplateController::class, 'index'])->name('index');
+    Route::get('edit/{slug}', [EmailNotificationTemplateController::class, 'edit'])->name('edit');
+    Route::get('view/{slug}', [EmailNotificationTemplateController::class, 'view'])->name('view');
+    Route::post('update/{slug}', [EmailNotificationTemplateController::class, 'update'])->name('update');
+    Route::post('send-test-mail/{slug}', [EmailNotificationTemplateController::class, 'sendTestMail'])->name('send-test-mail');
+});
+
 // Start:: user management
 Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
     Route::get('/', [UserController::class, 'index'])->name('index');
@@ -79,7 +89,7 @@ Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
     Route::post('store', [UserController::class, 'store'])->name('store');
     Route::get('edit/{id}', [UserController::class, 'edit'])->name('edit');
     Route::post('update/{id}', [UserController::class, 'update'])->name('update');
-    Route::get('delete/{id}', [UserController::class, 'delete'])->name('delete');
+    Route::get('delete/{id}', [UserController::class, 'delete'])->name('delete')->middleware('isDemo');
 });
 
 Route::group(['prefix' => 'role', 'as' => 'role.'], function () {
@@ -314,8 +324,8 @@ Route::group(['prefix'=>'skills'],function(){
 });
 
 Route::prefix('profile')->group(function () {
-    Route::get('/', [ProfileController::class, 'index'])->name('admin.profile');
-    Route::get('change-password', [ProfileController::class, 'changePassword'])->name('admin.change-password');
+    Route::get('/', [ProfileController::class, 'index'])->name('admin.profile')->middleware('isDemo');
+    Route::get('change-password', [ProfileController::class, 'changePassword'])->name('admin.change-password')->middleware('isDemo');
     Route::post('change-password', [ProfileController::class, 'changePasswordUpdate'])->name('admin.change-password.update');
     Route::post('update', [ProfileController::class, 'update'])->name('admin.profile.update');
 });
@@ -410,7 +420,7 @@ Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
     Route::get('maintenance-mode-changes', [SettingController::class, 'maintenanceMode'])->name('maintenance');
     Route::post('maintenance-mode-changes', [SettingController::class, 'maintenanceModeChange'])->name('maintenance.change')->middleware('isDemo');
     //End:: Maintenance Mode
-   
+
     //Start:: Coming Soon Mode
     Route::get('coming-soon-mode-changes', [SettingController::class, 'comingSoonMode'])->name('coming-soon');
     Route::post('coming-soon-mode-changes', [SettingController::class, 'comingSoonModeChange'])->name('coming-soon.change')->middleware('isDemo');
@@ -432,7 +442,7 @@ Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
     //End:: subscription Mode
 
     //Start:: saas Mode
-    Route::get('saas-mode-changes', [SettingController::class, 'saasMode'])->name('saas_mode');
+    Route::get('saas-mode-changes', [SettingController::class, 'saasMode'])->name('saas_mode')->middleware('isDemo');
     Route::post('saas-mode-changes', [SettingController::class, 'saasModeChange'])->name('saas_mode.change');
     //End:: saas Mode
 
@@ -443,7 +453,7 @@ Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
     Route::get('course-gift-system', [SettingController::class, 'courseGiftSystem'])->name('course_gift_system');
     Route::get('wallet-checkout-enable', [SettingController::class, 'walletCheckoutSystem'])->name('wallet_checkout_system');
     Route::get('wallet-recharge-system', [SettingController::class, 'walletRechargeSystem'])->name('wallet_recharge_system');
-    Route::get('chat-student-instructor', [SettingController::class, 'chatSystem'])->name('chat-student-instructor');
+    Route::get('chat-student-instructor', [SettingController::class, 'chatSystem'])->name('chat-student-instructor')->middleware('isDemo');
     Route::get('cashback_settings', [SettingController::class, 'cashbackSettings'])->name('cashback_settings');
     //End:: reward_points
 
@@ -617,7 +627,7 @@ Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
     Route::get('version-update-execute', [VersionUpdateController::class, 'versionUpdateExecute'])->name('file-version-update-execute')->middleware('isDemo');
     Route::get('version-delete', [VersionUpdateController::class, 'versionFileUpdateDelete'])->name('file-version-delete')->middleware('isDemo');
 
-    
+
 });
 
 Route::group(['prefix' => 'addon', 'as' => 'admin.addon.'], function () {

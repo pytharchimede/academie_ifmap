@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Bank;
 use App\Models\Beneficiary;
 use App\Models\Transaction;
@@ -134,6 +135,13 @@ class WalletController extends Controller
                 $text = __("New Withdraw Request Received");
                 $target_url = route('payout.new-withdraw');
                 $this->send($text, 1, $target_url, null);
+
+                //to admin
+                $sendEmail = new EmailSendService();
+                $sendEmail->sendWithdrawalRequestToAdmin($target_url);
+
+                //to user
+                $sendEmail->sendWithdrawalRequestToUser(auth()->user(), route('wallet./'));
 
                 $this->showToastrMessage('warming', __('Withdraw request has been saved'));
                 DB::commit();

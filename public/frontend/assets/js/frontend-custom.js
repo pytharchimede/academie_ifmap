@@ -429,6 +429,144 @@
             },
         });
 
+        $(".direction-ltr .lan-testimonial-slider").owlCarousel({
+            loop: true,
+            dots: false,
+            autoplayHoverPause: true,
+            autoplay: false,
+            smartSpeed: 1000,
+            margin: 30,
+            rtl: false,
+            nav: true,
+            navText: [
+                '<span class="iconify" data-icon="la:angle-left"></span>',
+                '<span class="iconify" data-icon="la:angle-right"></span>',
+            ],
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                480: {
+                    items: 1,
+                },
+                576: {
+                    items: 1,
+                },
+                768: {
+                    items: 1,
+                },
+                991: {
+                    items: 2,
+                },
+                1200: {
+                    items: 2,
+                },
+            },
+        });
+        $(".direction-rtl .lan-testimonial-slider").owlCarousel({
+            loop: true,
+            dots: false,
+            autoplayHoverPause: true,
+            autoplay: false,
+            smartSpeed: 1000,
+            margin: 30,
+            rtl: true,
+            nav: true,
+            navText: [
+                '<span class="iconify" data-icon="la:angle-left"></span>',
+                '<span class="iconify" data-icon="la:angle-right"></span>',
+            ],
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                480: {
+                    items: 1,
+                },
+                576: {
+                    items: 1,
+                },
+                768: {
+                    items: 1,
+                },
+                991: {
+                    items: 2,
+                },
+                1200: {
+                    items: 2,
+                },
+            },
+        });
+
+        $(".direction-ltr .cooking-testimonial-slider").owlCarousel({
+            loop: true,
+            dots: false,
+            autoplayHoverPause: true,
+            autoplay: false,
+            smartSpeed: 1000,
+            margin: 30,
+            rtl: false,
+            nav: true,
+            navText: [
+                '<span class="iconify" data-icon="la:angle-left"></span>',
+                '<span class="iconify" data-icon="la:angle-right"></span>',
+            ],
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                480: {
+                    items: 1,
+                },
+                576: {
+                    items: 1,
+                },
+                768: {
+                    items: 2,
+                },
+                991: {
+                    items: 2,
+                },
+                1200: {
+                    items: 2,
+                },
+            },
+        });
+        $(".direction-rtl .cooking-testimonial-slider").owlCarousel({
+            loop: true,
+            dots: false,
+            autoplayHoverPause: true,
+            autoplay: false,
+            smartSpeed: 1000,
+            margin: 30,
+            rtl: true,
+            nav: true,
+            navText: [
+                '<span class="iconify" data-icon="la:angle-left"></span>',
+                '<span class="iconify" data-icon="la:angle-right"></span>',
+            ],
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                480: {
+                    items: 1,
+                },
+                576: {
+                    items: 1,
+                },
+                768: {
+                    items: 2,
+                },
+                991: {
+                    items: 2,
+                },
+                1200: {
+                    items: 2,
+                },
+            },
+        });
+
         $(".direction-ltr .tab-slider-landing").owlCarousel({
             loop: false,
             dots: false,
@@ -1043,7 +1181,13 @@
                     type: "GET",
                     url: $(this).data("url"),
                     success: function (data) {
-                        location.reload();
+                        if(data?.message){
+                            toastr.options.positionClass = 'toast-bottom-right';
+                            toastr.success(data.message);
+                        }
+                        setTimeout(function (){
+                            location.reload();
+                        }, 700)
                     },
                 });
             }

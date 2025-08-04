@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Payment;
 
+use Illuminate\Support\Facades\Log;
 use Stripe\StripeClient;
 
 class StripeService extends BasePaymentService
@@ -53,9 +54,9 @@ class StripeService extends BasePaymentService
         ]);
 
         try {
-
+            Log::info(json_encode($payment));
             if ($payment->status == 'open') {
-                $data['payment_id'] = $payment->payment_intent;
+                $data['payment_id'] = $payment->id;
                 $data['success'] = true;
                 $data['redirect_url'] = $payment->url;
             }
@@ -69,16 +70,17 @@ class StripeService extends BasePaymentService
     public function paymentConfirmation($payment_id, $payer_id=NULL)
     {
         $data['data'] = null;
-        $payment = $this->stripClient->paymentIntents->retrieve($payment_id, []);
-        if ($payment->status == 'succeeded') {
+        $payment = $this->stripClient->checkout->sessions->retrieve($payment_id, []);
+        Log::info(json_encode($payment));
+        if ($payment->payment_status == 'paid') {
             $data['success'] = true;
-            $data['data']['amount'] = $payment->amount_received;
+            $data['data']['amount'] = $payment->amount_total / 100;
             $data['data']['currency'] = $payment->currency;
             $data['data']['payment_status'] =  'success';
             $data['data']['payment_method'] = STRIPE;
         } else {
             $data['success'] = false;
-            $data['data']['amount'] = $payment->amount;
+            $data['data']['amount'] = $payment->amount_total / 100;
             $data['data']['currency'] = $payment->currency;
             $data['data']['payment_status'] =  'unpaid';
             $data['data']['payment_method'] = STRIPE;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Organization;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Instructor\CourseUpdateCategoryRequest;
 use App\Http\Requests\Instructor\StoreCourseRequest;
+use App\Http\Services\EmailSendService;
 use App\Models\CartManagement;
 use App\Models\Category;
 use App\Models\Course;
@@ -79,13 +80,19 @@ class CourseController extends Controller
 
         $data = [
             'title' => $request->title,
-            'private_mode' => $request->private_mode,
             'course_type' => $request->course_type,
             'subtitle' => $request->subtitle,
             'slug' => $slug,
             'status' => 4,
-            'description' => $request->description
+            'description' => $request->description,
+            'meta_title' => $request->meta_title,
+            'meta_description' => $request->meta_description,
+            'meta_keywords' => $request->meta_keywords,
         ];
+
+        if($request->hasFile('og_image')){
+            $data['og_image'] = $this->saveImage('meta', $request->og_image, null, null);
+        }
 
         $data['is_subscription_enable']= 0;
 
@@ -205,14 +212,20 @@ class CourseController extends Controller
 
         $data = [
             'title' => $request->title,
-            'private_mode' => $request->private_mode,
             'course_type' => $request->course_type,
             'subtitle' => $request->subtitle,
             'slug' => $slug,
-            'description' => $request->description
+            'description' => $request->description,
+            'meta_title' => $request->meta_title,
+            'meta_description' => $request->meta_description,
+            'meta_keywords' => $request->meta_keywords,
         ];
 
-        $data['is_subscription_enable'] = 0;
+        if($request->hasFile('og_image')){
+            $data['og_image'] = $this->saveImage('meta', $request->og_image, null, null);
+        }
+
+        $data['is_subscription_enable']= 0;
 
         if(get_option('subscription_mode')){
             $data['is_subscription_enable'] = $request->is_subscription_enable;
@@ -327,9 +340,9 @@ class CourseController extends Controller
             try{
                 $requestStatus = $request->status;
                 if(auth()->user()->organization->auto_content_approval == 1){
-    
-                    $requestStatus = STATUS_UPCOMING_APPROVED;
 
+                    $requestStatus = STATUS_UPCOMING_APPROVED;
+                    $emailSend = new EmailSendService();
                     try{
                         DB::beginTransaction();
                         /** ====== send notification to student ===== */
@@ -339,11 +352,15 @@ class CourseController extends Controller
                             $target_url = route('course-details', $course->slug);
                             $this->send($text, 3, $target_url, $student->user_id);
                         }
+
+                        $emails = $students->pluck('user_id');
+                        $emailSend->sendCommonLink($emails, $target_url, 'new-course-approved-student');
                         /** ====== send notification to student ===== */
 
                         $text = __("Upcoming Course has been approved");
                         $target_url = route('course-details', $course->slug);
                         $this->send($text, 2, $target_url, $course->user_id);
+                        $emailSend->sendCommonUserAndLink($course->user, $target_url, 'new-course-approved-instructor');
                         $text = __("Upcoming course has been auto approved");
                         DB::commit();
                     }
@@ -389,7 +406,7 @@ class CourseController extends Controller
     {
         $course = Course::where('courses.uuid', $uuid)->firstOrFail();
         $user_id = auth()->id();
-
+        $emailSend = new EmailSendService();
         if($course->user_id != $user_id){
 
             $courseInstructor = $course->course_instructors()->where('instructor_id', $user_id)->where('status', STATUS_ACCEPTED)->first();
@@ -402,13 +419,13 @@ class CourseController extends Controller
         if ($course->status == 1) {
 
             if ($course->user_id != auth()->id()) {
-                //TODO: notify from here to multi instructor;
                 $text = __("You have selected as co-instructor");
                 $target_url = route('instructor.multi_instructor');
                 $courseInstructors = $course->course_instructors->where('status', STATUS_PENDING)->where('instructor_id', '!=', $course->user_id);
 
                 foreach ($courseInstructors as $courseInstructor) {
                     $this->send($text, 2, $target_url, $courseInstructor->instructor_id);
+                    $emailSend->sendCommonUserAndLink($courseInstructor->user, $target_url, 'multi-instructor-request');
                 }
             }
         }elseif($course->status != STATUS_UPCOMING_REQUEST && $course->status != STATUS_UPCOMING_APPROVED) {
@@ -416,20 +433,21 @@ class CourseController extends Controller
                 $course->status = 1;
 
                 try{
-                    //TODO: notify from here to multi instructor;
                     $text = __("You have selected as co-instructor");
                     $target_url = route('instructor.multi_instructor');
                     $courseInstructors = $course->course_instructors->where('status', STATUS_PENDING)->where('instructor_id', '!=', $course->user_id);
-    
+
                     foreach ($courseInstructors as $courseInstructor) {
                         $this->send($text, 2, $target_url, $courseInstructor->instructor_id);
+                        $emailSend->sendCommonUserAndLink($courseInstructor->user, $target_url, 'multi-instructor-request');
                     }
-                    
+
                     setBadge($course->user_id);
                     $text = __("Course has been approved");
                     $target_url = route('course-details', $course->slug);
                     $this->send($text, 2, $target_url, $course->user_id);
-        
+                    $emailSend->sendCommonUserAndLink($course->user, $target_url, 'new-course-approved-instructor');
+
                     /** ====== send notification to student ===== */
                     $students = Student::where('user_id', '!=', $course->user_id)->select('user_id')->get();
                     foreach ($students as $student) {
@@ -437,6 +455,9 @@ class CourseController extends Controller
                         $target_url = route('course-details', $course->slug);
                         $this->send($text, 3, $target_url, $student->user_id);
                     }
+
+                    $emails = $students->pluck('user_id');
+                    $emailSend->sendCommonLink($emails, $target_url, 'new-course-approved-student');
                     /** ====== send notification to student ===== */
                 }
                 catch(\Exception $e){
@@ -447,7 +468,7 @@ class CourseController extends Controller
             else{
                 $course->status = 2;
             }
-            
+
         }
         $course->save();
         return redirect(route('organization.course.index'));

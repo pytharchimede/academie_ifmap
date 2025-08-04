@@ -365,13 +365,13 @@
                                             </label>
                                         </div>
                                     @endif
-                                    @if (get_option('mercado_status') == 1)
+                                    @if (get_option('mercadopago_status') == 1)
                                         <div class="form-check payment-method-card-box other-payment-box pb-0 mt-30">
                                             <input class="form-check-input" type="radio" name="payment_method"
                                                 value="mercadopago"
                                                 {{ old('payment_method') == 'mercadopago' ? 'checked' : '' }}
                                                 id="mercadopagoPayment">
-                                            <label class="form-check-label mb-0" for="merPayment">
+                                            <label class="form-check-label mb-0" for="mercadopagoPayment">
                                                 <span class="font-16 color-heading font-medium">MERCADO PAGO</span>
                                             </label>
                                         </div>
@@ -382,7 +382,7 @@
                                                 value="flutterwave"
                                                 {{ old('payment_method') == 'flutterwave' ? 'checked' : '' }}
                                                 id="flutterwavePayment">
-                                            <label class="form-check-label mb-0" for="merPayment">
+                                            <label class="form-check-label mb-0" for="flutterwavePayment">
                                                 <span class="font-16 color-heading font-medium">Flutterwave</span>
                                             </label>
                                         </div>
@@ -444,6 +444,20 @@
                                             </label>
                                         </div>
                                     @endif
+
+                                    @foreach(newGateway() as $index => $gateway)
+                                        @if (get_option("{$gateway}_status") == 1)
+                                            <div class="form-check payment-method-card-box other-payment-box pb-0 mt-30">
+                                                <input class="form-check-input" type="radio" name="payment_method"
+                                                       value="{{ $gateway }}"
+                                                       {{ old('payment_method') == $gateway ? 'checked' : '' }}
+                                                       id="{{ $gateway }}Payment">
+                                                <label class="form-check-label mb-0" for="{{ $gateway }}Payment">
+                                                    <span class="font-16 color-heading font-medium">{{ ucfirst($gateway) }}</span>
+                                                </label>
+                                            </div>
+                                        @endif
+                                    @endforeach
 
                                     <div class="checkout-we-protect-content d-flex align-items-center mt-30">
                                         <div class="flex-shrink-0">
@@ -755,39 +769,6 @@
                         </div>
                     </div>
                 </form>
-
-                @php
-                    $razorpay_pay_amount = $razorpay_grand_total_with_conversion_rate * 100;
-                    $orderId = rand();
-                @endphp
-
-
-                <div class="d-none">
-                    <form action="{{ route('student.razorpay_payment') }}" method="POST" id="razorpay_payment">
-                        @csrf
-                        <script src="https://checkout.razorpay.com/v1/checkout.js" data-key="{{ env('RAZORPAY_KEY') }}"
-                            data-amount="{{ $razorpay_pay_amount }}" data-buttontext="Pay" data-name="{{ get_option('app_name') }}"
-                            data-description="Buy Course" data-prefill.name="name" data-prefill.email="email" data-theme.color="#0000FF">
-                        </script>
-                    </form>
-                </div>
-
-                <div class="d-none">
-                    <form action="{{ route('student.pay') }}" method="POST" id="paystack_payment">
-                        @csrf
-                        <input type="hidden" name="callback_url" value="{{ route('student.paystack_payment.callback') }}">
-                        <input type="hidden" name="orderID" value="{{ $orderId }}">
-                        <input type="hidden" name="metadata" value="{{ json_encode($array = ['orderID' => $orderId]) }}" >
-
-                        <input type="hidden" name="email" value="{{Auth::user()->email}}"> {{-- required --}}
-                        <input type="hidden" name="amount" value="{{$paystack_grand_total_with_conversion_rate * 100}}"> {{-- required in kobo --}}
-                        <input type="hidden" name="currency" value="NGN">
-                        <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
-                        <input type="hidden" name="payment_method" value="paystack">
-                        {{ csrf_field() }}
-                    </form>
-                </div>
-
             </div>
         </section>
         <!-- Cart Page Area End -->
@@ -814,8 +795,8 @@
     <input type="hidden" class="sslcommerz_currency" value="{{ get_option('sslcommerz_currency') }}">
     <input type="hidden" class="sslcommerz_conversion_rate" value="{{ get_option('sslcommerz_conversion_rate') }}">
 
-    <input type="hidden" class="mercado_currency" value="{{ get_option('mercado_currency') }}">
-    <input type="hidden" class="mercado_conversion_rate" value="{{ get_option('mercado_conversion_rate') }}">
+    <input type="hidden" class="mercadopago_currency" value="{{ get_option('mercadopago_currency') }}">
+    <input type="hidden" class="mercadopago_conversion_rate" value="{{ get_option('mercadopago_conversion_rate') }}">
 
     <input type="hidden" class="flutterwave_currency" value="{{ get_option('flutterwave_currency') }}">
     <input type="hidden" class="flutterwave_conversion_rate" value="{{ get_option('flutterwave_conversion_rate') }}">
@@ -838,6 +819,11 @@
     <input type="hidden" class="braintree_currency" value="{{ get_option('braintree_currency') }}">
     <input type="hidden" class="braintree_conversion_rate" value="{{ get_option('braintree_conversion_rate') }}">
 
+    @foreach(newGateway() as $index => $gateway)
+        <input type="hidden" class="{{ $gateway }}_currency" value="{{ get_option("{$gateway}_currency") }}">
+        <input type="hidden" class="{{ $gateway }}_conversion_rate" value="{{ get_option("{$gateway}_conversion_rate") }}">
+    @endforeach
+
     <input type="hidden" class="fetchBankRoute" value="{{ route('student.fetchBank') }}">
 @endsection
 
@@ -852,18 +838,18 @@
             obj.cus_addr1 = $('#address').val();
             obj.postal_code = $('#postal_code').val();
 
-            $('#sslczPayBtn').prop('postdata', obj);
-            (function(window, document) {
-                var loader = function() {
-                    var script = document.createElement("script"),
-                        tag = document.getElementsByTagName("script")[0];
-                    script.src = "https://seamless-epay.sslcommerz.com/embed.min.js?" + Math.random().toString(36)
-                        .substring(7); // USE THIS FOR LIVE
-                    tag.parentNode.insertBefore(script, tag);
-                };
-                window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload",
-                    loader);
-            })(window, document);
+            // $('#sslczPayBtn').prop('postdata', obj);
+            // (function(window, document) {
+            //     var loader = function() {
+            //         var script = document.createElement("script"),
+            //             tag = document.getElementsByTagName("script")[0];
+            //         script.src = "https://seamless-epay.sslcommerz.com/embed.min.js?" + Math.random().toString(36)
+            //             .substring(7); // USE THIS FOR LIVE
+            //         tag.parentNode.insertBefore(script, tag);
+            //     };
+            //     window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload",
+            //         loader);
+            // })(window, document);
         </script>
     @else
         <script>

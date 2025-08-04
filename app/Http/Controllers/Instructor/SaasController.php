@@ -19,7 +19,7 @@ class SaasController extends Controller
     {
         $data['pageTitle'] = __('SaaS panel');
         $data['title'] = __('SaaS panel');
-        $data['mySaasPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->whereDate('enroll_date', '<=', now())->whereDate('expired_date', '>=', now())->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->first();
+        $data['mySaasPackage'] = UserPackage::where('user_packages.user_id', auth()->id())->whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('user_packages.status', PACKAGE_STATUS_ACTIVE)->where('enroll_date', '<=', now())->where('expired_date', '>=', now())->join('packages', 'packages.id', '=', 'user_packages.package_id')->select('package_id', 'package_type', 'subscription_type')->first();
         $sasses = Package::whereIn('package_type', [PACKAGE_TYPE_SAAS_INSTRUCTOR, PACKAGE_TYPE_SAAS_ORGANIZATION])->where('status', PACKAGE_STATUS_ACTIVE)->orderBy('order', 'ASC')->get();
         $data['instructorSaas'] = $sasses->where('package_type', PACKAGE_TYPE_SAAS_INSTRUCTOR);
         $data['organizationSaas'] = $sasses->where('package_type', PACKAGE_TYPE_SAAS_ORGANIZATION);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\EmailSendService;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\NoticeBoard;
@@ -12,6 +13,7 @@ use App\Traits\General;
 use App\Traits\SendNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PharIo\Manifest\Email;
 
 class NoticeBoardController extends Controller
 {
@@ -64,6 +66,7 @@ class NoticeBoardController extends Controller
         $notice->details = $request->details;
         $notice->save();
 
+        $sendEmail = new EmailSendService();
         /** ====== send notification to student ===== */
         $students = Enrollment::where('course_id', $course->id)->select('user_id')->get();
         foreach ($students as $student)
@@ -72,6 +75,8 @@ class NoticeBoardController extends Controller
             $target_url = route('student.my-course.show', $course->slug);
             $this->send($text, 3, $target_url, $student->user_id);
         }
+        $userIds = $students->pluck('user_id')->toArray();
+        $sendEmail->sendNewNoticeToStudent($userIds, $target_url);
         /** ====== send notification to student ===== */
 
         $this->showToastrMessage('success', __('Created Successfully'));

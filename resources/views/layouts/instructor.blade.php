@@ -16,7 +16,7 @@
 
     <meta name="description" content="{{ $defaultMeta['meta_description'] }}">
     <meta name="keywords" content="{{ $defaultMeta['meta_keyword'] }}">
-    
+
     <!-- Open Graph meta tags for social sharing -->
     <meta property="og:type" content="Learning">
     <meta property="og:title" content="{{ $defaultMeta['meta_title'] }}">
@@ -25,7 +25,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
 
     <meta property="og:site_name" content="{{ get_option('app_name') }}">
-    
+
     <!-- Twitter Card meta tags for Twitter sharing -->
     <meta name="twitter:card" content="Learning">
     <meta name="twitter:title" content="{{ $defaultMeta['meta_title'] }}">
@@ -89,7 +89,7 @@
     <link rel="apple-touch-icon-precomposed" type="image/x-icon" href="{{ getImageFile(get_option('app_fav_icon')) }}" >
 
 
-        
+
     @if(isEnableOpenAI())
     <link rel="stylesheet" href="{{asset('addon/AI/css/main.css')}}">
     @endif
@@ -101,7 +101,7 @@
     <![endif]-->
 
     @stack('style')
-    
+
     @if(!empty(get_option('certificate_regular')) && get_option('certificate_regular') != '' )
     <style>
         .certificateFont {
@@ -150,6 +150,7 @@
 
 <body class="bg-page {{$selectedLanguage->rtl == 1 ? 'direction-rtl' : 'direction-ltr' }} ">
 
+@validUserT
 @if(get_option('allow_preloader') == 1)
     <!-- Pre Loader Area start -->
      <div id="preloader">
@@ -263,7 +264,7 @@
 @if(isEnableOpenAI())
 <script src="{{asset('addon/AI/js/main.js')}}"></script>
 @endif
-
+<script src="{{asset('common/js/common.js')}}"></script>
 
 @stack('script')
 

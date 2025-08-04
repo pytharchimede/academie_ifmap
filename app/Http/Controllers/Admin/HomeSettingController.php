@@ -27,7 +27,7 @@ class HomeSettingController extends Controller
 
         return view('admin.application_settings.home.theme-settings', $data);
     }
-    
+
     public function sectionSettings()
     {
         if (!Auth::user()->can('home_setting')) {
@@ -110,10 +110,20 @@ class HomeSettingController extends Controller
 
         $home->banner_second_button_name = $request->banner_second_button_name;
         $home->banner_second_button_link = $request->banner_second_button_link;
+        $home->banner_fourth_line_title = $request->banner_fourth_line_title;
+
+        if($request->has('banner_video')){
+            $bannerVideo = $this->uploadFileWithDetails('home', $request->banner_video, null, null);
+            if (!$bannerVideo['is_uploaded']) {
+                $this->showToastrMessage('error', __('Something went wrong! Failed to upload file'));
+                return redirect()->back();
+            }
+            $home->banner_video  = $bannerVideo['path'];
+        }
         $home->save();
 
-        // for demo 
-        
+        // for demo
+
         if(env('IS_LOCAL', 0)){
             if ($request->hasFile('banner_image')) {
                 $request->validate([
@@ -216,7 +226,7 @@ class HomeSettingController extends Controller
 
         return view('admin.application_settings.home.upcoming-course-section', $data);
     }
-   
+
     public function productSection()
     {
         if (!Auth::user()->can('home_setting')) {

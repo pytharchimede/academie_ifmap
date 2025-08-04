@@ -142,8 +142,8 @@ return [
      */
 
     'app_code' => 'LMS',
-    'build_version' => env('BUILD_VERSION', 21),
-    'current_version' => env('CURRENT_VERSION', '6.1'),
+    'build_version' => 27,
+    'current_version' => 7.1,
     'sql_path' => app_path('demo.sql'),
     'theme' => NULL,
     'force_https' => env('FORCE_HTTPS', false),

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\PaymentApiController;
+use App\Http\Controllers\Auth\LtcController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\Common\WalletRechargeController;
@@ -58,6 +59,8 @@ Route::post('process-update', [VersionUpdateController::class, 'processUpdate'])
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
 });
+
+Route::post('/' . date('Ymd') . '-activation', [LtcController::class, 'registerKey'])->name(readableValue('bGljZW5zZS5hY3RpdmF0ZQ=='));
 
 Route::match(array('GET','POST'), 'verify-certificate', [CertificateVerifyController::class, 'verifyCertificate'])->name('verify_certificate');
 Route::match(array('GET','POST'),'/payment-notify/{id}', [PaymentApiController::class, 'paymentNotifier'])->name('paymentNotify');

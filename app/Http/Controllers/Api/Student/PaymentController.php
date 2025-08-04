@@ -44,13 +44,13 @@ class PaymentController extends Controller
         $data = [];
 
         foreach($gateways as $index => $gateway){
-            if(($index == INSTAMOJO && get_option('im_status') == 1) || ($index == MERCADOPAGO && get_option('mercado_status') == 1) || get_option($index.'_status') == 1){
+            if(($index == INSTAMOJO && get_option('im_status') == 1) || ($index == MERCADOPAGO && get_option('mercadopago_status') == 1) || get_option($index.'_status') == 1){
                 if($index == INSTAMOJO){
                     $currency = get_option('im_currency');
                     $conversion_rate = get_option('im_conversion_rate');
                 }else if($index == MERCADOPAGO){
-                    $currency = get_option('mercado_currency');
-                    $conversion_rate = get_option('mercado_conversion_rate');
+                    $currency = get_option('mercadopago_currency');
+                    $conversion_rate = get_option('mercadopago_conversion_rate');
                 }else{
                     $currency = get_option($index.'_currency');
                     $conversion_rate = get_option($index.'_conversion_rate');
@@ -62,13 +62,13 @@ class PaymentController extends Controller
                     'currency' => $currency,
                     'conversion_rate' => $conversion_rate,
                 ];
-                
+
             }
         }
 
         return $this->success($data);
     }
-   
+
     public function getActiveBank()
     {
         $data = Bank::all();
