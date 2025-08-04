@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Logger;
 use App\Http\Services\EmailSendService;
 use App\Http\Services\Payment\BasePaymentService;
-use App\Models\Addon\Product\Product;
+use App\Models\Product;
 use App\Models\AffiliateHistory;
 use App\Models\AffiliateRequest;
 use App\Models\Bank;
@@ -36,15 +36,19 @@ use App\Traits\SendNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
-use Session;
-use Redirect;
 use Razorpay\Api\Api;
 use Exception;
 use Mollie\Laravel\Facades\Mollie;
+
+// Import des constantes de paiement
+require_once app_path('Helper/coreconstant.php');
 
 class CartManagementController extends Controller
 {
@@ -67,7 +71,7 @@ class CartManagementController extends Controller
         }
 
         /** PayPal api context **/
-        $paypal_conf = \Config::get('paypal');
+        $paypal_conf = Config::get('paypal');
         $this->_api_context = new ApiContext(
             new OAuthTokenCredential(
                 $paypal_conf['client_id'],
@@ -121,7 +125,6 @@ class CartManagementController extends Controller
                         $cart->main_price = $course->price;
                         $cart->price = $course->price;
                     }
-
                 }
                 // End:: Course & Promotion Course Check or not
 
@@ -932,7 +935,7 @@ class CartManagementController extends Controller
                     $withdrow->payment_method = 'buy';
                     $withdrow->status = WITHDRAWAL_STATUS_COMPLETE;
                     $withdrow->save();
-                    Auth::user()->decrement('balance', decimal_to_int($carts->sum('price')));
+                    User::find(Auth::id())->decrement('balance', decimal_to_int($carts->sum('price')));
                     createTransaction(Auth::id(), $carts->sum('price'), TRANSACTION_BUY, 'Transaction for Purchase');
                     DB::commit();
                 } catch (\Exception $e) {
@@ -1216,6 +1219,11 @@ class CartManagementController extends Controller
                 $this->showToastrMessage('error', __('Braintree payment gateway is off!'));
                 return redirect()->back();
             }
+        } else if ($request->payment_method == 'cinetpay') {
+            if (empty(get_option('cinetpay_key')) || empty(get_option('cinetpay_secret'))) {
+                $this->showToastrMessage('error', __('CinetPay payment gateway is off!'));
+                return redirect()->back();
+            }
         } else if ($request->payment_method == 'mercadopago') {
             if (empty(get_option('MERCADO_PAGO_CLIENT_ID'))) {
                 $this->showToastrMessage('error', __('Selected payment gateway is off!'));
@@ -1260,7 +1268,6 @@ class CartManagementController extends Controller
                 $this->showToastrMessage('error', __('Something went wrong!'));
                 return redirect()->back();
             }
-
         } else if ($request->payment_method == MOLLIE) {
             $object = [
                 'id' => $order->uuid,
@@ -1337,7 +1344,6 @@ class CartManagementController extends Controller
                 $this->showToastrMessage('error', __('Something went wrong!'));
                 return redirect()->back();
             }
-
         } else if ($request->payment_method == PAYSTAC) {
             $total = $order->grand_total * (get_option('paystack_conversion_rate') ? get_option('paystack_conversion_rate') : 0);
             $total = number_format($total, 2, '.', '');
@@ -1358,7 +1364,6 @@ class CartManagementController extends Controller
                 $this->showToastrMessage('error', __('Something went wrong!'));
                 return redirect()->back();
             }
-
         } else if ($request->payment_method == COINBASE) {
             $total = $order->grand_total * (get_option('coinbase_conversion_rate') ? get_option('coinbase_conversion_rate') : 0);
             $total = number_format($total, 2, '.', '');
@@ -1459,7 +1464,25 @@ class CartManagementController extends Controller
                 $this->showToastrMessage('error', __('Something went wrong!'));
                 return redirect()->back();
             }
+        } else if ($request->payment_method == CINETPAY) {
+            $total = $order->grand_total * (get_option('cinetpay_conversion_rate') ? get_option('cinetpay_conversion_rate') : 1);
+            $total = number_format($total, 2, '.', '');
+            $object = [
+                'id' => $order->uuid,
+                'payment_method' => CINETPAY,
+                'currency' => get_option('cinetpay_currency') ?: 'XOF'
+            ];
+            $getWay = new BasePaymentService($object);
+            $responseData = $getWay->makePayment($total);
 
+            if ($responseData['success']) {
+                $order->payment_id = $responseData['payment_id'];
+                $order->save();
+                return Redirect::away($responseData['redirect_url']);
+            } else {
+                $this->showToastrMessage('error', $responseData['message'] ?? __('Something went wrong!'));
+                return redirect()->back();
+            }
         } else if ($request->payment_method == BANK) {
             $deposit_by = $request->deposit_by;
             $deposit_slip = $this->uploadFileWithDetails('bank', $request->deposit_slip);
@@ -1692,7 +1715,6 @@ class CartManagementController extends Controller
 
                     $order_item->save();
                     $this->addAffiliateHistory($cart, $order, $order_item);
-
                 } elseif ($cart->bundle_id) {
                     // $bundleIds = Enrollment::where('user_id', auth()->id())->whereNotIn('course_id', $cart->bundle_course_ids)->where('end_date', '<', now())->select('course_id')->get()->toArray();
                     $courses = Course::whereIn('id', $cart->bundle_course_ids)->get();
@@ -1735,7 +1757,6 @@ class CartManagementController extends Controller
                         $order_item->save();
                         $this->addAffiliateHistory($cart, $order, $order_item);
                     }
-
                 } elseif ($cart->consultation_slot_id) {
                     $order_item = new Order_item();
                     $order_item->order_id = $order->id;
@@ -1793,9 +1814,7 @@ class CartManagementController extends Controller
                     }
 
                     $order_item->save();
-
                 }
-
             }
 
             DB::commit();
@@ -1805,7 +1824,6 @@ class CartManagementController extends Controller
             $this->logger->log('Cannot Create Order', $e->getMessage());
             return ['status' => false, 'data' => null];
         }
-
     }
 
     private function addAffiliateHistory($cart, $order, $order_item)
@@ -1836,6 +1854,5 @@ class CartManagementController extends Controller
                 }
             }
         }
-
     }
 }

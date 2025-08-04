@@ -42,12 +42,11 @@ class Product extends Model
     protected static function boot()
     {
         parent::boot();
-        self::creating(function($model){
+        self::creating(function ($model) {
             $model->uuid =  Str::uuid()->toString();
             $model->user_id =  auth()->id();
-            $model->status =  auth()->user()->is_admin() ? 1 : 0;
+            $user = auth()->user();
+            $model->status = ($user && $user->role == 1) ? 1 : 0;
         });
     }
-
-
 }
