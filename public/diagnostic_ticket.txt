@@ -1,0 +1,37 @@
+<?php
+// Diagnostic technique pour pièce jointe ticket
+header('Content-Type: text/plain');
+echo "=== DIAGNOSTIC TECHNIQUE ACADEMIE.IFMAP.CI ===\n";
+echo "Date: " . date('d/m/Y H:i:s') . "\n";
+echo "Domaine: academie.ifmap.ci\n\n";
+
+echo "CONFIGURATION CPANEL:\n";
+echo "- MultiPHP Manager: PHP 8.2 (ea-php82) ✓\n";
+echo "- Statut: Configuré pour tous les domaines\n";
+echo "- Version système: PHP 7.4 (ea-php74)\n\n";
+
+echo "RÉALITÉ SERVEUR:\n";
+echo "- PHP Version détectée: " . PHP_VERSION . "\n";
+echo "- Compatible Laravel 9+: " . (version_compare(PHP_VERSION, '8.1.0', '>=') ? 'OUI' : 'NON') . "\n";
+echo "- Statut application: " . (version_compare(PHP_VERSION, '8.1.0', '>=') ? 'FONCTIONNELLE' : 'BLOQUÉE') . "\n\n";
+
+echo "ACTIONS EFFECTUÉES:\n";
+echo "1. Configuration MultiPHP Manager ✓\n";
+echo "2. Modification .htaccess:\n";
+echo "   AddHandler application/x-httpd-ea-php82 .php\n";
+echo "3. Cache LiteSpeed vidé ✓\n";
+echo "4. Sessions redémarrées ✓\n\n";
+
+echo "RÉSULTAT:\n";
+echo "- Configuration visible: PHP 8.2 ✓\n";
+echo "- Configuration effective: PHP " . PHP_VERSION . " ❌\n";
+echo "- Impact: Application Laravel non fonctionnelle\n\n";
+
+echo "INTERVENTION REQUISE:\n";
+echo "- Forçage PHP 8.2 côté serveur\n";
+echo "- Vérification conflit version système\n";
+echo "- Test validation post-intervention\n\n";
+
+echo "CONTACT: amani_ulrich@outlook.fr\n";
+echo "URGENCE: Critique - Site en production\n";
+?>
