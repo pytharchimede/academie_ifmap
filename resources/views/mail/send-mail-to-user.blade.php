@@ -1,5 +1,5 @@
-<html>
-<body>
-{!! $body !!}
-</body>
-</html>
+<html>
+<body>
+{!! $body !!}
+</body>
+</html>

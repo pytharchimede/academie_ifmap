@@ -1,0 +1,37 @@
+{
+    "name": "devianl2/laravel-scorm",
+    "description": "PEOPLEAPS scorm package",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Devian Leong",
+            "email": "devian@peoplelogy.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "doctrine/common": "^3.1",
+        "league/flysystem": "^2.0 || ^3.0",
+        "nesbot/carbon": "^2.42",
+        "ext-zip": "*",
+        "ext-dom": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Peopleaps\\Scorm\\": "/src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Peopleaps\\Scorm\\ScormServiceProvider"
+            ],
+            "aliases": {
+                "ScormManager": "Peopleaps\\Scorm\\Facade\\ScormManager"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

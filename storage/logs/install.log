@@ -1,0 +1,80 @@
+05-08-2025 01:00:32, Final install start: =========START======== 
+
+05-08-2025 01:00:32, Request Data: {"_token":"QvgwEeA9M6UqDLogHQpEsOFkQmAKBB8ifJs7ZKTy","app_name":"IFMAP","app_url":"academie.ifmap.ci","email":"amani_ulrich@outlook.fr","purchase_code":null,"db_host":"127.0.0.1","db_user":"ifmapci_ulrich","db_name":"ifmapci_academie_db","db_password":"@Succes2019","mail_host":"mail.ifmap.ci","mail_port":"465","mail_username":"support@ifmap.ci","mail_password":"@Succes2019"} 
+
+05-08-2025 01:00:32, ENV: Write start from saveENV 
+
+05-08-2025 01:00:32, ENV: Write start from setEnvValue 
+
+05-08-2025 01:00:32, ENV Write start: APP_KEY=>base64:Nzd1eUQ0VnF2anhtWnhsWGxmS1FKRHRudzk3QTViY1c= 
+
+05-08-2025 01:00:32, ENV Write END: APP_KEY=>base64:Nzd1eUQ0VnF2anhtWnhsWGxmS1FKRHRudzk3QTViY1c= 
+
+05-08-2025 01:00:32, ENV Write start: APP_URL=>academie.ifmap.ci 
+
+05-08-2025 01:00:32, ENV Write END: APP_URL=>academie.ifmap.ci 
+
+05-08-2025 01:00:32, ENV Write start: DB_HOST=>127.0.0.1 
+
+05-08-2025 01:00:32, ENV Write END: DB_HOST=>127.0.0.1 
+
+05-08-2025 01:00:32, ENV Write start: DB_DATABASE=>ifmapci_academie_db 
+
+05-08-2025 01:00:32, ENV Write END: DB_DATABASE=>ifmapci_academie_db 
+
+05-08-2025 01:00:32, ENV Write start: DB_USERNAME=>ifmapci_ulrich 
+
+05-08-2025 01:00:32, ENV Write END: DB_USERNAME=>ifmapci_ulrich 
+
+05-08-2025 01:00:32, ENV Write start: DB_PASSWORD=>@Succes2019 
+
+05-08-2025 01:00:32, ENV Write END: DB_PASSWORD=>@Succes2019 
+
+05-08-2025 01:00:32, ENV Write start: MAIL_HOST=>mail.ifmap.ci 
+
+05-08-2025 01:00:32, ENV Write END: MAIL_HOST=>mail.ifmap.ci 
+
+05-08-2025 01:00:32, ENV Write start: MAIL_PORT=>465 
+
+05-08-2025 01:00:32, ENV Write END: MAIL_PORT=>465 
+
+05-08-2025 01:00:32, ENV Write start: MAIL_USERNAME=>support@ifmap.ci 
+
+05-08-2025 01:00:32, ENV Write END: MAIL_USERNAME=>support@ifmap.ci 
+
+05-08-2025 01:00:32, ENV Write start: MAIL_PASSWORD=>@Succes2019 
+
+05-08-2025 01:00:32, ENV Write END: MAIL_PASSWORD=>@Succes2019 
+
+05-08-2025 01:00:32, ENV: Write setEnvValue successfully 
+
+05-08-2025 01:00:33, STEP-2: Start from database method 
+
+05-08-2025 01:00:33, Migration & seed: Start 
+
+05-08-2025 01:01:08, Migration & seed: END 
+
+05-08-2025 01:01:08, Migration & seed response : {"status":"success","message":"Seed Complete"} 
+
+05-08-2025 01:01:08, Migration & seed response status: success 
+
+05-08-2025 01:01:08, LQS file: get content start 
+
+05-08-2025 01:01:08, LQS file: get content END 
+
+05-08-2025 01:01:08, LQS file: Local sql get content start 
+
+05-08-2025 01:01:08, LQS file: Local sql get content END 
+
+05-08-2025 01:01:08, SQL import: START 
+
+05-08-2025 01:01:15, SQL import: END 
+
+05-08-2025 01:01:15, Installed file: Write Start 
+
+05-08-2025 01:01:15, Installed file: Write END 
+
+05-08-2025 01:01:15, End with: Successfully installed 
+
+05-08-2025 01:01:15, : ==============END============= 
+
